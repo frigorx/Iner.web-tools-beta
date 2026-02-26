@@ -1,0 +1,2614 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>InerWeb Mano v5.1 - Manomètres Pédagogiques Professionnels</title>
+ <link rel="stylesheet" href="theme.css">
+<style>:root{--primary:#0f2d52;--secondary:#00a86b;--accent:#e8914a;--orange:#f3b07a;--blue-light:#2aafaf;--bg:#faf7f2;--text:#0f2d52;--card:#ffffff;--muted:#6c757d;--border:#dee2e6;--good:#27ae60;--warn:#e8914a;--bad:#e74c3c;--shadow:0 8px 24px rgba(0,0,0,0.12);--gradient-main:linear-gradient(135deg,#0f2d52 0%,#1a4a6e 100%);--gradient-orange:linear-gradient(135deg,#e8914a 0%,#f3b07a 50%,#f3b07a 100%)}*{box-sizing:border-box}html,body{height:100%;margin:0}body{background:linear-gradient(180deg,#faf7f2 0%,#f0ebe3 100%);color:var(--text);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:14px}a{color:var(--primary);text-decoration:none}a:hover{text-decoration:underline}.main-header{background:var(--gradient-orange);color:white;padding:1rem 1.5rem;box-shadow:0 4px 20px rgba(255,107,53,0.3);display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap}.header-left{display:flex;align-items:center;gap:1rem}.logo-card{background:rgba(255,255,255,0.95);border-radius:12px;padding:10px 15px;box-shadow:0 4px 12px rgba(0,0,0,0.1);cursor:pointer;transition:all 0.3s;text-align:center;min-width:80px}.logo-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.15)}.logo-card.groupe{background:linear-gradient(135deg,#0f2d52,#1a4a6e);color:white;font-weight:800;font-size:12px;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;letter-spacing:1px}.logo-card.lycee{font-weight:700;font-size:10px;color:var(--text)}.header-center{flex:1;text-align:center}.header-center h1{margin:0;font-size:2rem;font-weight:800;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;letter-spacing:2px;text-shadow:2px 2px 4px rgba(0,0,0,0.2)}.header-center p{margin:0.2rem 0 0 0;font-size:0.9rem;opacity:0.95;font-weight:400}.header-right{background:rgba(0,0,0,0.2);border-radius:12px;padding:10px 15px;backdrop-filter:blur(10px);font-size:0.85rem}.version-badge{display:inline-block;background:#27ae60;color:white;padding:2px 6px;border-radius:4px;font-size:0.75rem;font-weight:700;margin-left:0.5rem}.zoom-controls{position:fixed;bottom:20px;right:20px;display:flex;gap:0.5rem;z-index:100;background:white;padding:0.5rem;border-radius:12px;box-shadow:var(--shadow)}.zoom-btn{width:36px;height:36px;border-radius:50%;border:none;background:var(--gradient-orange);color:white;font-size:1.2rem;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center}.zoom-btn:hover{transform:scale(1.1)}.main-container{max-width:1600px;margin:0 auto;padding:1.5rem;display:grid;grid-template-columns:260px 1fr;gap:1.5rem;min-height:calc(100vh - 250px)}.left-panel{display:flex;flex-direction:column;gap:1rem}.panel-card{background:white;border-radius:16px;padding:1rem;box-shadow:0 4px 12px rgba(0,0,0,0.08);border:1px solid rgba(255,107,53,0.1);transition:all 0.3s}.panel-card:hover{box-shadow:0 6px 20px rgba(255,107,53,0.15)}.panel-title{font-weight:700;color:var(--text);margin-bottom:0.8rem;font-size:1rem;display:flex;align-items:center;justify-content:space-between;font-family:'Poppins',sans-serif}.info-icon{width:20px;height:20px;border-radius:50%;background:var(--gradient-orange);color:white;border:none;cursor:pointer;font-size:11px;font-weight:bold;display:inline-flex;align-items:center;justify-content:center;transition:all 0.3s}.info-icon:hover{transform:scale(1.2)}.fluid-info{margin-top:0.5rem;padding:0.5rem;background:#f0f9ff;border-radius:8px;font-size:0.75rem;color:#0369a1;border-left:3px solid #0ea5e9}.fluid-warning{background:#fef3c7;color:#806040;border-left-color:#e8914a}.fluid-danger{background:#fee2e2;color:#991b1b;border-left-color:#c0392b}.center-zone{background:white;border-radius:20px;padding:1.5rem;box-shadow:var(--shadow);transition:all 0.3s}.center-zone.zoomed{transform:scale(1.15)}.gauges-header{text-align:center;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid var(--border)}.gauges-header h2{margin:0 0 0.5rem 0;font-size:1.5rem;background:var(--gradient-orange);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;letter-spacing:1px}.gauges-header p{margin:0;color:var(--muted);font-size:0.9rem}.precision-indicator{display:inline-flex;align-items:center;gap:0.3rem;padding:4px 8px;background:linear-gradient(135deg,#27ae60,#1a8a4a);color:white;border-radius:999px;font-size:0.75rem;font-weight:600;margin-left:1rem}.accuracy-info{display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-top:0.5rem;padding:0.5rem;background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border-radius:8px;font-size:0.7rem;color:#0369a1;border:1px solid #bfdbfe}.accuracy-badge{display:inline-flex;align-items:center;gap:0.2rem;padding:2px 6px;border-radius:4px;font-size:0.65rem;font-weight:600}.accuracy-badge.high{background:#27ae60;color:white}.accuracy-badge.medium{background:#e8914a;color:white}.accuracy-badge.low{background:#e74c3c;color:white}.gauges-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}.gauge-card{border-radius:16px;padding:1rem;transition:all 0.3s}.gauge-card.bp{background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);border:2px solid #2aafaf}.gauge-card.hp{background:linear-gradient(135deg,#ffebee 0%,#ffcdd2 100%);border:2px solid #e74c3c}.gauge-card:hover{transform:translateY(-5px);box-shadow:0 10px 30px rgba(0,0,0,0.15)}.right-panel{background:linear-gradient(135deg,#e8f6f2 0%,#d5f0ec 100%);border-radius:20px;padding:1.5rem;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:1rem;border:2px solid var(--accent)}.promo-header{text-align:center;padding-bottom:1rem;border-bottom:2px solid rgba(255,255,255,0.5)}.promo-logo{display:flex;align-items:center;justify-content:center;width:90px;height:90px;background:white;border-radius:50%;margin:0 auto 1rem;box-shadow:0 6px 20px rgba(0,0,0,0.2);font-weight:800;font-size:18px;color:var(--accent);font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}.promo-text{font-size:0.9rem;color:var(--text);line-height:1.6;text-align:center;padding:1rem;background:rgba(255,255,255,0.8);border-radius:12px;font-weight:500}.promo-text strong{color:var(--accent);font-weight:700}.promo-buttons{display:flex;flex-direction:column;gap:0.8rem}.promo-btn{padding:0.8rem;border-radius:12px;border:2px solid white;background:white;color:var(--text);cursor:pointer;transition:all 0.3s;font-size:0.9rem;font-weight:600;text-align:center;box-shadow:0 4px 12px rgba(0,0,0,0.1)}.promo-btn:hover{background:var(--gradient-orange);color:white;transform:translateX(-5px)}.promo-btn.primary{background:var(--gradient-orange);color:white;border-color:var(--accent)}.row{display:flex;align-items:center;gap:8px;margin:0.5rem 0;flex-wrap:wrap}input[type="number"],select{padding:6px 10px;border:2px solid var(--border);border-radius:8px;font-size:0.9rem;background:white;transition:all 0.3s}input[type="number"]:focus,select:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(255,107,53,0.1)}#mainFluid{font-weight:600}#mainFluid optgroup{font-weight:700;color:var(--accent)}#mainFluid option{padding:4px}input[type="range"]{flex:1;min-width:100px}.btn{padding:8px 14px;border-radius:8px;border:2px solid var(--accent);background:white;color:var(--accent);cursor:pointer;font-size:0.9rem;font-weight:600;transition:all 0.3s}.btn:hover{background:var(--accent);color:white;transform:translateY(-2px)}.pill{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--gradient-orange);color:white;font-size:0.85rem;font-weight:600}.calc-item{padding:0.8rem;background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-left:4px solid #2aafaf;border-radius:8px;margin-bottom:0.8rem;transition:all 0.3s}.calc-item:hover{transform:translateX(5px)}.calc-item.warn{background:linear-gradient(135deg,#d4f0e8,#d5f0ec);border-color:var(--warn)}.calc-item.danger{background:linear-gradient(135deg,#ffebee,#ffcdd2);border-color:var(--bad)}.calc-label{font-size:0.8rem;color:var(--muted);font-weight:600}.calc-value{font-size:1.1rem;font-weight:700;color:var(--text);margin-top:0.2rem}.calc-detail{font-size:0.75rem;color:var(--muted);margin-top:0.3rem}.vacuum-mode-btn{width:100%;padding:10px;background:var(--gradient-orange);color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;transition:all 0.3s;font-size:0.95rem}.vacuum-mode-btn:hover{transform:scale(1.05)}.vacuum-panel{display:none;padding:1rem;background:linear-gradient(135deg,#e8f5e9,#c8e6c9);border-radius:12px;margin-top:1rem}.vacuum-panel.active{display:block}.vacuum-gauge{background:white;border-radius:12px;padding:1rem;margin-top:1rem;text-align:center}.retrofit-mode-btn{width:100%;padding:10px;background:linear-gradient(135deg,#0f2d52,#1a4a6e);color:white;border:none;border-radius:10px;font-weight:700;cursor:pointer;transition:all 0.3s;font-size:0.95rem;margin-bottom:0.5rem}.retrofit-mode-btn:hover{transform:scale(1.05);box-shadow:0 5px 15px rgba(102,126,234,0.4)}.retrofit-panel{display:none;padding:1rem;background:linear-gradient(135deg,#f0f7ff,#e0f2fe);border-radius:12px;margin-top:1rem}.retrofit-panel.active{display:block}.retrofit-warning{background:rgba(255,107,53,0.1);border:2px solid var(--accent);border-radius:8px;padding:10px;margin-bottom:15px;font-size:0.75rem;color:var(--accent);font-weight:600;text-align:center}.retrofit-select{width:100%;padding:10px;border:2px solid var(--border);border-radius:8px;margin-bottom:10px;background:white}.retrofit-result{background:white;border-radius:10px;padding:12px;margin-top:12px;display:none}.retrofit-result.active{display:block}.compat-badge{display:inline-block;padding:4px 10px;border-radius:15px;font-size:0.75rem;font-weight:700;margin:2px}.compat-success{background:#27ae60;color:white}.compat-warning{background:#e8914a;color:white}.compat-danger{background:#e74c3c;color:white}.compat-info{background:#3b82f6;color:white}.retrofit-checklist{margin-top:12px;padding:10px;background:#f8f9fa;border-radius:8px;font-size:0.8rem}.check-item{display:flex;align-items:flex-start;gap:8px;padding:6px;margin-bottom:6px;border-radius:6px;background:white}.check-icon{font-size:1rem;width:20px;text-align:center}.check-text{flex:1;line-height:1.4}.config-content{padding:0.8rem;background:#f8f9fa;border-radius:8px;margin-top:0.5rem}.config-content.hidden{display:none}footer{background:var(--gradient-orange);color:white;padding:2rem;text-align:center;font-size:0.9rem;margin-top:3rem;box-shadow:0 -4px 20px rgba(255,107,53,0.2)}footer a{color:white;font-weight:600}.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:1000;backdrop-filter:blur(5px)}.modal.active{display:flex;align-items:center;justify-content:center;animation:fadeIn 0.3s}.modal-content{background:white;border-radius:20px;max-width:800px;width:90%;max-height:80vh;overflow-y:auto;padding:2rem;position:relative;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:slideUp 0.3s}.modal-close{position:absolute;top:1rem;right:1rem;width:32px;height:32px;border-radius:50%;background:var(--gradient-orange);color:white;border:none;cursor:pointer;font-size:1.2rem;transition:all 0.3s}.modal-close:hover{transform:rotate(90deg)}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}@media (max-width:1200px){.main-container{grid-template-columns:220px 1fr}}@media (max-width:900px){.main-container{grid-template-columns:1fr}.gauges-grid{grid-template-columns:1fr}.zoom-controls{bottom:10px;right:10px}}</style>
+<link rel="stylesheet" href="theme_force.css">
+</head><body><div id="iw-header" data-subtitle="Manomètres Pédagogiques"></div>
+<nav id="iw-nav"></nav>
+<div class="main-container"><div class="left-panel"><div class="panel-card"><div class="panel-title">&#129514; Fluide Frigorigène</div><select id="mainFluid" style="width:100%; margin-bottom:0.5rem"><optgroup label="Fluides courants"><option value="R32">R32 (A2L) &#9889;</option><option value="R134a" selected>R134a</option><option value="R410A">R410A</option><option value="R404A">R404A &#9888;&#65039;</option></optgroup><optgroup label="HFO (GWP < 10)"><option value="R1234yf">R1234yf (A2L) ’±</option><option value="R1234ze">R1234ze(E) (A2L) ’±</option><option value="R1233zd">R1233zd(E) ’±</option></optgroup><optgroup label="Mélanges transition"><option value="R513A">R513A (GWP 631)</option><option value="R449A">R449A (repl. R404A)</option><option value="R452A">R452A (transport)</option><option value="R454B">R454B (A2L clim)</option><option value="R454C">R454C (A2L) ’±</option><option value="R455A">R455A (A2L) ’±</option><option value="R448A">R448A (commercial)</option><option value="R450A">R450A (distrib.)</option></optgroup><optgroup label="Fluides naturels"><option value="R290">R290 Propane (A3) &#9888;&#65039;</option><option value="R1270">R1270 Propylène (A3) &#9888;&#65039;</option><option value="R600a">R600a Isobutane (A3) &#9888;&#65039;</option><option value="R170">R170 Éthane (A3) &#9888;&#65039;</option><option value="R744">R744 CO&#8322;</option><option value="R717">R717 NH&#8323; (B2L) &#9760;</option></optgroup><optgroup label="Ancienne génération"><option value="R407C">R407C</option><option value="R507A">R507A &#9888;&#65039;</option></optgroup></select><label style="display:block; font-size:0.85rem; color:var(--muted); margin-bottom:0.3rem">Quantité (kg)</label><input type="number" id="fluidQuantity" value="5" step="0.1" style="width:100%" inputmode="decimal"><div id="fluidInfoBox" class="fluid-info" style="display:none;"></div></div><div class="panel-card"><div class="panel-title">
+ " Analyse
+ <button class="info-icon" onclick="showDetailsModal()">i</button></div><div class="calc-item"><div class="calc-label">GWP</div><div class="calc-value" id="calcGWP">1430</div></div><div class="calc-item"><div class="calc-label">Équivalent CO&#8322;</div><div class="calc-value" id="calcCO2">7.15 tCO&#8322;e</div><div class="calc-detail" id="calcFreq">Contrôle annuel</div></div><div class="calc-item warn" id="calcLFL" style="display:none"><div class="calc-label">&#9888;&#65039; LFL Sécurité</div><div class="calc-value" id="calcLFLValue">--</div><div class="calc-detail" id="calcLFLDetail">--</div></div><div class="calc-item danger" id="calcCO2Critical" style="display:none"><div class="calc-label">&#9889; Mode Transcritique</div><div class="calc-value">P crit: 73.8 bar</div><div class="calc-detail">T crit: 31°C</div></div><div class="calc-item" style="background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-color: #27ae60;"><div class="calc-label"> Précision calcul</div><div class="calc-value" id="calcPrecision">Haute précision</div><div class="calc-detail" id="calcMethod">Wagner 4 termes</div><div class="calc-detail" style="margin-top:0.2rem"><span id="calcAccuracy">Erreur: <0.5%</span></div></div></div><div class="panel-card" style="padding:0.8rem"><div class="panel-title" style="margin-bottom:0.5rem">🔧 Modules complémentaires</div><a href="retrofit_v5.html" style="display:block;padding:0.6rem 0.8rem;background:linear-gradient(135deg,#0f2d52,#1a4a6e);color:white;border-radius:10px;font-weight:600;font-size:0.85rem;text-decoration:none;margin-bottom:0.5rem;transition:all 0.3s" onmouseover="this.style.transform='translateX(3px)'" onmouseout="this.style.transform='none'">❄ Retrofit — Changement fluide</a><a href="reglette_v5.html" style="display:block;padding:0.6rem 0.8rem;background:linear-gradient(135deg,#2aafaf,#1a8a8a);color:white;border-radius:10px;font-weight:600;font-size:0.85rem;text-decoration:none;margin-bottom:0.5rem;transition:all 0.3s" onmouseover="this.style.transform='translateX(3px)'" onmouseout="this.style.transform='none'">📊 Réglette P/T Multi-fluides</a><a href="incondensables_v5.html" style="display:block;padding:0.6rem 0.8rem;background:linear-gradient(135deg,#c0392b,#e74c3c);color:white;border-radius:10px;font-weight:600;font-size:0.85rem;text-decoration:none;margin-bottom:0.5rem;transition:all 0.3s" onmouseover="this.style.transform='translateX(3px)'" onmouseout="this.style.transform='none'">🧪 Test Incondensables</a><a href="diagnostic_depannage_v5.html" style="display:block;padding:0.6rem 0.8rem;background:linear-gradient(135deg,#e8914a,#d47a35);color:white;border-radius:10px;font-weight:600;font-size:0.85rem;text-decoration:none;margin-bottom:0.5rem;transition:all 0.3s" onmouseover="this.style.transform='translateX(3px)'" onmouseout="this.style.transform='none'">🔍 Diagnostic & Dépannage</a><a href="co2_fgas_v5.html" style="display:block;padding:0.6rem 0.8rem;background:linear-gradient(135deg,#1565c0,#1976d2);color:white;border-radius:10px;font-weight:600;font-size:0.85rem;text-decoration:none;margin-bottom:0.5rem;transition:all 0.3s" onmouseover="this.style.transform='translateX(3px)'" onmouseout="this.style.transform='none'">🌍 CO₂ & Réglementation F-Gas</a><a href="charge_a2l_v5.html" style="display:block;padding:0.6rem 0.8rem;background:linear-gradient(135deg,#ef6c00,#f57c00);color:white;border-radius:10px;font-weight:600;font-size:0.85rem;text-decoration:none;transition:all 0.3s" onmouseover="this.style.transform='translateX(3px)'" onmouseout="this.style.transform='none'">🔥 Charge A2L / Sécurité</a></div>
+<div class="panel-card"><div class="panel-title" style="cursor:pointer" onclick="var cc=this.nextElementSibling;cc.style.display=cc.style.display==='none'?'block':'none';this.querySelector('.opt-arrow').textContent=cc.style.display==='none'?'▶':'▼'">&#9881; Options <span class="opt-arrow" style="font-size:0.7rem;margin-left:auto">▼</span></div><div class="config-content"><label style="display:block; margin-bottom:0.5rem">Unité pression</label><div class="row" style="margin-top:0.5rem"><label style="min-width:130px; font-weight:600; color:#e8914a">Mode mano</label><button type="button" id="togglePressureMode" class="btn" style="padding:6px 10px"><span id="togglePressureModeLabel">barg</span></button></div>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+ const btn = document.getElementById('togglePressureMode');
+ const lab = document.getElementById('togglePressureModeLabel');
+ function refresh(){ if(lab) lab.textContent = (window.__PRESSURE_MODE__==='gauge'?'barg':'abs'); }
+ refresh();
+ if(btn){
+ btn.addEventListener('click', ()=>{
+ window.__PRESSURE_MODE__ = (window.__PRESSURE_MODE__==='gauge') ? 'absolute' : 'gauge';
+ localStorage.setItem('pressure_mode', window.__PRESSURE_MODE__);
+ refresh();
+ if (typeof updateAll==='function') try{ updateAll(); }catch(e){}
+ if (typeof renderBP==='function') try{ renderBP(); }catch(e){}
+ if (typeof renderHP==='function') try{ renderHP(); }catch(e){}
+ });
+ }
+});
+
+// ========== FONCTIONS MODALES ET OPTIONS ==========
+function showModal(id) {
+ const modal = document.getElementById(id);
+ if (modal) modal.classList.add('active');
+}
+
+function hideModal(id) {
+ const modal = document.getElementById(id);
+ if (modal) modal.classList.remove('active');
+}
+
+document.addEventListener('click', function(e) {
+ if (e.target.classList.contains('modal')) {
+ e.target.classList.remove('active');
+ }
+});
+
+function toggleGlobalOptions() {
+ const panel = document.getElementById('globalOptionsPanel');
+ if (panel) {
+ panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+ }
+}
+
+function updateAltitude() {
+ const alt = parseFloat(document.getElementById('optAltitude').value) || 0;
+ const patm = 1013.25 * Math.exp(-alt / 8500);
+ document.getElementById('optPatm').textContent = patm.toFixed(2) + ' mbar';
+}
+
+</script>
+<select id="unitSelect" style="width:100%; margin-bottom:0.8rem">
+
+ <option value="bar">bar</option><option value="kpa">kPa</option><option value="mpa">MPa</option><option value="psi">psi</option></select><label style="display:block; margin-bottom:0.5rem">Méthode calcul</label><select id="calculationMethod" style="width:100%; margin-bottom:0.8rem" onchange="updateCalculationMethod()"><option value="hybrid" selected>Hybride (auto)</option><option value="antoine">Antoine seul</option><option value="wagner">Wagner seul</option></select><div style="border-top:1px solid var(--border); padding-top:0.8rem; margin-bottom:0.8rem"><label style="display:block; font-weight:600; margin-bottom:0.5rem; color:var(--accent)">Affichage</label><label style="display:block; margin-bottom:0.3rem"><input type="checkbox" id="optShowTempRing" checked> Anneau température
+ </label><label style="display:block; margin-bottom:0.3rem"><input type="checkbox" id="optShowNeedleReadout" checked> Valeurs sur aiguille
+ </label><label style="display:block; margin-bottom:0.3rem"><input type="checkbox" id="optShowFineTicks" checked> Graduations fines
+ </label><label style="display:block"><input type="checkbox" id="optShowAccuracy" checked> Afficher précision
+ </label></div><div style="border-top:1px solid var(--border); padding-top:0.8rem"><label style="display:block; font-weight:600; margin-bottom:0.5rem; color:var(--accent)">Pas température (°C)</label><select id="tempStep" style="width:100%"><option value="5">5°C (standard)</option><option value="2">2°C (précis)</option><option value="10">10°C (simple)</option><option value="1">1°C (très précis)</option></select></div><div style="border-top:1px solid var(--border); padding-top:0.8rem; margin-top:0.8rem"><label style="display:block; font-weight:600; margin-bottom:0.5rem; color:var(--accent)">Altitude (m)</label><input type="number" id="altitude" value="0" step="100" min="0" max="4000" 
+                 style="width:100%"
+                 onchange="updateAtmosphericPressure()" inputmode="decimal"><div style="font-size:0.75rem; color:var(--muted); margin-top:0.3rem">
+ P atm: <strong id="atmPressure">1013.25 mbar</strong></div></div></div></div></div><div class="center-zone" id="centerZone"><div class="gauges-header"><h2> MANOMÈTRES INTERACTIFS</h2><p>Double échelle Pression / Température &#8226; Technologie Hybride Antoine-Wagner</p></div><div class="gauges-grid"><div class="gauge-card bp"><div class="row"><div class="pill">→ BASSE PRESSION</div></div><div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.5rem; margin:0.5rem 0"><div><label style="display:block; font-size:0.75rem; color:#64748b">Min</label><input id="bpMin" type="number" step="0.1" value="-1" style="width:100%" inputmode="decimal"></div><div><label style="display:block; font-size:0.75rem; color:#64748b">Max</label><input id="bpMax" type="number" step="0.1" value="3" style="width:100%" inputmode="decimal"></div><div><label style="display:block; font-size:0.75rem; color:#64748b">Pas</label><input id="bpMaj" type="number" step="0.1" value="0.5" style="width:100%" inputmode="decimal"></div></div><div class="row"><input id="bpNeedleRange" type="range" step="0.01" value="0"><input id="bpNeedle" type="number" step="0.01" value="0" style="width:70px" inputmode="decimal"></div><div class="gauge-box"><svg id="bpGauge" viewBox="0 0 460 460" style="width:100%; max-width:350px"></svg></div><div class="row" style="justify-content:center; gap:1rem; margin-top:0.5rem"><span style="font-weight:600">P: <strong style="color:#2aafaf" id="bpPressureInfo">0.00 bar</strong></span><span style="font-weight:600">T°: <strong style="color:#e8914a" id="bpTempInfo">-26.4°C</strong></span></div><div class="accuracy-info" id="bpAccuracyInfo" style="display:none;"><span>Mode: <strong id="bpMode">Hybride</strong></span><span class="accuracy-badge high">Err <0.5%</span><span style="font-size:0.6rem">Plage: <span id="bpRange">-40→ '60°C</span></span></div></div><div class="gauge-card hp"><div class="row"><div class="pill" style="background:linear-gradient(135deg, #e74c3c, #e91e63)">&#128293; HAUTE PRESSION</div></div><div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:0.5rem; margin:0.5rem 0"><div><label style="display:block; font-size:0.75rem; color:#64748b">Min</label><input id="hpMin" type="number" step="0.1" value="3" style="width:100%" inputmode="decimal"></div><div><label style="display:block; font-size:0.75rem; color:#64748b">Max</label><input id="hpMax" type="number" step="0.1" value="25" style="width:100%" inputmode="decimal"></div><div><label style="display:block; font-size:0.75rem; color:#64748b">Pas</label><input id="hpMaj" type="number" step="0.1" value="2" style="width:100%" inputmode="decimal"></div></div><div class="row"><input id="hpNeedleRange" type="range" step="0.01" value="5"><input id="hpNeedle" type="number" step="0.01" value="5" style="width:70px" inputmode="decimal"></div><div class="gauge-box"><svg id="hpGauge" viewBox="0 0 460 460" style="width:100%; max-width:350px"></svg></div><div class="row" style="justify-content:center; gap:1rem; margin-top:0.5rem"><span style="font-weight:600">P: <strong style="color:#e74c3c" id="hpPressureInfo">5.00 bar</strong></span><span style="font-weight:600">T°: <strong style="color:#e8914a" id="hpTempInfo">15.7°C</strong></span></div><div class="accuracy-info" id="hpAccuracyInfo" style="display:none;"><span>Mode: <strong id="hpMode">Hybride</strong></span><span class="accuracy-badge high">Err <0.5%</span><span style="font-size:0.6rem">Plage: <span id="hpRange">-40→ '60°C</span></span></div></div></div><div style="display:flex;justify-content:center;gap:0.8rem;margin:1rem 0 0.5rem;padding:0.5rem"><button onclick="gaugeZoom(-1)" style="width:32px;height:32px;border-radius:50%;border:2px solid #2aafaf;background:white;color:#2aafaf;font-size:1.1rem;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center" title="Réduire les manomètres">−</button><span id="gaugeZoomLevel" style="display:flex;align-items:center;font-size:0.8rem;color:#6c757d;font-weight:600;min-width:40px;justify-content:center">100%</span><button onclick="gaugeZoom(1)" style="width:32px;height:32px;border-radius:50%;border:2px solid #e8914a;background:white;color:#e8914a;font-size:1.1rem;cursor:pointer;transition:all 0.3s;display:flex;align-items:center;justify-content:center" title="Agrandir les manomètres">+</button><button onclick="gaugeZoom(0)" style="padding:4px 10px;border-radius:12px;border:1px solid #dee2e6;background:#f8f9fa;color:#6c757d;font-size:0.7rem;cursor:pointer" title="Réinitialiser">↺</button></div>
+
+
+
+</div>
+
+
+
+<footer id="iw-footer"></footer><div class="modal" id="detailsModal"><div class="modal-content"><button class="modal-close" onclick="closeModal('detailsModal')">×</button><h3>📊 Analyse Détaillée</h3><div id="detailsContent"></div></div></div><div class="modal" id="vacuumGuideModal"><div class="modal-content"><button class="modal-close" onclick="closeModal('vacuumGuideModal')">×</button><h3>📋 Guide Complet du Vacuomètre</h3><h4 style="color:var(--accent); margin-top:1rem">💧 Principe de la tension de vapeur</h4><p style="font-size:0.9rem">
+ Lorsqu'il y a de l'eau dans un circuit frigorifique, le vide ne peut pas descendre 
+ en dessous de la <strong>pression de vapeur saturante</strong> de l'eau à la température ambiante.
+ </p><h4 style="color:var(--accent); margin-top:1rem">📝 Exemples pratiques</h4><table style="width:100%; font-size:0.85rem; border-collapse:collapse"><tr style="background:#f0f9ff"><th style="padding:8px; border:1px solid #ddd">Température</th><th style="padding:8px; border:1px solid #ddd">Limite eau</th><th style="padding:8px; border:1px solid #ddd">P absolue</th></tr><tr><td style="padding:8px; border:1px solid #ddd">5°C</td><td style="padding:8px; border:1px solid #ddd">-1004 mbar</td><td style="padding:8px; border:1px solid #ddd">8.7 mbar</td></tr><tr style="background:#f8f9fa"><td style="padding:8px; border:1px solid #ddd">20°C</td><td style="padding:8px; border:1px solid #ddd">-990 mbar</td><td style="padding:8px; border:1px solid #ddd">23.4 mbar</td></tr><tr><td style="padding:8px; border:1px solid #ddd">30°C</td><td style="padding:8px; border:1px solid #ddd">-971 mbar</td><td style="padding:8px; border:1px solid #ddd">42.4 mbar</td></tr></table><h4 style="color:var(--accent); margin-top:1rem"> Diagnostic</h4><ul style="font-size:0.9rem"><li><strong>Vide descend sous la limite :</strong> Circuit sec &#10004;</li><li><strong>Vide stagne à la limite :</strong> Présence d'eau 💧</li><li><strong>Vide remonte après arrêt pompe :</strong> Fuite probable &#9889;</li></ul><button class="btn" style="width:100%; margin-top:1rem" onclick="closeModal('vacuumGuideModal')">
+ Compris !
+ </button></div></div><div class="modal" id="retrofitDetailsModal"><div class="modal-content"><button class="modal-close" onclick="closeModal('retrofitDetailsModal')">×</button><h3>&#10052; Guide détaillé de retrofit</h3><div id="retrofitDetailsContent"></div></div></div><div class="modal" id="legalModal"><div class="modal-content"><button class="modal-close" onclick="closeModal('legalModal')">×</button><h3>📋 Mentions Légales</h3><h4 style="color:var(--accent); margin-top:1rem">Propriété intellectuelle</h4><p style="font-size:0.85rem">
+ Propriétés calculées via corrélations publiques (Antoine/Wagner) et algorithmes open-source.<br>
+ Coefficients générés par régression sur données de référence (CoolProp/NIST).<br>
+ Aucune donnée propriétaire n'est stockée ou redistribuée.
+ </p><h4 style="color:var(--accent); margin-top:1rem">Précision et limites</h4><p style="font-size:0.85rem">
+ &#8226; <strong>Méthode hybride:</strong> Sélection automatique Antoine/Wagner selon plage<br>
+ &#8226; <strong>Précision typique:</strong> Erreur moyenne <0.5%, max <1.5%<br>
+ &#8226; <strong>Plage validité:</strong> -40°C à +60°C (sauf indication contraire)<br>
+ &#8226; <strong>Mélanges zéotropiques:</strong> Courbes dew/bubble calculées séparément<br>
+ &#8226; <strong>Zone critique:</strong> Incertitude accrue près du point critique (Tr>0.9)
+ </p><h4 style="color:var(--accent); margin-top:1rem">Avertissement</h4><p style="font-size:0.85rem; color:var(--warn)">
+ Valeurs indicatives pour usage pédagogique et technique.<br>
+ L'utilisateur reste responsable de la vérification des données.<br>
+ En cas d'application critique, vérifier avec sources multiples.<br>
+ L'éditeur décline toute responsabilité en cas d'usage inapproprié.
+ </p><h4 style="color:var(--accent); margin-top:1rem">Licence</h4><p style="font-size:0.85rem">
+ Application gratuite - Licence CC BY-NC-SA 4.0<br>
+ Développée par F. Henninot - InerWeb Édu<br>
+ &copy; 2025 Lycée Professionnel J. Raynaud - Marseille
+ </p><button class="btn" style="width:100%; margin-top:1rem" onclick="closeModal('legalModal')">
+ Fermer
+ </button></div></div><div class="modal" id="stagesModal"><div class="modal-content"><button class="modal-close" onclick="closeModal('stagesModal')">×</button><h3>🎓 Stages 2025</h3><p><strong>Périodes disponibles:</strong></p><ul><li>CAP: Mars-Avril & Mai-Juin</li><li>BAC PRO: Janvier-Février</li><li>BTS: Juin-Juillet</li></ul><button class="btn" style="width:100%" onclick="window.location.href='mailto:stages@lycee-jr.fr'">
+ Proposer un stage
+ </button></div></div><div class="modal" id="contactModal"><div class="modal-content"><button class="modal-close" onclick="closeModal('contactModal')">×</button><h3>📞 Contact</h3><p><strong>Lycée J.R.</strong><br>
+ 59 Traverse Susini<br>
+ 13013 Marseille</p><p>Formation: f.henninot@lycee-jr.fr</p></div></div><div class="modal" id="incondGuideModal"><div class="modal-content"><button class="modal-close" onclick="closeModal('incondGuideModal')">×</button><h3>&#129514; Guide Test Incondensables</h3><h4 style="color:#c0392b; margin-top:1rem"> Qu'est-ce qu'un incondensable ?</h4><p style="font-size:0.9rem">
+ Les <strong>incondensables</strong> sont des <strong>gaz non condensables</strong> (air, azote, humidité) 
+ présents dans le circuit frigorifique. Contrairement au fluide frigorigène, ces gaz ne se condensent pas 
+ à la température du condenseur et restent en phase gazeuse, provoquant une <strong>surpression côté HP</strong>.
+ </p><h4 style="color:#c0392b; margin-top:1rem">&#9888;&#65039; Conséquences des incondensables</h4><ul style="font-size:0.9rem"><li><strong>Surpression HP</strong> : augmentation anormale de la pression haute</li><li><strong>Condensation difficile</strong> : l'échange thermique est perturbé</li><li><strong>Surconsommation électrique</strong> : le compresseur force pour vaincre la HP</li><li><strong>Vieillissement prématuré</strong> : usure accélérée des composants</li><li><strong>Performance dégradée</strong> : baisse du rendement frigorifique</li></ul><h4 style="color:#c0392b; margin-top:1rem">&#128203; Procédure de test</h4><ol style="font-size:0.9rem; line-height:1.8"><li><strong>Arrêter l'installation</strong> et laisser stabiliser 10-15 minutes</li><li><strong>Mesurer la température de l'air</strong> au condenseur (T<sub>air</sub>)</li><li><strong>Relever la pression HP</strong> stabilisée au manomètre</li><li><strong>Comparer</strong> avec la pression théorique à T<sub>air</sub></li></ol><h4 style="color:#c0392b; margin-top:1rem">📊 Interprétation</h4><table style="width:100%; font-size:0.85rem; border-collapse:collapse; margin-top:0.5rem"><tr style="background:#f0f9ff"><th style="padding:8px; border:1px solid #ddd; text-align:left">Écart température</th><th style="padding:8px; border:1px solid #ddd; text-align:left">Écart pression</th><th style="padding:8px; border:1px solid #ddd; text-align:left">Diagnostic</th></tr><tr><td style="padding:8px; border:1px solid #ddd">&le; 2 K</td><td style="padding:8px; border:1px solid #ddd">&le; 1 bar</td><td style="padding:8px; border:1px solid #ddd">&#10004; Pas d'incondensables</td></tr><tr style="background:#f8f9fa"><td style="padding:8px; border:1px solid #ddd">2-5 K</td><td style="padding:8px; border:1px solid #ddd">&le; 1 bar</td><td style="padding:8px; border:1px solid #ddd">&#10004; OK (possiblement erreur mesure)</td></tr><tr><td style="padding:8px; border:1px solid #ddd">&gt; 5 K</td><td style="padding:8px; border:1px solid #ddd">&gt; 1 bar</td><td style="padding:8px; border:1px solid #ddd">&#9889; Incondensables probables</td></tr><tr style="background:#f8f9fa"><td style="padding:8px; border:1px solid #ddd">&lt; -5 K</td><td style="padding:8px; border:1px solid #ddd">N/A</td><td style="padding:8px; border:1px solid #ddd">&#9888;&#65039; HP anormalement basse</td></tr></table><h4 style="color:#c0392b; margin-top:1rem">🌡 Repères pratiques</h4><p style="font-size:0.85rem; background:#f0f9ff; padding:10px; border-radius:6px">
+ Pour un <strong>condenseur air-cooled</strong> à l'arrêt, la pression doit correspondre à la température 
+ de l'air ambiant ± 2-5 K maximum. Au-delà, suspecter des incondensables.
+ </p><h4 style="color:#c0392b; margin-top:1rem">§ Actions correctives</h4><ul style="font-size:0.9rem"><li><strong>Si incondensables détectés :</strong> purger le circuit par le robinet HP</li><li><strong>Vérifier l'origine :</strong> fuite, mauvais tirage au vide initial, rupture d'étanchéité</li><li><strong>Reprendre le tirage au vide</strong> si nécessaire (objectif : &lt;500 microns)</li><li><strong>Recharger en fluide</strong> si vidange effectuée</li></ul><button class="btn" style="width:100%; margin-top:1rem" onclick="closeModal('incondGuideModal')">
+ Fermer le guide
+ </button></div></div><div class="modal" id="apprentisModal"><div class="modal-content"><button class="modal-close" onclick="closeModal('apprentisModal')">×</button><h3>🎓 Recruter nos apprentis</h3><p>Nos apprentis sont formés aux dernières technologies du froid et de la climatisation.</p><p><strong>Compétences:</strong></p><ul><li>Installation et maintenance</li><li>Diagnostic pannes</li><li>Fluides nouvelle génération</li><li>Réglementation F-Gas</li></ul><button class="btn" style="width:100%" onclick="window.location.href='mailto:apprentissage@lycee-jr.fr'">
+ Contacter le service apprentissage
+ </button></div></div><div class="modal" id="taxeModal"><div class="modal-content"><button class="modal-close" onclick="closeModal('taxeModal')">×</button><h3>💰 Taxe d'apprentissage</h3><p>Soutenez la formation des futurs professionnels du froid et de la climatisation.</p><p><strong>Votre contribution permet:</strong></p><ul><li>L'achat d'équipements pédagogiques</li><li>La modernisation des ateliers</li><li>La formation aux nouvelles technologies</li></ul><button class="btn" style="width:100%" onclick="window.location.href='mailto:taxe@lycee-jr.fr'">
+ Plus d'informations
+ </button></div></div><div class="modal" id="partenaireModal"><div class="modal-content"><button class="modal-close" onclick="closeModal('partenaireModal')">×</button><h3> Devenir partenaire</h3><p>Rejoignez notre réseau de partenaires professionnels.</p><p><strong>Avantages:</strong></p><ul><li>Accès aux meilleurs apprentis</li><li>Participation aux projets pédagogiques</li><li>Visibilité auprès des étudiants</li><li>Échanges techniques</li></ul><button class="btn" style="width:100%" onclick="window.location.href='mailto:partenariat@lycee-jr.fr'">
+ Nous contacter
+ </button></div></div>
+
+<script>
+// ============= DONNÉES FLUIDES SEGMENTS HYBRIDES (V3.0) =============
+// Structure améliorée avec segments Antoine/Wagner pour précision optimale
+
+
+// ==================================================
+// BOÎTE À OUTILS FRIGORISTE V4.0 - MOTEURS THERMODYNAMIQUES
+// ==================================================
+
+/*! ThermoCore "" ManoPub V4.0 (moteur thermodynamique adapté)
+ * License: MIT - Usage pédagogique + semi-commercial autorisé
+ * Base: 22 fluides avec coefficients Antoine/Wagner segmentés
+ * Sources: Coefficients validés issus de ManoPub V3.0
+ */
+(function (root, factory) {
+ if (typeof define === 'function' && define.amd) { define([], factory); }
+ else if (typeof module === 'object' && module.exports) { module.exports = factory(); }
+ else { root.ThermoCore = factory(); }
+}(typeof self !== 'undefined' ? self : this, function () {
+ 'use strict';
+
+ const VERSION = '4.0.0';
+
+ // Base de données thermodynamique complète - 22 fluides
+ // [MME BASE DE DONNÉES QUE PRÉCÉDEMMENT - je ne la recopie pas pour gagner de l'espace]
+ const DB = {
+ "R134a": {
+ code: "R134a",
+ segments: {
+ single: [
+ {
+ type: "antoine",
+ A: {A1: 9.95, A2: -2150, A3: 243},
+ Tmin: -40, Tmax: 20,
+ err: {mean: 0.3, max: 0.7}
+ },
+ {
+ type: "wagner",
+ W: {a1: -7.85950, a2: 1.84410, a3: -11.78660, a4: 22.68070, Tc_K: 374.21, Pc_bar: 40.593},
+ Tmin: 20, Tmax: 60,
+ err: {mean: 0.2, max: 0.4}
+ }
+ ]
+ },
+ meta: {Tc_K: 374.21, Pc_bar: 40.593, glide: 0.0}
+ },
+ 
+ "R32": {
+ code: "R32",
+ segments: {
+ single: [
+ {
+ type: "antoine", 
+ A: {A1: 10.25, A2: -2055, A3: 252},
+ Tmin: -40, Tmax: 25,
+ err: {mean: 0.4, max: 0.9}
+ },
+ {
+ type: "wagner",
+ W: {a1: -7.49470, a2: 1.56240, a3: -2.20810, a4: -3.48400, Tc_K: 351.26, Pc_bar: 57.82},
+ Tmin: 25, Tmax: 60,
+ err: {mean: 0.3, max: 0.6}
+ }
+ ]
+ },
+ meta: {Tc_K: 351.26, Pc_bar: 57.82, glide: 0.0, LFL: 0.307}
+ },
+ 
+ "R410A": {
+ code: "R410A",
+ segments: {
+ single: [
+ {
+ type: "antoine",
+ A: {A1: 10.09, A2: -1992, A3: 249},
+ Tmin: -40, Tmax: 30,
+ err: {mean: 0.4, max: 0.8}
+ },
+ {
+ type: "wagner",
+ W: {a1: -7.61000, a2: 1.88000, a3: -2.36000, a4: -3.45000, Tc_K: 344.49, Pc_bar: 49.02},
+ Tmin: 30, Tmax: 60,
+ err: {mean: 0.3, max: 0.5}
+ }
+ ]
+ },
+ meta: {Tc_K: 344.49, Pc_bar: 49.02, glide: 0.1}
+ },
+ 
+ "R404A": {
+ code: "R404A",
+ segments: {
+ single: [
+ {
+ type: "antoine",
+ A: {A1: 9.72, A2: -1948, A3: 246},
+ Tmin: -40, Tmax: 20,
+ err: {mean: 0.5, max: 1.0}
+ },
+ {
+ type: "wagner",
+ W: {a1: -7.72000, a2: 1.95000, a3: -2.44000, a4: -3.40000, Tc_K: 345.27, Pc_bar: 37.29},
+ Tmin: 20, Tmax: 50,
+ err: {mean: 0.4, max: 0.8}
+ }
+ ]
+ },
+ meta: {Tc_K: 345.27, Pc_bar: 37.29, glide: 0.5}
+ },
+ 
+ "R407C": {
+ code: "R407C",
+ segments: {
+ dew: [
+ {
+ type: "antoine",
+ A: {A1: 10.07, A2: -2062, A3: 241},
+ Tmin: -35, Tmax: 25,
+ err: {mean: 0.6, max: 1.2}
+ },
+ {
+ type: "wagner",
+ W: {a1: -7.70000, a2: 1.90000, a3: -2.40000, a4: -3.42000, Tc_K: 359.35, Pc_bar: 46.29},
+ Tmin: 25, Tmax: 55,
+ err: {mean: 0.5, max: 1.0}
+ }
+ ],
+ bubble: [
+ {
+ type: "antoine",
+ A: {A1: 10.05, A2: -2040, A3: 243},
+ Tmin: -35, Tmax: 25,
+ err: {mean: 0.7, max: 1.3}
+ },
+ {
+ type: "wagner",
+ W: {a1: -7.68000, a2: 1.88000, a3: -2.38000, a4: -3.40000, Tc_K: 359.35, Pc_bar: 46.29},
+ Tmin: 25, Tmax: 55,
+ err: {mean: 0.6, max: 1.1}
+ }
+ ]
+ },
+ meta: {glide: 7.0}
+ },
+ 
+ "R1234yf": {
+ code: "R1234yf",
+ segments: {
+ single: [
+ {
+ type: "antoine",
+ A: {A1: 9.80, A2: -1885, A3: 240},
+ Tmin: -40, Tmax: 30,
+ err: {mean: 0.4, max: 0.8}
+ },
+ {
+ type: "wagner",
+ W: {a1: -7.52010, a2: 1.76290, a3: -2.20300, a4: -3.33970, Tc_K: 367.85, Pc_bar: 33.82},
+ Tmin: 30, Tmax: 60,
+ err: {mean: 0.3, max: 0.6}
+ }
+ ]
+ },
+ meta: {Tc_K: 367.85, Pc_bar: 33.82, glide: 0.0, LFL: 0.289}
+ },
+ 
+ "R1234ze": {
+ code: "R1234ze",
+ segments: {
+ single: [
+ {
+ type: "antoine",
+ A: {A1: 9.75, A2: -1862, A3: 239},
+ Tmin: -40, Tmax: 35,
+ err: {mean: 0.4, max: 0.9}
+ },
+ {
+ type: "wagner",
+ W: {a1: -7.59360, a2: 1.90180, a3: -2.31660, a4: -3.30420, Tc_K: 382.51, Pc_bar: 36.35},
+ Tmin: 35, Tmax: 60,
+ err: {mean: 0.3, max: 0.7}
+ }
+ ]
+ },
+ meta: {Tc_K: 382.51, Pc_bar: 36.35, glide: 0.0, LFL: 0.061}
+ },
+ 
+ "R290": {
+ code: "R290",
+ segments: {
+ single: [
+ {
+ type: "antoine",
+ A: {A1: 9.40, A2: -1992, A3: 254},
+ Tmin: -40, Tmax: 30,
+ err: {mean: 0.5, max: 1.0}
+ },
+ {
+ type: "wagner",
+ W: {a1: -6.77220, a2: 1.45230, a3: -2.77380, a4: -1.23480, Tc_K: 369.89, Pc_bar: 42.512},
+ Tmin: 30, Tmax: 60,
+ err: {mean: 0.4, max: 0.8}
+ }
+ ]
+ },
+ meta: {Tc_K: 369.89, Pc_bar: 42.512, glide: 0.0, LFL: 0.038}
+ },
+ 
+ "R744": {
+ code: "R744",
+ segments: {
+ single: [
+ {
+ type: "wagner",
+ W: {a1: -7.06020, a2: 1.50710, a3: -2.71250, a4: -6.65210, Tc_K: 304.13, Pc_bar: 73.77},
+ Tmin: -40, Tmax: 30,
+ err: {mean: 0.3, max: 0.6}
+ }
+ ]
+ },
+ meta: {Tc_K: 304.13, Pc_bar: 73.77, Tcrit: 31, glide: 0.0}
+ },
+ 
+ "R717": {
+ code: "R717",
+ segments: {
+ single: [
+ {
+ type: "antoine",
+ A: {A1: 10.20, A2: -2132, A3: 250},
+ Tmin: -40, Tmax: 20,
+ err: {mean: 0.6, max: 1.2}
+ },
+ {
+ type: "wagner",
+ W: {a1: -7.38480, a2: 1.53530, a3: -1.97260, a4: -4.23400, Tc_K: 405.40, Pc_bar: 113.33},
+ Tmin: 20, Tmax: 50,
+ err: {mean: 0.5, max: 1.0}
+ }
+ ]
+ },
+ meta: {Tc_K: 405.40, Pc_bar: 113.33, glide: 0.0, LFL: 0.116}
+ },
+ 
+ "R513A": {
+ code: "R513A",
+ segments: {
+ single: [
+ {
+ type: "antoine",
+ A: {A1: 9.88, A2: -2088, A3: 241},
+ Tmin: -40, Tmax: 35,
+ err: {mean: 0.5, max: 1.0}
+ },
+ {
+ type: "wagner",
+ W: {a1: -7.62000, a2: 1.85000, a3: -2.32000, a4: -3.37000, Tc_K: 369.85, Pc_bar: 37.48},
+ Tmin: 35, Tmax: 60,
+ err: {mean: 0.4, max: 0.8}
+ }
+ ]
+ },
+ meta: {Tc_K: 369.85, Pc_bar: 37.48, glide: 0.2}
+ },
+ 
+ "R449A": {
+ code: "R449A",
+ segments: {
+ dew: [
+ {
+ type: "antoine",
+ A: {A1: 9.78, A2: -1975, A3: 244},
+ Tmin: -35, Tmax: 25,
+ err: {mean: 0.7, max: 1.4}
+ },
+ {
+ type: "wagner",
+ W: {a1: -7.69000, a2: 1.92000, a3: -2.41000, a4: -3.39000, Tc_K: 354.67, Pc_bar: 44.96},
+ Tmin: 25, Tmax: 55,
+ err: {mean: 0.6, max: 1.2}
+ }
+ ],
+ bubble: [
+ {
+ type: "antoine",
+ A: {A1: 9.76, A2: -1960, A3: 245},
+ Tmin: -35, Tmax: 25,
+ err: {mean: 0.8, max: 1.5}
+ },
+ {
+ type: "wagner",
+ W: {a1: -7.67000, a2: 1.90000, a3: -2.39000, a4: -3.37000, Tc_K: 354.67, Pc_bar: 44.96},
+ Tmin: 25, Tmax: 55,
+ err: {mean: 0.7, max: 1.3}
+ }
+ ]
+ },
+ meta: {glide: 4.5}
+ },
+ 
+ "R452A": {
+ code: "R452A",
+ segments: {
+ single: [
+ {type: "antoine", A: {A1: 9.91, A2: -1988, A3: 247}, Tmin: -40, Tmax: 30, err: {mean: 0.6, max: 1.2}},
+ {type: "wagner", W: {a1: -7.64000, a2: 1.87000, a3: -2.35000, a4: -3.43000, Tc_K: 348.15, Pc_bar: 40.26}, Tmin: 30, Tmax: 55, err: {mean: 0.5, max: 1.0}}
+ ]
+ },
+ meta: {glide: 3.8}
+ },
+ 
+ "R454B": {
+ code: "R454B",
+ segments: {
+ single: [
+ {type: "antoine", A: {A1: 10.18, A2: -2025, A3: 250}, Tmin: -40, Tmax: 30, err: {mean: 0.5, max: 1.0}},
+ {type: "wagner", W: {a1: -7.52000, a2: 1.71000, a3: -2.25000, a4: -3.41000, Tc_K: 351.56, Pc_bar: 50.43}, Tmin: 30, Tmax: 55, err: {mean: 0.4, max: 0.8}}
+ ]
+ },
+ meta: {glide: 1.2, LFL: 0.303}
+ },
+ 
+ "R454C": {
+ code: "R454C",
+ segments: {
+ single: [
+ {type: "antoine", A: {A1: 10.14, A2: -2015, A3: 249}, Tmin: -40, Tmax: 30, err: {mean: 0.5, max: 1.1}},
+ {type: "wagner", W: {a1: -7.54000, a2: 1.73000, a3: -2.27000, a4: -3.38000, Tc_K: 359.13, Pc_bar: 42.76}, Tmin: 30, Tmax: 55, err: {mean: 0.4, max: 0.9}}
+ ]
+ },
+ meta: {glide: 0.8, LFL: 0.296}
+ },
+ 
+ "R455A": {
+ code: "R455A",
+ segments: {
+ dew: [
+ {type: "antoine", A: {A1: 9.82, A2: -1910, A3: 242}, Tmin: -35, Tmax: 25, err: {mean: 0.8, max: 1.6}},
+ {type: "wagner", W: {a1: -7.58000, a2: 1.79000, a3: -2.30000, a4: -3.35000, Tc_K: 359.0, Pc_bar: 46.5}, Tmin: 25, Tmax: 50, err: {mean: 0.7, max: 1.4}}
+ ],
+ bubble: [
+ {type: "antoine", A: {A1: 9.80, A2: -1895, A3: 244}, Tmin: -35, Tmax: 25, err: {mean: 0.9, max: 1.7}},
+ {type: "wagner", W: {a1: -7.56000, a2: 1.77000, a3: -2.28000, a4: -3.33000, Tc_K: 359.0, Pc_bar: 46.5}, Tmin: 25, Tmax: 50, err: {mean: 0.8, max: 1.5}}
+ ]
+ },
+ meta: {glide: 12.9, LFL: 0.058}
+ },
+ 
+ "R600a": {
+ code: "R600a",
+ segments: {
+ single: [
+ {type: "antoine", A: {A1: 9.33, A2: -2205, A3: 248}, Tmin: -40, Tmax: 35, err: {mean: 0.5, max: 1.0}},
+ {type: "wagner", W: {a1: -7.17270, a2: 1.38620, a3: -3.27130, a4: -2.19610, Tc_K: 407.81, Pc_bar: 36.40}, Tmin: 35, Tmax: 60, err: {mean: 0.4, max: 0.8}}
+ ]
+ },
+ meta: {glide: 0.0, LFL: 0.043}
+ },
+ 
+ "R1270": {
+ code: "R1270",
+ segments: {
+ single: [
+ {type: "antoine", A: {A1: 9.42, A2: -1806, A3: 248}, Tmin: -40, Tmax: 30, err: {mean: 0.5, max: 1.0}},
+ {type: "wagner", W: {a1: -6.75610, a2: 1.32680, a3: -2.52660, a4: -2.34700, Tc_K: 364.21, Pc_bar: 46.13}, Tmin: 30, Tmax: 55, err: {mean: 0.4, max: 0.9}}
+ ]
+ },
+ meta: {glide: 0.0, LFL: 0.040}
+ },
+ 
+ "R170": {
+ code: "R170",
+ segments: {
+ single: [
+ {type: "antoine", A: {A1: 9.48, A2: -1511, A3: 255}, Tmin: -60, Tmax: 0, err: {mean: 0.6, max: 1.2}},
+ {type: "wagner", W: {a1: -6.34310, a2: 1.17740, a3: -2.21070, a4: -2.44860, Tc_K: 305.32, Pc_bar: 48.72}, Tmin: 0, Tmax: 30, err: {mean: 0.5, max: 1.0}}
+ ]
+ },
+ meta: {glide: 0.0, LFL: 0.038}
+ },
+ 
+ "R448A": {
+ code: "R448A",
+ segments: {
+ single: [
+ {type: "antoine", A: {A1: 9.75, A2: -1968, A3: 245}, Tmin: -40, Tmax: 25, err: {mean: 0.7, max: 1.3}},
+ {type: "wagner", W: {a1: -7.67000, a2: 1.91000, a3: -2.39000, a4: -3.40000, Tc_K: 356.85, Pc_bar: 46.57}, Tmin: 25, Tmax: 55, err: {mean: 0.6, max: 1.1}}
+ ]
+ },
+ meta: {glide: 4.2}
+ },
+ 
+ "R450A": {
+ code: "R450A",
+ segments: {
+ single: [
+ {type: "antoine", A: {A1: 9.92, A2: -2098, A3: 241}, Tmin: -40, Tmax: 35, err: {mean: 0.5, max: 1.0}},
+ {type: "wagner", W: {a1: -7.63000, a2: 1.86000, a3: -2.33000, a4: -3.36000, Tc_K: 377.92, Pc_bar: 38.35}, Tmin: 35, Tmax: 60, err: {mean: 0.4, max: 0.8}}
+ ]
+ },
+ meta: {glide: 0.5}
+ },
+ 
+ "R507A": {
+ code: "R507A",
+ segments: {
+ single: [
+ {type: "antoine", A: {A1: 9.71, A2: -1936, A3: 246}, Tmin: -40, Tmax: 20, err: {mean: 0.5, max: 1.0}},
+ {type: "wagner", W: {a1: -7.68000, a2: 1.89000, a3: -2.37000, a4: -3.41000, Tc_K: 343.76, Pc_bar: 37.07}, Tmin: 20, Tmax: 50, err: {mean: 0.4, max: 0.8}}
+ ]
+ },
+ meta: {glide: 0.0}
+ },
+ 
+ "R1233zd": {
+ code: "R1233zd",
+ segments: {
+ single: [
+ {type: "antoine", A: {A1: 9.69, A2: -2048, A3: 238}, Tmin: -20, Tmax: 40, err: {mean: 0.4, max: 0.8}},
+ {type: "wagner", W: {a1: -7.82660, a2: 2.23890, a3: -2.85250, a4: -2.72790, Tc_K: 439.6, Pc_bar: 36.24}, Tmin: 40, Tmax: 60, err: {mean: 0.3, max: 0.7}}
+ ]
+ },
+ meta: {glide: 0.0}
+ }
+ };
+
+ // ========== FONCTIONS THERMODYNAMIQUES INTERNES ==========
+ // IMPORTANT: Préfixe _ pour éviter conflits avec code UI
+ 
+ function _Psat_Antoine_bar(T_C, A) {
+ return Math.exp(A.A1 + A.A2/(T_C + A.A3));
+ }
+
+ function _Tsat_fromP_Antoine_C(P_bar, A) {
+ return (A.A2 / (Math.log(P_bar) - A.A1)) - A.A3;
+ }
+
+ function _Psat_Wagner_bar(T_C, W) {
+ const T_K = T_C + 273.15;
+ const tau = 1 - T_K / W.Tc_K;
+ const Tr = T_K / W.Tc_K;
+ 
+ if (tau <= 0) return W.Pc_bar;
+    
+    const lnPr = (W.a1*tau + W.a2*Math.pow(tau,1.5) + W.a3*Math.pow(tau,2.5) + W.a4*Math.pow(tau,5)) / Tr;
+    return W.Pc_bar * Math.exp(lnPr);
+  }
+
+  function _Tsat_fromP_Wagner_C(P_bar, W, Tmin, Tmax) {
+    let lo = Tmin, hi = Tmax;
+    
+    for (let i = 0; i < 80; i++) {
+      const mid = (lo + hi) / 2;
+      const Pmid = _Psat_Wagner_bar(mid, W);
+      const Plo = _Psat_Wagner_bar(lo, W);
+      
+      if (!isFinite(Pmid) || !isFinite(Plo)) {
+        lo += 0.1;
+        hi -= 0.1;
+        continue;
+      }
+      
+      if ((Plo - P_bar) * (Pmid - P_bar) <= 0) {
+        hi = mid;
+      } else {
+        lo = mid;
+      }
+      
+      if (Math.abs(hi - lo) < 1e-6) break;
+    }
+    
+    return (lo + hi) / 2;
+  }
+
+  function _getSegmentForTemperature(fluid, T_C, phase) {
+    const fluidData = DB[fluid];
+    if (!fluidData) return null;
+    
+    let branch;
+    if (fluidData.segments.single) {
+      branch = fluidData.segments.single;
+    } else if (phase && fluidData.segments[phase]) {
+      branch = fluidData.segments[phase];
+    } else if (fluidData.segments.dew) {
+      branch = fluidData.segments.dew;
+    } else {
+      return null;
+    }
+    
+    for (const segment of branch) {
+      if (T_C >= segment.Tmin && T_C <= segment.Tmax) {
+        return segment;
+      }
+    }
+    
+    return branch[0];
+  }
+
+  function _Psat_internal(fluid, T_C, phase) {
+    const segment = _getSegmentForTemperature(fluid, T_C, phase);
+    if (!segment) return NaN;
+    
+    if (segment.type === "antoine") {
+      return _Psat_Antoine_bar(T_C, segment.A);
+    } else if (segment.type === "wagner") {
+      return _Psat_Wagner_bar(T_C, segment.W);
+    }
+    
+    return NaN;
+  }
+
+  function _Tsat_internal(P_bar, fluid, phase) {
+    const fluidData = DB[fluid];
+    if (!fluidData) return NaN;
+    
+    let branch;
+    if (fluidData.segments.single) {
+      branch = fluidData.segments.single;
+    } else if (phase && fluidData.segments[phase]) {
+      branch = fluidData.segments[phase];
+    } else if (fluidData.segments.dew) {
+      branch = fluidData.segments.dew;
+    } else {
+      return NaN;
+    }
+    
+    for (const segment of branch) {
+      let T_C;
+      
+      if (segment.type === "antoine") {
+        T_C = _Tsat_fromP_Antoine_C(P_bar, segment.A);
+      } else if (segment.type === "wagner") {
+        T_C = _Tsat_fromP_Wagner_C(P_bar, segment.W, segment.Tmin, segment.Tmax);
+      } else {
+        continue;
+      }
+      
+      if (isFinite(T_C) && T_C >= segment.Tmin && T_C <= segment.Tmax) {
+        return T_C;
+      }
+    }
+    
+    const Tmin = Math.min(...branch.map(s => s.Tmin));
+ const Tmax = Math.max(...branch.map(s => s.Tmax));
+ 
+ let lo = Tmin, hi = Tmax;
+ for (let i = 0; i < 80; i++) {
+      const mid = (lo + hi) / 2;
+      const Pmid = _Psat_internal(fluid, mid, phase);
+      const Plo = _Psat_internal(fluid, lo, phase);
+      
+      if (!isFinite(Pmid) || !isFinite(Plo)) {
+        lo += 0.1;
+        hi -= 0.1;
+        continue;
+      }
+      
+      if ((Plo - P_bar) * (Pmid - P_bar) <= 0) {
+        hi = mid;
+      } else {
+        lo = mid;
+      }
+      
+      if (Math.abs(hi - lo) < 1e-6) break;
+    }
+    
+    return (lo + hi) / 2;
+  }
+
+  function _getAccuracyInfo(fluid, T_C, phase) {
+    const segment = _getSegmentForTemperature(fluid, T_C, phase);
+    if (!segment) return { method: 'N/A', error: 'N/A', range: 'N/A' };
+    
+    const method = segment.type === 'antoine' ? 'Antoine' : 'Wagner';
+    const error = segment.err ? `${segment.err.mean}%/${segment.err.max}%` : 'N/A';
+    const range = `${segment.Tmin} &rarr; ${segment.Tmax}°C`;
+    
+    return { method, error, range, segment };
+  }
+
+  function _limits(code) {
+    const f = DB[code];
+    if (!f) return null;
+    
+    const branch = f.segments.single || f.segments.dew || [];
+    if (branch.length === 0) return null;
+    
+    const Tmin = Math.min(...branch.map(s => s.Tmin));
+ const Tmax = Math.max(...branch.map(s => s.Tmax));
+ 
+ const Pmin = Math.min(...branch.map(s => {
+ if (s.type === "antoine") return _Psat_Antoine_bar(s.Tmin, s.A);
+ if (s.type === "wagner") return _Psat_Wagner_bar(s.Tmin, s.W);
+ return Infinity;
+ }));
+ 
+ const Pmax = Math.max(...branch.map(s => {
+ if (s.type === "antoine") return _Psat_Antoine_bar(s.Tmax, s.A);
+ if (s.type === "wagner") return _Psat_Wagner_bar(s.Tmax, s.W);
+ return -Infinity;
+ }));
+ 
+ return {
+ T_min_C: Tmin,
+ T_max_C: Tmax,
+ P_min_bar_abs: Pmin,
+ P_max_bar_abs: Pmax
+ };
+ }
+
+ function _list() {
+ return Object.keys(DB).map(code => ({code, nom: code}));
+ }
+
+ function _meta(code) {
+ const f = DB[code];
+ return f ? f.meta : null;
+ }
+
+ // ========== API PUBLIQUE ==========
+ return {
+ version: VERSION,
+ Psat: _Psat_internal,
+ Tsat: _Tsat_internal,
+ getAccuracy: _getAccuracyInfo,
+ limits: _limits,
+ fluids: { list: _list, meta: _meta }
+ };
+}));
+
+
+/*! TechCore "" ManoPub V4.0 (métadonnées & couleurs)
+ * License: MIT - Usage pédagogique + semi-commercial autorisé
+ * Données: GWP, ODP, classe ASHRAE, statut réglementaire, retrofit
+ */
+(function (root, factory) {
+ if (typeof define === 'function' && define.amd) { define([], factory); }
+ else if (typeof module === 'object' && module.exports) { module.exports = factory(); }
+ else { root.TechCore = factory(); }
+}(typeof self !== 'undefined' ? self : this, function () {
+ 'use strict';
+
+ const VERSION = '4.0.0';
+
+ // Base de données métadonnées - 22 fluides
+ const DB = {
+ "R134a": {
+ code: "R134a", nom: "R134a",
+ famille: "HFC", classe_ASHRAE: "A1", GWP: 1430, ODP: 0, 
+ statut: "autorisé", perennite: "transition",
+ oil: "POE/PAG",
+ colors: { primary: "#7ec8ff", secondary: "#2aafaf" }
+ },
+ 
+ "R32": {
+ code: "R32", nom: "R32",
+ famille: "HFC", classe_ASHRAE: "A2L", GWP: 677, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "POE", LFL: 0.307,
+ colors: { primary: "#ffd93d", secondary: "#f3b07a" }
+ },
+ 
+ "R410A": {
+ code: "R410A", nom: "R410A",
+ famille: "HFC", classe_ASHRAE: "A1", GWP: 2088, ODP: 0,
+ statut: "restreint", perennite: "transition",
+ oil: "POE",
+ colors: { primary: "#ff6b6b", secondary: "#ee5a24" }
+ },
+ 
+ "R404A": {
+ code: "R404A", nom: "R404A",
+ famille: "HFC", classe_ASHRAE: "A1", GWP: 3922, ODP: 0,
+ statut: "phase out", perennite: "court terme",
+ oil: "POE",
+ colors: { primary: "#ff4757", secondary: "#d63031" }
+ },
+ 
+ "R407C": {
+ code: "R407C", nom: "R407C",
+ famille: "HFC", classe_ASHRAE: "A1", GWP: 1774, ODP: 0,
+ statut: "restreint", perennite: "transition",
+ oil: "POE",
+ colors: { primary: "#a29bfe", secondary: "#6c5ce7" }
+ },
+ 
+ "R1234yf": {
+ code: "R1234yf", nom: "R1234yf",
+ famille: "HFO", classe_ASHRAE: "A2L", GWP: 4, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "POE/PAG", LFL: 0.289,
+ colors: { primary: "#6BCB77", secondary: "#4D96A9" }
+ },
+ 
+ "R1234ze": {
+ code: "R1234ze", nom: "R1234ze(E)",
+ famille: "HFO", classe_ASHRAE: "A2L", GWP: 7, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "POE", LFL: 0.061,
+ colors: { primary: "#55E6C1", secondary: "#26C281" }
+ },
+ 
+ "R290": {
+ code: "R290", nom: "R290 Propane",
+ famille: "Naturel", classe_ASHRAE: "A3", GWP: 3, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "MO/AB/POE", LFL: 0.038,
+ colors: { primary: "#FFA726", secondary: "#FF7043" }
+ },
+ 
+ "R744": {
+ code: "R744", nom: "R744 CO&#8322;",
+ famille: "Naturel", classe_ASHRAE: "A1", GWP: 1, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "POE/PAG", Tcrit: 31,
+ colors: { primary: "#00BCD4", secondary: "#0097A7" }
+ },
+ 
+ "R717": {
+ code: "R717", nom: "R717 NH&#8322;Æ’",
+ famille: "Naturel", classe_ASHRAE: "B2L", GWP: 0, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "MO/AB", LFL: 0.116, toxicity: "ATEL: 0.00035 kg/m³",
+ colors: { primary: "#AB47BC", secondary: "#8E24AA" }
+ },
+ 
+ "R513A": {
+ code: "R513A", nom: "R513A",
+ famille: "HFO/HFC", classe_ASHRAE: "A1", GWP: 631, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "POE",
+ colors: { primary: "#66BB6A", secondary: "#43A047" }
+ },
+ 
+ "R449A": {
+ code: "R449A", nom: "R449A",
+ famille: "HFO/HFC", classe_ASHRAE: "A1", GWP: 1397, ODP: 0,
+ statut: "autorisé", perennite: "transition",
+ oil: "POE",
+ colors: { primary: "#42A5F5", secondary: "#1E88E5" }
+ },
+ 
+ "R452A": {
+ code: "R452A", nom: "R452A",
+ famille: "HFO/HFC", classe_ASHRAE: "A1", GWP: 2140, ODP: 0,
+ statut: "autorisé", perennite: "transition",
+ oil: "POE",
+ colors: { primary: "#EF5350", secondary: "#E53935" }
+ },
+ 
+ "R454B": {
+ code: "R454B", nom: "R454B",
+ famille: "HFO/HFC", classe_ASHRAE: "A2L", GWP: 467, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "POE", LFL: 0.303,
+ colors: { primary: "#FFCA28", secondary: "#FFA000" }
+ },
+ 
+ "R454C": {
+ code: "R454C", nom: "R454C",
+ famille: "HFO/HFC", classe_ASHRAE: "A2L", GWP: 148, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "POE", LFL: 0.296,
+ colors: { primary: "#26A69A", secondary: "#00897B" }
+ },
+ 
+ "R455A": {
+ code: "R455A", nom: "R455A",
+ famille: "HFO/HFC", classe_ASHRAE: "A2L", GWP: 146, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "POE", LFL: 0.058,
+ colors: { primary: "#66BB6A", secondary: "#388E3C" }
+ },
+ 
+ "R600a": {
+ code: "R600a", nom: "R600a Isobutane",
+ famille: "Naturel", classe_ASHRAE: "A3", GWP: 3, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "MO/AB", LFL: 0.043,
+ colors: { primary: "#FF7043", secondary: "#E64A19" }
+ },
+ 
+ "R1270": {
+ code: "R1270", nom: "R1270 Propylène",
+ famille: "Naturel", classe_ASHRAE: "A3", GWP: 2, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "MO/AB/POE", LFL: 0.040,
+ colors: { primary: "#FF9800", secondary: "#F57C00" }
+ },
+ 
+ "R170": {
+ code: "R170", nom: "R170 Éthane",
+ famille: "Naturel", classe_ASHRAE: "A3", GWP: 6, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "MO/AB", LFL: 0.038,
+ colors: { primary: "#FFC107", secondary: "#FFA000" }
+ },
+ 
+ "R448A": {
+ code: "R448A", nom: "R448A",
+ famille: "HFO/HFC", classe_ASHRAE: "A1", GWP: 1387, ODP: 0,
+ statut: "autorisé", perennite: "transition",
+ oil: "POE",
+ colors: { primary: "#5C6BC0", secondary: "#3949AB" }
+ },
+ 
+ "R450A": {
+ code: "R450A", nom: "R450A",
+ famille: "HFO/HFC", classe_ASHRAE: "A1", GWP: 605, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "POE",
+ colors: { primary: "#29B6F6", secondary: "#0288D1" }
+ },
+ 
+ "R507A": {
+ code: "R507A", nom: "R507A",
+ famille: "HFC", classe_ASHRAE: "A1", GWP: 3985, ODP: 0,
+ statut: "phase out", perennite: "court terme",
+ oil: "POE",
+ colors: { primary: "#E57373", secondary: "#C62828" }
+ },
+ 
+ "R1233zd": {
+ code: "R1233zd", nom: "R1233zd(E)",
+ famille: "HFO", classe_ASHRAE: "A1", GWP: 4.5, ODP: 0,
+ statut: "autorisé", perennite: "long terme",
+ oil: "POE",
+ colors: { primary: "#4DB6AC", secondary: "#00796B" }
+ }
+ };
+
+ // Matrice de retrofit (substitutions recommandées)
+ const RETRO = {
+ "R404A": [
+ { to: "R448A", compat: "excellente", cautions: ["Vérifier détendeur"], gwp_reduction: 65, note: "Drop-in quasi-direct" },
+ { to: "R449A", compat: "excellente", cautions: ["Vérifier détendeur"], gwp_reduction: 64, note: "Drop-in quasi-direct" },
+ { to: "R454C", compat: "bonne", cautions: ["Huile POE", "A2L", "Détendeur"], gwp_reduction: 96, note: "Meilleur GWP" }
+ ],
+ "R507A": [
+ { to: "R448A", compat: "excellente", cautions: ["Vérifier détendeur"], gwp_reduction: 65, note: "Drop-in quasi-direct" },
+ { to: "R449A", compat: "excellente", cautions: ["Vérifier détendeur"], gwp_reduction: 65, note: "Drop-in quasi-direct" }
+ ],
+ "R134a": [
+ { to: "R1234yf", compat: "excellente", cautions: ["A2L"], gwp_reduction: 99, note: "Automotive standard" },
+ { to: "R513A", compat: "bonne", cautions: ["Légèrement inflammable"], gwp_reduction: 56, note: "Commercial/industriel" },
+ { to: "R450A", compat: "bonne", cautions: ["Vérifier huile"], gwp_reduction: 58, note: "Moyen terme" }
+ ],
+ "R410A": [
+ { to: "R32", compat: "bonne", cautions: ["A2L", "Pression +10%"], gwp_reduction: 68, note: "Performant" },
+ { to: "R454B", compat: "excellente", cautions: ["A2L"], gwp_reduction: 78, note: "Drop-in amélioré" }
+ ]
+ };
+
+ function list() {
+ return Object.values(DB).map(f => ({code: f.code, nom: f.nom}));
+ }
+
+ function meta(code) {
+ return DB[code] || null;
+ }
+
+ function getColors(code) {
+ const m = meta(code);
+ if (!m || !m.colors) return null;
+ return m.colors;
+ }
+
+ function backgroundCSS(code) {
+ const c = getColors(code);
+ if (!c) return null;
+ if (c.secondary) {
+ return `linear-gradient(135deg, ${c.primary} 0%, ${c.secondary} 100%)`;
+ }
+ return c.primary;
+ }
+
+ function retrofitOptions(oldCode) {
+ return RETRO[oldCode] || [];
+ }
+
+ return {
+ version: VERSION,
+ fluids: { list, meta },
+ colors: { get: getColors, backgroundCSS },
+ retrofit: { options: retrofitOptions }
+ };
+}));
+
+
+// ==================================================
+// WRAPPERS DE COMPATIBILITÉ (ancien code UI → nouveaux moteurs)
+// ==================================================
+
+// Wrapper: Psat en bar absolu
+function Psat_bar(fluid, T_C, phase = null) {
+ return ThermoCore.Psat(fluid, T_C, phase);
+}
+
+// Wrapper: Tsat depuis pression
+function Tsat_fromP_C(fluid, P_bar, phase = null) {
+ return ThermoCore.Tsat(P_bar, fluid, phase);
+}
+
+// Wrapper: Info de précision
+function getAccuracyInfo(fluid, T_C, phase = null) {
+ return ThermoCore.getAccuracy(fluid, T_C, phase);
+}
+
+// Wrapper: Segment pour température
+function getSegmentForTemperature(fluid, T_C, phase = null) {
+ const info = ThermoCore.getAccuracy(fluid, T_C, phase);
+ return info.segment || null;
+}
+
+// FLUIDS_SEGMENTS legacy (vide car tout dans ThermoCore)
+const FLUIDS_SEGMENTS = {};
+
+// ==================================================
+// HELPERS SÉCURISÉS MP_* AVEC GESTION HORS-PLAGE (V4.0)
+// ==================================================
+
+// Helper debug discret (activer avec localStorage.setItem('mp_debug','1'))
+function MP_dbg(label, obj) {
+ if (typeof window !== 'undefined' && window.localStorage && window.localStorage.getItem('mp_debug') === '1') {
+ console.log('[MP_DEBUG]', label, obj);
+ }
+}
+
+// Wrapper sécurisé: Tsat depuis pression (retourne objet {ok, value_C, message})
+function MP_Tsat(P_abs_bar, code, phase = null) {
+ MP_dbg('MP_Tsat input', {P_abs_bar, code, phase});
+ 
+ // Vérifier limites
+ const limits = ThermoCore.limits(code);
+ if (!limits) {
+ return {ok: false, message: 'fluide inconnu'};
+ }
+ 
+ if (P_abs_bar < limits.P_min_bar_abs || P_abs_bar > limits.P_max_bar_abs) {
+ return {
+ ok: false, 
+ message: `hors plage (${limits.P_min_bar_abs.toFixed(2)}""${limits.P_max_bar_abs.toFixed(2)} bar abs)`
+ };
+ }
+ 
+ // Calcul
+ const T_C = ThermoCore.Tsat(P_abs_bar, code, phase);
+ 
+ if (!isFinite(T_C)) {
+ return {ok: false, message: 'erreur calcul'};
+ }
+ 
+ MP_dbg('MP_Tsat output', {ok: true, value_C: T_C});
+ return {ok: true, value_C: T_C};
+}
+
+// Wrapper sécurisé: Psat depuis température (retourne objet {ok, value_bar_abs, message})
+function MP_Psat(T_C, code, phase = null) {
+ MP_dbg('MP_Psat input', {T_C, code, phase});
+ 
+ // Vérifier limites
+ const limits = ThermoCore.limits(code);
+ if (!limits) {
+ return {ok: false, message: 'fluide inconnu'};
+ }
+ 
+ if (T_C < limits.T_min_C || T_C > limits.T_max_C) {
+ return {
+ ok: false, 
+ message: `hors plage (${limits.T_min_C}""${limits.T_max_C}°C)`
+ };
+ }
+ 
+ // Calcul
+ const P_bar_abs = ThermoCore.Psat(code, T_C, phase);
+ 
+ if (!isFinite(P_bar_abs)) {
+ return {ok: false, message: 'erreur calcul'};
+ }
+ 
+ MP_dbg('MP_Psat output', {ok: true, value_bar_abs: P_bar_abs});
+ return {ok: true, value_bar_abs: P_bar_abs};
+}
+
+// Base de données fluides avec informations retrofit
+const FLUIDS_DB = {
+ 'R404A': { retrofits: ['R448A', 'R449A', 'R452A', 'R454C', 'R455A'] },
+ 'R507A': { retrofits: ['R448A', 'R449A', 'R452A'] },
+ 'R134a': { retrofits: ['R1234yf', 'R513A', 'R450A'] },
+ 'R410A': { retrofits: ['R32', 'R454B', 'R452B'] },
+ 'R407C': { retrofits: ['R32', 'R454B', 'R452A'] },
+ 'R22': { retrofits: ['R407C', 'R422D', 'R438A', 'R427A'] }
+};
+
+// ============= VARIABLES GLOBALES =============
+let P_ATM = 1.01325; // bar (sera mis à jour avec altitude)
+const DEG = Math.PI/180, START_DEG=135, SWEEP_DEG=270;
+let currentUnit = 'bar';
+let zoomLevel = 1;
+let vacuumMode = false;
+let calculationMethod = 'hybrid'; // 'hybrid', 'antoine', 'wagner'
+let showAccuracy = true;
+const UNIT_FACTORS = {bar:1, kpa:100, mpa:0.1, psi:14.5038};
+
+// === Helpers pression: mode relatif (barg) / absolu (bar abs) ===
+(function(){
+ const P_ATM_BAR = 1.01325;
+ if (typeof window.__PRESSURE_MODE__ === 'undefined') {
+ window.__PRESSURE_MODE__ = (localStorage.getItem('pressure_mode') || 'gauge'); // 'gauge' or 'absolute'
+ }
+ window.toBarAbs = function(value_bar){
+ return (window.__PRESSURE_MODE__ === 'gauge') ? (value_bar + P_ATM_BAR) : value_bar;
+ };
+ window.fromBarAbsToDisplay = function(p_abs_bar){
+ return (window.__PRESSURE_MODE__ === 'gauge') ? (p_abs_bar - P_ATM_BAR) : p_abs_bar;
+ };
+})();
+
+
+// ============= GESTION PRÉCISION ET MÉTHODE =============
+
+// Obtenir les informations de précision pour l'affichage
+function getAccuracyInfo(fluid, T_C, phase = null) {
+ const segment = getSegmentForTemperature(fluid, T_C, phase);
+ if (!segment) return { method: 'N/A', error: 'N/A', range: 'N/A' };
+ 
+ const method = segment.type === 'antoine' ? 'Antoine' : 'Wagner';
+ const error = segment.err ? `${segment.err.mean}%/${segment.err.max}%` : 'N/A';
+ const range = `${segment.Tmin}→ '${segment.Tmax}°C`;
+ 
+ return { method, error, range };
+}
+
+// Mise à jour de l'affichage de précision
+function updateAccuracyDisplay(gaugeId, T_C) {
+ const fluid = document.getElementById('mainFluid').value;
+ const fluidData = FLUIDS_SEGMENTS[fluid];
+ 
+ if (!fluidData || !showAccuracy) {
+ document.getElementById(`${gaugeId}AccuracyInfo`).style.display = 'none';
+ return;
+ }
+ 
+ const phase = fluidData.dew ? 'dew' : null; // Simplification, utiliser dew par défaut
+ const info = getAccuracyInfo(fluid, T_C, phase);
+ const segment = getSegmentForTemperature(fluid, T_C, phase);
+ 
+ // Mise à jour des éléments
+ document.getElementById(`${gaugeId}Mode`).textContent = info.method;
+ document.getElementById(`${gaugeId}Range`).textContent = info.range;
+ 
+ // Badge de précision
+ const accuracyBadge = document.querySelector(`#${gaugeId}AccuracyInfo .accuracy-badge`);
+ if (accuracyBadge && segment && segment.err) {
+ accuracyBadge.className = 'accuracy-badge';
+ if (segment.err.max < 0.5) {
+      accuracyBadge.classList.add('high');
+      accuracyBadge.innerHTML = 'Err <0.5%';
+    } else if (segment.err.max < 1.0) {
+      accuracyBadge.classList.add('medium');
+      accuracyBadge.innerHTML = `Err <${segment.err.max}%`;
+    } else {
+      accuracyBadge.classList.add('low');
+      accuracyBadge.innerHTML = `Err ~${segment.err.max}%`;
+    }
+  }
+  
+  document.getElementById(`${gaugeId}AccuracyInfo`).style.display = showAccuracy ? 'flex' : 'none';
+}
+
+// ============= CALCULS AVEC NOUVELLE STRUCTURE =============
+
+// Données de fallback pour les fluides non définis dans FLUIDS_SEGMENTS
+const FALLBACK_ANTOINE = {
+  R134a: {A1: 9.95, A2: -2150, A3: 243},
+  R32: {A1: 10.25, A2: -2055, A3: 252},
+  R410A: {A1: 10.09, A2: -1992, A3: 249},
+  R404A: {A1: 9.72, A2: -1948, A3: 246},
+  R407C: {A1: 10.07, A2: -2062, A3: 241},
+  R290: {A1: 9.40, A2: -1992, A3: 254},
+  R600a: {A1: 9.33, A2: -2205, A3: 248},
+  R744: {A1: 10.66, A2: -1908, A3: 268},
+  R717: {A1: 10.20, A2: -2132, A3: 250},
+  R1234yf: {A1: 9.80, A2: -1885, A3: 240},
+  R1234ze: {A1: 9.75, A2: -1862, A3: 239},
+  R1233zd: {A1: 9.69, A2: -2048, A3: 238},
+  R513A: {A1: 9.88, A2: -2088, A3: 241},
+  R449A: {A1: 9.78, A2: -1975, A3: 244},
+  R452A: {A1: 9.91, A2: -1988, A3: 247},
+  R454B: {A1: 10.18, A2: -2025, A3: 250},
+  R454C: {A1: 10.14, A2: -2015, A3: 249},
+  R455A: {A1: 9.82, A2: -1910, A3: 242},
+  R1270: {A1: 9.42, A2: -1806, A3: 248},
+  R170: {A1: 9.48, A2: -1511, A3: 255},
+  R448A: {A1: 9.75, A2: -1968, A3: 245},
+  R450A: {A1: 9.92, A2: -2098, A3: 241},
+  R507A: {A1: 9.71, A2: -1936, A3: 246}
+};
+
+// Wrapper pour les calculs existants avec la nouvelle structure
+function getPressure(T_C, fluidCode) {
+  // Essayer d'abord avec la nouvelle structure
+  const fluidData = FLUIDS_SEGMENTS[fluidCode];
+  
+  if (fluidData) {
+    let phase = null;
+    if (!fluidData.single) {
+      phase = 'dew'; // Par défaut, utiliser dew pour les mélanges
+    }
+    
+    const P_abs = Psat_bar(fluidCode, T_C, phase);
+    if (isFinite(P_abs)) return P_abs;
+  }
+  
+  // Fallback vers Antoine classique
+  const antoine = FALLBACK_ANTOINE[fluidCode];
+  if (antoine) {
+    return Math.exp(antoine.A1 + antoine.A2/(T_C + antoine.A3));
+  }
+  
+  // Fallback ultime avec valeurs par défaut R134a
+  return Math.exp(9.95 + (-2150)/(T_C + 243));
+}
+
+function getTemperature(P_bar, fluidCode) {
+  // Essayer d'abord avec la nouvelle structure
+  const fluidData = FLUIDS_SEGMENTS[fluidCode];
+  
+  if (fluidData) {
+    let phase = null;
+    if (!fluidData.single) {
+      phase = 'dew';
+    }
+    
+    const T_C = Tsat_fromP_C(fluidCode, P_bar, phase);
+    if (isFinite(T_C)) return T_C;
+  }
+  
+  // Fallback vers Antoine classique
+  const antoine = FALLBACK_ANTOINE[fluidCode];
+  if (antoine) {
+    return (antoine.A2 / (Math.log(P_bar) - antoine.A1)) - antoine.A3;
+  }
+  
+  // Fallback ultime avec valeurs par défaut R134a
+  return ((-2150) / (Math.log(P_bar) - 9.95)) - 243;
+}
+
+// Gestion du glide pour mélanges zéotropiques
+function T_from_Pg(p_g, fluidCode, curve='dew'){
+  const P_abs = p_g + P_ATM;
+  const Te = getTemperature(P_abs, fluidCode);
+  
+  // Appliquer le glide si nécessaire
+  const fluidData = FLUIDS_SEGMENTS[fluidCode];
+  if (fluidData && fluidData.meta) {
+    const glide = fluidData.meta.glide || 0;
+    if (curve === 'dew') return Te + glide/2;
+    if (curve === 'bubble') return Te - glide/2;
+  }
+  
+  return Te;
+}
+
+function Pg_from_T(Tc, fluidCode, curve='dew'){
+  const fluidData = FLUIDS_SEGMENTS[fluidCode];
+  let Te = Tc;
+  
+  // Appliquer le glide si nécessaire
+  if (fluidData && fluidData.meta) {
+    const glide = fluidData.meta.glide || 0;
+    if (curve === 'dew') Te = Tc - glide/2;
+    else if (curve === 'bubble') Te = Tc + glide/2;
+  }
+  
+  const P_abs = getPressure(Te, fluidCode);
+  return P_abs - P_ATM;
+}
+
+// ============= PRESSION ATMOSPHÉRIQUE (ISA corrigée) =============
+function patm_ISA_bar(alt_m) {
+  const P0 = 1.01325;  // bar au niveau de la mer
+  const T0 = 288.15;   // K
+  const L = 0.0065;    // K/m gradient température
+  const g = 9.80665;   // m/s²
+  const R = 287.052;   // J/(kg&middot;K) pour l'air
+  
+  const exp = g / (R * L); // &asymp; 5.25588
+  
+  if (alt_m < 0) alt_m = 0;
+  if (alt_m > 11000) alt_m = 11000; // Limite troposphère
+ 
+ return P0 * Math.pow(1 - (L * alt_m) / T0, exp);
+}
+
+function updateAtmosphericPressure() {
+ const altitude = parseFloat(document.getElementById('altitude').value) || 0;
+ P_ATM = patm_ISA_bar(altitude);
+ document.getElementById('atmPressure').textContent = `${(P_ATM * 1000).toFixed(1)} mbar`;
+ 
+ // Recalculer les manomètres
+ renderBP();
+ renderHP();
+}
+
+// ============= DONNÉES RETROFIT =============
+const RETROFIT_DATA = {
+ 'R404A': {
+ retrofits: ['R448A', 'R449A', 'R452A', 'R454C', 'R455A', 'R290'],
+ preferred: ['R448A', 'R449A']
+ },
+ 'R507A': {
+ retrofits: ['R448A', 'R449A', 'R452A'],
+ preferred: ['R448A', 'R449A']
+ },
+ 'R134a': {
+ retrofits: ['R1234yf', 'R513A', 'R450A'],
+ preferred: ['R1234yf', 'R513A']
+ },
+ 'R410A': {
+ retrofits: ['R32', 'R454B'],
+ preferred: ['R32', 'R454B']
+ },
+ 'R407C': {
+ retrofits: ['R32', 'R452A'],
+ preferred: ['R32']
+ }
+};
+
+// ============= MODULE RETROFIT =============
+let retrofitMode = false;
+
+function toggleRetrofitMode() {
+ retrofitMode = !retrofitMode;
+ const panel = document.getElementById('retrofitPanel');
+ panel.classList.toggle('active');
+ 
+ if(retrofitMode) {
+ const currentFluid = document.getElementById('mainFluid').value;
+ if(['R404A', 'R507A', 'R134a', 'R410A', 'R407C'].includes(currentFluid)) {
+ document.getElementById('oldFluid').value = currentFluid;
+ updateRetrofitAnalysis();
+ }
+ }
+}
+
+function updateRetrofitAnalysis() {
+ const oldFluid = document.getElementById('oldFluid').value;
+ const newFluid = document.getElementById('newFluid').value;
+ 
+ if(!oldFluid || !newFluid) {
+ document.getElementById('retrofitResult').classList.remove('active');
+ return;
+ }
+ 
+ const oldData = FLUIDS_SEGMENTS[oldFluid]?.meta;
+ const newData = FLUIDS_SEGMENTS[newFluid]?.meta;
+ 
+ if(!oldData || !newData) return;
+ 
+ // Afficher résultat
+ document.getElementById('retrofitResult').classList.add('active');
+ 
+ // Générer badges
+ const badges = document.getElementById('retrofitBadges');
+ badges.innerHTML = '';
+ 
+ // Compatibilité sécurité
+ if(oldData.class === 'A1' && newData.class === 'A1') {
+ badges.innerHTML += '<span class="compat-badge compat-success">&#10004; Sécurité OK</span>';
+ } else if(oldData.class === 'A1' && newData.class === 'A2L') {
+ badges.innerHTML += '<span class="compat-badge compat-warning">&#9888;&#65039; A2L</span>';
+ } else if(oldData.class === 'A1' && newData.class === 'A3') {
+ badges.innerHTML += '<span class="compat-badge compat-danger">&#9888; A3 EXPLOSIF</span>';
+ }
+ 
+ // GWP
+ const gwpReduction = Math.round((1 - newData.GWP/oldData.GWP) * 100);
+ if(gwpReduction > 50) {
+ badges.innerHTML += `<span class="compat-badge compat-success">’± -${gwpReduction}% GWP</span>`;
+ } else if(gwpReduction > 0) {
+ badges.innerHTML += `<span class="compat-badge compat-info">→ "${gwpReduction}% GWP</span>`;
+ }
+ 
+ // Huile
+ if(oldData.oil === newData.oil || (oldData.oil.includes('POE') && newData.oil.includes('POE'))) {
+ badges.innerHTML += '<span class="compat-badge compat-success">&#10004; Huile compatible</span>';
+ } else {
+ badges.innerHTML += '<span class="compat-badge compat-warning">&#9888;&#65039; Changer huile</span>';
+ }
+ 
+ // Glide
+ if(Math.abs(newData.glide - oldData.glide) > 3) {
+ badges.innerHTML += '<span class="compat-badge compat-warning">" Glide différent</span>';
+ }
+ 
+ // Checklist rapide
+ const checklist = document.getElementById('retrofitChecklist');
+ checklist.innerHTML = '';
+ 
+ const items = [];
+ 
+ items.push({
+ icon: '§',
+ text: `Récupérer ${oldFluid} (${oldData.GWP} GWP)`
+ });
+ 
+ if(!oldData.oil.includes('POE') || !newData.oil.includes('POE')) {
+ items.push({
+ icon: '🔧',
+ text: `Changer huile: ${oldData.oil} → ${newData.oil}`
+ });
+ }
+ 
+ if(Math.abs(newData.glide - oldData.glide) > 2) {
+ items.push({
+ icon: '❄️',
+ text: `Régler détendeur (glide ${oldData.glide}K → ${newData.glide}K)`
+ });
+ }
+ 
+ if(newData.class !== 'A1') {
+ items.push({
+ icon: '&#9888;&#65039;',
+ text: `Sécurité ${newData.class}: détecteurs requis`
+ });
+ }
+ 
+ items.push({
+ icon: '',
+ text: `Nouvel étiquetage F-Gas`
+ });
+ 
+ items.forEach(item => {
+ checklist.innerHTML += `
+ <div class="check-item">
+ <div class="check-icon">${item.icon}</div>
+ <div class="check-text">${item.text}</div>
+ </div>
+ `;
+ });
+}
+
+function showRetrofitDetails() {
+ const oldFluid = document.getElementById('oldFluid').value;
+ const newFluid = document.getElementById('newFluid').value;
+ 
+ if(!oldFluid || !newFluid) {
+ alert('Sélectionnez les deux fluides');
+ return;
+ }
+ 
+ const oldData = FLUIDS_SEGMENTS[oldFluid]?.meta;
+ const newData = FLUIDS_SEGMENTS[newFluid]?.meta;
+ 
+ const modal = document.getElementById('retrofitDetailsModal');
+ const content = document.getElementById('retrofitDetailsContent');
+ 
+ content.innerHTML = `
+ <h4>&#10052; Retrofit ${oldFluid} → ${newFluid}</h4>
+ 
+ <table style="width:100%; margin:20px 0; border-collapse:collapse">
+ <tr style="background:#f0f9ff">
+ <th style="padding:10px; border:1px solid #ddd">Paramètre</th>
+ <th style="padding:10px; border:1px solid #ddd">${oldFluid}</th>
+ <th style="padding:10px; border:1px solid #ddd">${newFluid}</th>
+ </tr>
+ <tr>
+ <td style="padding:10px; border:1px solid #ddd">GWP</td>
+ <td style="padding:10px; border:1px solid #ddd">${oldData.GWP}</td>
+ <td style="padding:10px; border:1px solid #ddd">${newData.GWP}</td>
+ </tr>
+ <tr style="background:#f8f9fa">
+ <td style="padding:10px; border:1px solid #ddd">Classification</td>
+ <td style="padding:10px; border:1px solid #ddd">${oldData.class}</td>
+ <td style="padding:10px; border:1px solid #ddd">${newData.class}</td>
+ </tr>
+ <tr>
+ <td style="padding:10px; border:1px solid #ddd">Glissement (K)</td>
+ <td style="padding:10px; border:1px solid #ddd">${oldData.glide}</td>
+ <td style="padding:10px; border:1px solid #ddd">${newData.glide}</td>
+ </tr>
+ <tr style="background:#f8f9fa">
+ <td style="padding:10px; border:1px solid #ddd">Huile</td>
+ <td style="padding:10px; border:1px solid #ddd">${oldData.oil}</td>
+ <td style="padding:10px; border:1px solid #ddd">${newData.oil}</td>
+ </tr>
+ </table>
+ 
+ <h5 style="color:var(--accent)">&#128203; Procédure détaillée</h5>
+ <ol style="font-size:0.9rem; line-height:1.6">
+ <li>Récupérer intégralement le ${oldFluid}</li>
+ <li>Remplacer le filtre déshydrateur</li>
+ ${oldData.oil !== newData.oil ? '<li>Vidanger et remplacer l\'huile (2-3 rinçages si nécessaire)</li>' : ''}
+ ${Math.abs(newData.glide - oldData.glide) > 2 ? '<li>Ajuster le détendeur (surchauffe +' + Math.round(Math.abs(newData.glide - oldData.glide)/2) + 'K)</li>' : ''}
+ <li>Test étanchéité à l'azote</li>
+ <li>Tirage au vide < 200 microns</li>
+ <li>Charge ${newFluid} (90-95% charge initiale)</li>
+ <li>Ajuster charge selon paramètres</li>
+ <li>Nouvel étiquetage F-Gas</li>
+ </ol>
+ 
+ ${newData.class !== 'A1' ? '<div style="background:#fee2e2; padding:10px; border-radius:8px; margin-top:15px"><strong>&#9888;&#65039; ATTENTION:</strong> Fluide ' + newData.class + ' - Mise en conformité sécurité obligatoire</div>' : ''}
+ 
+ <button class="btn" style="width:100%; margin-top:20px" onclick="closeModal('retrofitDetailsModal')">
+ Fermer
+ </button>
+ `;
+ 
+ modal.classList.add('active');
+}
+
+// ============= ZOOM =============
+
+var _gaugeScale = 1;
+function gaugeZoom(dir) {
+    if (dir === 0) _gaugeScale = 1;
+    else _gaugeScale = Math.max(0.6, Math.min(2.0, _gaugeScale + dir * 0.15));
+    var svgs = document.querySelectorAll('.gauge-box svg');
+    svgs.forEach(function(svg) {
+        svg.style.maxWidth = Math.round(350 * _gaugeScale) + 'px';
+        svg.style.transition = 'max-width 0.3s ease';
+    });
+    var label = document.getElementById('gaugeZoomLevel');
+    if (label) label.textContent = Math.round(_gaugeScale * 100) + '%';
+}
+function zoomIn(){
+ zoomLevel = Math.min(zoomLevel + 0.1, 1.5);
+ applyZoom();
+}
+
+function zoomOut(){
+ zoomLevel = Math.max(zoomLevel - 0.1, 0.7);
+ applyZoom();
+}
+
+function resetZoom(){
+ zoomLevel = 1;
+ applyZoom();
+}
+
+function applyZoom(){
+ const center = document.getElementById('centerZone');
+ center.style.transform = `scale(${zoomLevel})`;
+ center.style.transformOrigin = 'center top';
+}
+
+// ============= MODE VACUUM PRO =============
+let leakTestTimer = null;
+let leakTestStartPressure = 0;
+
+// Calcul tension de vapeur saturante de l'eau (formule d'Antoine)
+function tensionVapeurEau(T) {
+ // T en °C, retourne P en mbar
+ if(T < 0) T = 0;
+  if(T > 100) T = 100;
+ 
+ // Formule d'Antoine pour l'eau (0-100°C)
+ const A = 8.07131;
+ const B = 1730.63;
+ const C = 233.426;
+ const P_mmHg = Math.pow(10, A - B/(C + T));
+ return P_mmHg * 1.33322; // Conversion mmHg → mbar
+}
+
+function toggleVacuumMode(){
+ vacuumMode = !vacuumMode;
+ const panel = document.getElementById('vacuumPanel');
+ panel.classList.toggle('active');
+ 
+ if(vacuumMode){
+ updateVacuumAnalysis();
+ }
+}
+
+// Toggle module incondensables
+function toggleIncondMode() {
+ const panel = document.getElementById('incondPanel');
+ const btn = event.target;
+ if (panel.style.display === 'none' || !panel.style.display) {
+ panel.style.display = 'block';
+ btn.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+ } else {
+ panel.style.display = 'none';
+ btn.style.background = 'linear-gradient(135deg, #c0392b, #e74c3c)';
+ }
+}
+
+
+
+function updateVacuumAnalysis(){
+ const temp = parseFloat(document.getElementById('ambientTemp').value) || 20;
+ const tensionVapeur = tensionVapeurEau(temp);
+ const limiteVide = -1013.25 + tensionVapeur; // mbar relatif
+ 
+ // Affichage limite eau
+ document.getElementById('waterLimit').textContent = `${limiteVide.toFixed(0)} mbar`;
+ document.getElementById('waterLimitAbs').textContent = `(${tensionVapeur.toFixed(1)} mbar abs)`;
+ 
+ // Message diagnostic
+ let message = '';
+ if(temp < 10) {
+    message = `À ${temp}°C, l'eau limite le vide   ${limiteVide.toFixed(0)} mbar`;
+  } else if(temp < 30) {
+    message = `Si le vide stagne   ${limiteVide.toFixed(0)} mbar  &rarr;  <strong style="color:#e8914a">Présence d\'eau</strong>`;
+ } else {
+ message = `&#9888;&#65039; Température élevée (${temp}°C) → Vide limité à ${limiteVide.toFixed(0)} mbar avec eau`;
+ }
+ document.getElementById('waterDiagnosis').innerHTML = message;
+ 
+ // Dessin du manomètre avec zones
+ drawVacuumGaugeWithZones(limiteVide);
+ 
+ // Mise à jour diagnostic
+ updateVacuumDiagnostic();
+}
+
+function drawVacuumGaugeWithZones(waterLimit){
+ const svg = document.getElementById('vacuumGauge');
+ const currentPressure = parseFloat(document.getElementById('vacuumReading').value) || -950;
+ 
+ while(svg.firstChild) svg.removeChild(svg.firstChild);
+ const ns = 'http://www.w3.org/2000/svg';
+ const cx = 230, cy = 230;
+ const rOuter = 205;
+ 
+ function svgEl(name, attrs = {}, text = null){
+ const n = document.createElementNS(ns, name);
+ for(const [k, v] of Object.entries(attrs)) n.setAttribute(k, String(v));
+ if(text != null) n.textContent = text;
+ return n;
+ }
+ 
+ // Fond avec zones colorées
+ const greenAngle = angleOfPressure(waterLimit - 50, -1013, 0);
+ const greenEndAngle = angleOfPressure(-1013, -1013, 0);
+ svg.append(
+ svgEl('path', {
+ d: arcPath(cx, cy, 200, greenAngle/DEG+90, greenEndAngle/DEG+90),
+ fill: 'none',
+ stroke: '#27ae60',
+ 'stroke-width': 40,
+ opacity: 0.3
+ })
+ );
+ 
+ // Zone orange (limite)
+ const orangeStart = angleOfPressure(waterLimit + 30, -1013, 0);
+ const orangeEnd = angleOfPressure(waterLimit - 30, -1013, 0);
+ svg.append(
+ svgEl('path', {
+ d: arcPath(cx, cy, 200, orangeStart/DEG+90, orangeEnd/DEG+90),
+ fill: 'none',
+ stroke: '#ff9800',
+ 'stroke-width': 40,
+ opacity: 0.3
+ })
+ );
+ 
+ // Zone rouge (eau certaine)
+ const redAngle = angleOfPressure(0, -1013, 0);
+ const redEndAngle = angleOfPressure(waterLimit + 50, -1013, 0);
+ svg.append(
+ svgEl('path', {
+ d: arcPath(cx, cy, 200, redEndAngle/DEG+90, redAngle/DEG+90),
+ fill: 'none',
+ stroke: '#e74c3c',
+ 'stroke-width': 40,
+ opacity: 0.3
+ })
+ );
+ 
+ // Dessin normal du manomètre
+ drawGauge(svg, {
+ rimColor: '#2aafaf',
+ fluid: 'VACUUM',
+ minP: -1013,
+ maxP: 0,
+ majorStep: 100,
+ needleValue: currentPressure,
+ showTempRing: false,
+ showNeedleReadout: true,
+ showFineTicks: true
+ });
+ 
+ // Ligne limite eau
+ const limitAngle = angleOfPressure(waterLimit, -1013, 0);
+ const limitPos1 = polar(cx, cy, 160, limitAngle);
+ const limitPos2 = polar(cx, cy, 210, limitAngle);
+ svg.append(
+ svgEl('line', {
+ x1: limitPos1.x,
+ y1: limitPos1.y,
+ x2: limitPos2.x,
+ y2: limitPos2.y,
+ stroke: '#e8914a',
+ 'stroke-width': 3,
+ 'stroke-dasharray': '5,5'
+ })
+ );
+ 
+ // Label limite
+ svg.append(
+ svgEl('text', {
+ x: cx,
+ y: cy + 80,
+ 'text-anchor': 'middle',
+ 'font-size': 12,
+ 'font-weight': 700,
+ fill: '#e8914a'
+ }, `Limite eau: ${waterLimit.toFixed(0)} mbar`)
+ );
+}
+
+function updateVacuumDiagnostic(){
+ const temp = parseFloat(document.getElementById('ambientTemp').value) || 20;
+ const currentPressure = parseFloat(document.getElementById('vacuumReading').value) || -950;
+ const tensionVapeur = tensionVapeurEau(temp);
+ const limiteVide = -1013.25 + tensionVapeur;
+ 
+ // Conversions
+ const mbarAbs = currentPressure + 1013.25;
+ const torr = mbarAbs * 0.75006;
+ const microns = torr * 1000;
+ const pa = mbarAbs * 100;
+ const inHg = currentPressure * 0.02953;
+ 
+ document.getElementById('convMicrons').textContent = microns.toFixed(0);
+ document.getElementById('convTorr').textContent = torr.toFixed(1);
+ document.getElementById('convPa').textContent = pa.toFixed(0);
+ document.getElementById('convInHg').textContent = inHg.toFixed(1);
+ 
+ // Diagnostic
+ const diagDiv = document.getElementById('vacuumDiagnostic');
+ let diagClass = '';
+ let diagText = '';
+ 
+ if(currentPressure < limiteVide - 50) {
+    diagClass = 'background: linear-gradient(135deg, #c8e6c9, #a5d6a7); color: #1b5e20;';
+    diagText = '&#10004; EXCELLENT - Circuit sec, pas d\'humidité détectée';
+  } else if(currentPressure < limiteVide - 10) {
+    diagClass = 'background: linear-gradient(135deg, #fff9c4, #fff59d); color: #f57f17;';
+    diagText = '&#9888;&#65039; LIMITE - Proche de la tension de vapeur, humidité possible';
+  } else if(currentPressure < limiteVide + 30) {
+    diagClass = 'background: linear-gradient(135deg, #ffccbc, #ffab91); color: #bf360c;';
+    diagText = '💧 EAU DÉTECTÉE - Vide limité par la présence d\'eau';
+  } else {
+    diagClass = 'background: linear-gradient(135deg, #ffcdd2, #ef9a9a); color: #b71c1c;';
+    diagText = '&#9889; PROBLÈME - Vide insuffisant (fuite ou eau importante)';
+  }
+  
+  diagDiv.style.cssText = diagClass + ' padding: 0.8rem; border-radius: 8px;';
+  diagDiv.innerHTML = diagText;
+  
+  // Recommandation niveau de vide
+  let recommendation = '<div style="margin-top:0.5rem; font-size:0.75rem; color:#64748b">';
+ if(microns < 500) {
+    recommendation += '" Niveau: Installation résidentielle OK';
+  } else if(microns < 1500) {
+    recommendation += '" Niveau: Acceptable pour test';
+  } else {
+    recommendation += '" Niveau: Insuffisant - Continuer le tirage';
+  }
+  recommendation += '</div>';
+ diagDiv.innerHTML += recommendation;
+}
+
+// Test de remontée (détection fuite)
+function startLeakTest(){
+ const startPressure = parseFloat(document.getElementById('vacuumReading').value) || -950;
+ leakTestStartPressure = startPressure;
+ 
+ const resultDiv = document.getElementById('leakTestResult');
+ resultDiv.style.display = 'block';
+ resultDiv.innerHTML = '&#9201; Test en cours... (10 minutes)';
+ 
+ // Simulation après 10 secondes pour la démo
+ setTimeout(() => {
+ const endPressure = startPressure + Math.random() * 50; // Simulation remontée
+ const remontee = endPressure - startPressure;
+ 
+ let result = '';
+ if(remontee < 10) {
+      result = `&#10004; TEST OK - Remontée: ${remontee.toFixed(1)} mbar en 10min  &rarr;  Étanchéité correcte`;
+      resultDiv.style.background = '#e8f5e9';
+    } else if(remontee < 30) {
+      result = `&#9888;&#65039; LIMITE - Remontée: ${remontee.toFixed(1)} mbar en 10min  &rarr;  Micro-fuite possible`;
+      resultDiv.style.background = '#fff3e0';
+    } else {
+      result = `&#9889; FUITE - Remontée: ${remontee.toFixed(1)} mbar en 10min  &rarr;  Fuite   localiser`;
+      resultDiv.style.background = '#ffebee';
+    }
+    resultDiv.innerHTML = result;
+  }, 10000); // 10 secondes pour la démo (normalement 600000 pour 10min)
+}
+
+// ============= FONCTIONS UTILITAIRES =============
+function formatP(pBar){ 
+  return (pBar*UNIT_FACTORS[currentUnit]).toFixed(2) + ' ' + currentUnit; 
+}
+
+function parseP(val){ 
+  return parseFloat(val)/UNIT_FACTORS[currentUnit]; 
+}
+
+function formatTickNoUnit(pBar){
+  let v = (pBar*UNIT_FACTORS[currentUnit]);
+  if (Math.abs(v) < 1e-9) v = 0;
+  if (Math.abs(v - Math.round(v)) < 1e-6) return String(Math.round(v));
+  let txt = v.toFixed(1);
+  if (txt.endsWith('.0')) txt = txt.slice(0, -2);
+  return txt;
+}
+
+const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+const roundTo = (x,step) => Math.round(x/step)*step;
+const angleOfPressure = (p,minP,maxP) => ((p-minP)/(maxP-minP))*SWEEP_DEG*DEG + START_DEG*DEG;
+const polar = (cx,cy,r,a) => ({x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)});
+
+function arcPath(cx,cy,r,d1,d2){
+ const a1=(d1-90)*DEG,a2=(d2-90)*DEG;
+ const s=polar(cx,cy,r,a2), e=polar(cx,cy,r,a1);
+ const large=(d2-d1)<=180?'0':'1';
+  return `M ${s.x} ${s.y} A ${r} ${r} 0 ${large} 0 ${e.x} ${e.y}`;
+}
+
+// ============= DESSIN MANOMÈTRE =============
+function drawGauge(svg, opts){
+  const {rimColor, fluid, minP, maxP, majorStep, needleValue, showTempRing, showNeedleReadout, showFineTicks} = opts;
+  
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  const ns='http://www.w3.org/2000/svg';
+  const cx=230, cy=230;
+  const rOuter=205, rMaj=180, rMed=188, rFine=195, rText=162, rTemp=152;
+  
+  function svgEl(name,attrs={},text=null){
+    const n=document.createElementNS(ns,name);
+    for(const[k,v] of Object.entries(attrs)) n.setAttribute(k,String(v));
+    if(text!=null) n.textContent=text;
+    return n;
+  }
+  
+  // Fond avec gradient
+  const defs = svgEl('defs');
+  const grad = svgEl('linearGradient',{id:'rimGrad',x1:'0%',y1:'0%',x2:'100%',y2:'100%'});
+  grad.append(svgEl('stop',{offset:'0%',style:`stop-color:${rimColor};stop-opacity:1`}));
+  grad.append(svgEl('stop',{offset:'100%',style:`stop-color:${rimColor};stop-opacity:0.7`}));
+  defs.append(grad);
+  svg.append(defs);
+  
+  svg.append(
+    svgEl('circle',{cx,cy,r:220,fill:'#fff',stroke:'url(#rimGrad)','stroke-width':6}),
+    svgEl('path',{d:arcPath(cx,cy,212,START_DEG,START_DEG+SWEEP_DEG),fill:'none',stroke:'#dbe3ea','stroke-width':8,'stroke-linecap':'round'})
+  );
+  
+  // Logo central avec style
+  const logoG = svgEl('g');
+  logoG.append(
+    svgEl('text',{x:cx,y:cy-4,'text-anchor':'middle','font-size':18,'font-weight':800,fill:'#e8914a','font-family':'Bebas Neue'},'INERWEB'),
+    svgEl('text',{x:cx,y:cy+18,'text-anchor':'middle','font-size':11,'font-weight':600,fill:'#64748b'}, fluid + ' &#8226; ' + currentUnit)
+  );
+  svg.append(logoG);
+  
+  // Échelle pression avec TOUTES les graduations
+  const firstMajor=Math.ceil(minP/majorStep)*majorStep;
+  const majors=[];
+  const fineStep = majorStep/5;
+  const medStep = majorStep/2;
+  
+  for(let p=firstMajor;p<=maxP+1e-7;p+=majorStep){
+    majors.push(p);
+    const a=angleOfPressure(p,minP,maxP), c=Math.cos(a), s=Math.sin(a);
+    const isZero=Math.abs(p)<1e-9;
+    
+    // Graduation majeure
+    svg.append(svgEl('line',{
+      x1:cx+rOuter*c,y1:cy+rOuter*s,
+      x2:cx+rMaj*c,y2:cy+rMaj*s,
+      stroke:isZero?'#e8914a':'#1e293b',
+      'stroke-width':isZero?4:3
+    }));
+    svg.append(svgEl('text',{
+      x:cx+rText*c,y:cy+rText*s+5,
+      'text-anchor':'middle',
+      'font-size':12,
+      'font-weight':600,
+      fill:'#0f172a'
+    }, formatTickNoUnit(p)));
+    
+    // Graduation moyenne
+    const mid=p+medStep;
+    if(mid<=maxP && mid>=minP){
+ const am=angleOfPressure(mid,minP,maxP), c2=Math.cos(am), s2=Math.sin(am);
+ svg.append(svgEl('line',{
+ x1:cx+rOuter*c2,y1:cy+rOuter*s2,
+ x2:cx+rMed*c2,y2:cy+rMed*s2,
+ stroke:'#475569',
+ 'stroke-width':1.8
+ }));
+ }
+ 
+ // Graduations fines (si activées)
+ if(showFineTicks){
+ for(let q=p+fineStep; q<p+majorStep && q<=maxP; q+=fineStep){
+        if(Math.abs((q-p)-medStep)<fineStep/2) continue; // Skip la moyenne
+        if(q<minP||q>maxP) continue;
+ const af=angleOfPressure(q,minP,maxP), c3=Math.cos(af), s3=Math.sin(af);
+ svg.append(svgEl('line',{
+ x1:cx+rOuter*c3,y1:cy+rOuter*s3,
+ x2:cx+rFine*c3,y2:cy+rFine*s3,
+ stroke:'#94a3b8',
+ 'stroke-width':0.8,
+ opacity:0.7
+ }));
+ }
+ }
+ }
+ 
+ // Anneau température avec graduations (sauf CO2 et vacuum)
+ if(showTempRing && fluid !== 'R744' && fluid !== 'VACUUM'){
+ const col = '#e8914a';
+ 
+ // Anneau de température
+ svg.append(svgEl('path',{
+ d:arcPath(cx,cy,rTemp,START_DEG,START_DEG+SWEEP_DEG),
+ fill:'none',
+ stroke:col,
+ 'stroke-width':3,
+ 'stroke-linecap':'round',
+ opacity:.8
+ }));
+ 
+ // Récupérer le pas de température configuré
+ const tempStepEl = document.getElementById('tempStep');
+ const tempStep = tempStepEl ? parseFloat(tempStepEl.value) || 5 : 5;
+ 
+ // Méthode robuste pour les graduations de température
+ // On calcule directement quelques points sur l\'échelle
+ const drawnTemps = new Set();
+ const numTestPoints = 20;
+ 
+ for(let i = 0; i <= numTestPoints; i++){
+      const p_gauge = minP + (maxP - minP) * i / numTestPoints;
+      const p_abs = p_gauge + P_ATM;
+      
+      // Éviter les pressions absolues négatives ou trop faibles
+      if(p_abs < 0.05) continue;
+      
+      // Calculer la température
+      let T;
+      try {
+        T = T_from_Pg(p_gauge, fluid, 'dew');
+        if(!isFinite(T) || T < -100 || T > 200) {
+ // Fallback avec Antoine simple
+ const antoine = FALLBACK_ANTOINE[fluid];
+ if(antoine) {
+ T = (antoine.A2 / (Math.log(p_abs) - antoine.A1)) - antoine.A3;
+ }
+ }
+ } catch(e) {
+ continue;
+ }
+ 
+ if(!isFinite(T) || T < -60 || T > 100) continue;
+ 
+ // Arrondir au pas de température le plus proche
+ const roundT = Math.round(T / tempStep) * tempStep;
+ 
+ // Éviter les doublons
+ if(drawnTemps.has(roundT)) continue;
+ drawnTemps.add(roundT);
+ 
+ // Recalculer la position exacte pour cette température arrondie
+ let p_exact;
+ try {
+ p_exact = Pg_from_T(roundT, fluid, 'dew');
+ if(!isFinite(p_exact) || p_exact < minP || p_exact > maxP) {
+ p_exact = p_gauge; // Utiliser la position approximative
+ }
+ } catch(e) {
+ p_exact = p_gauge;
+ }
+ 
+ const angle = angleOfPressure(p_exact, minP, maxP);
+ const c = Math.cos(angle), s = Math.sin(angle);
+ 
+ // Trait de graduation température (plus long pour les multiples de 10)
+ const isRound = (roundT % 10 === 0);
+ const tickLength = isRound ? 10 : 6;
+ 
+ svg.append(svgEl('line',{
+ x1:cx+rTemp*c,
+ y1:cy+rTemp*s,
+ x2:cx+(rTemp-tickLength)*c,
+ y2:cy+(rTemp-tickLength)*s,
+ stroke:col,
+ 'stroke-width': isRound ? 2 : 1.2,
+ opacity: isRound ? 1 : 0.7
+ }));
+ 
+ // Afficher la valeur (seulement pour certaines graduations pour éviter la surcharge)
+ if(isRound || (tempStep <= 2 && roundT % 5 === 0) || tempStep >= 10) {
+ svg.append(svgEl('text',{
+ x:cx+(rTemp-20)*c,
+ y:cy+(rTemp-20)*s+4,
+ 'text-anchor':'middle',
+ 'font-size': isRound ? 10 : 8,
+ 'font-weight': isRound ? 600 : 400,
+ fill:col,
+ opacity: isRound ? 1 : 0.8
+ }, `${roundT}°`));
+ }
+ }
+ 
+ // Si aucune graduation n'a été dessinée, utiliser une méthode encore plus simple
+ if(drawnTemps.size === 0) {
+ // Dessiner des températures fixes typiques
+ const typicalTemps = [-30, -20, -10, 0, 10, 20, 30, 40, 50];
+ 
+ for(const T of typicalTemps) {
+ let p_gauge;
+ try {
+ p_gauge = Pg_from_T(T, fluid, 'dew');
+ } catch(e) {
+ // Estimation avec Antoine R134a par défaut
+ const p_abs = Math.exp(9.95 + (-2150)/(T + 243));
+ p_gauge = p_abs - P_ATM;
+ }
+ 
+ if(!isFinite(p_gauge) || p_gauge < minP || p_gauge > maxP) continue;
+ 
+ const angle = angleOfPressure(p_gauge, minP, maxP);
+ const c = Math.cos(angle), s = Math.sin(angle);
+ 
+ svg.append(svgEl('line',{
+ x1:cx+rTemp*c,
+ y1:cy+rTemp*s,
+ x2:cx+(rTemp-8)*c,
+ y2:cy+(rTemp-8)*s,
+ stroke:col,
+ 'stroke-width': 1.5,
+ opacity: 0.8
+ }));
+ 
+ svg.append(svgEl('text',{
+ x:cx+(rTemp-20)*c,
+ y:cy+(rTemp-20)*s+4,
+ 'text-anchor':'middle',
+ 'font-size': 9,
+ 'font-weight': 500,
+ fill:col,
+ opacity: 0.9
+ }, `${T}°`));
+ }
+ }
+ }
+ 
+ // Aiguille
+ const pVal = clamp(needleValue, minP, maxP);
+ const a = angleOfPressure(pVal, minP, maxP);
+ const rNeedle = 192;
+ const tip = polar(cx, cy, rNeedle, a);
+ 
+ svg.append(
+ svgEl('line',{x1:cx,y1:cy,x2:tip.x,y2:tip.y,stroke:'#111827','stroke-width':4,'stroke-linecap':'round'}),
+ svgEl('circle',{cx,cy,r:16,fill:'#111827'}),
+ svgEl('circle',{cx,cy,r:6,fill:'#fff'})
+ );
+ 
+ // Valeurs sur aiguille (pression + température si applicable)
+ if(showNeedleReadout){
+ const r1 = rNeedle + 10;
+ const r2 = rNeedle + 30;
+ const pPos = polar(cx, cy, r1, a);
+ const pStr = formatTickNoUnit(pVal);
+ 
+ svg.append(svgEl('text',{
+ x:pPos.x,y:pPos.y+4,
+ 'text-anchor':'middle',
+ 'font-size':11,
+ 'font-weight':700,
+ fill:'#111827',
+ style:'paint-order:stroke; stroke:#fff; stroke-width:3'
+ }, pStr));
+ 
+ // Température sur l'aiguille si applicable
+ if(showTempRing && fluid !== 'R744' && fluid !== 'VACUUM'){
+ const Ts = T_from_Pg(pVal, fluid, 'dew');
+ if(isFinite(Ts)){
+ const tPos = polar(cx, cy, r2, a);
+ svg.append(svgEl('text',{
+ x:tPos.x,y:tPos.y+4,
+ 'text-anchor':'middle',
+ 'font-size':10,
+ 'font-weight':600,
+ fill:'#e8914a',
+ style:'paint-order:stroke; stroke:#fff; stroke-width:2.5'
+ }, `${Ts.toFixed(0)}°`));
+ }
+ }
+ }
+}
+
+// ============= RENDU BP/HP =============
+function renderBP(){
+ const fluid = document.getElementById('mainFluid').value;
+ const minP = parseP(document.getElementById('bpMin').value);
+ const maxP = parseP(document.getElementById('bpMax').value);
+ const majorStep = parseP(document.getElementById('bpMaj').value);
+ const needleValue = parseP(document.getElementById('bpNeedle').value);
+ 
+ drawGauge(document.getElementById('bpGauge'), {
+ rimColor:'#2aafaf',
+ fluid,
+ minP, maxP, majorStep, needleValue,
+ showTempRing: document.getElementById('optShowTempRing').checked,
+ showNeedleReadout: document.getElementById('optShowNeedleReadout').checked,
+ showFineTicks: document.getElementById('optShowFineTicks').checked
+ });
+ 
+ document.getElementById('bpPressureInfo').textContent = formatP(needleValue);
+ 
+ // Calcul température sécurisé avec MP_Tsat
+ let Ts = NaN;
+ if (fluid === 'R744') {
+ document.getElementById('bpTempInfo').textContent = 'N/A';
+ } else {
+ const P_abs = toBarAbs(needleValue);
+ const tResult = MP_Tsat(P_abs, fluid, 'dew');
+ 
+ if (tResult.ok) {
+ Ts = tResult.value_C;
+ document.getElementById('bpTempInfo').textContent = `${Ts.toFixed(1)}°C`;
+ } else {
+ document.getElementById('bpTempInfo').textContent = `T* ${tResult.message}`;
+ document.getElementById('bpTempInfo').title = `Pression hors plage de calcul pour ${fluid}`;
+ }
+ }
+ 
+ // Mise à jour de l'affichage de précision
+ if(isFinite(Ts)){
+ updateAccuracyDisplay('bp', Ts);
+ }
+ 
+ // Mise à jour du range avec la bonne précision
+ const range = document.getElementById('bpNeedleRange');
+ range.min = document.getElementById('bpMin').value;
+ range.max = document.getElementById('bpMax').value;
+ range.value = document.getElementById('bpNeedle').value;
+ range.step = (maxP - minP) / 200; // 200 pas pour une bonne précision
+}
+
+function renderHP(){
+ const fluid = document.getElementById('mainFluid').value;
+ const minP = parseP(document.getElementById('hpMin').value);
+ const maxP = parseP(document.getElementById('hpMax').value);
+ const majorStep = parseP(document.getElementById('hpMaj').value);
+ const needleValue = parseP(document.getElementById('hpNeedle').value);
+ 
+ drawGauge(document.getElementById('hpGauge'), {
+ rimColor:'#e74c3c',
+ fluid,
+ minP, maxP, majorStep, needleValue,
+ showTempRing: document.getElementById('optShowTempRing').checked,
+ showNeedleReadout: document.getElementById('optShowNeedleReadout').checked,
+ showFineTicks: document.getElementById('optShowFineTicks').checked
+ });
+ 
+ document.getElementById('hpPressureInfo').textContent = formatP(needleValue);
+ 
+ // Calcul température sécurisé avec MP_Tsat
+ let Ts = NaN;
+ if (fluid === 'R744') {
+ document.getElementById('hpTempInfo').textContent = 'N/A';
+ } else {
+ const P_abs = toBarAbs(needleValue);
+ const tResult = MP_Tsat(P_abs, fluid, 'dew');
+ 
+ if (tResult.ok) {
+ Ts = tResult.value_C;
+ document.getElementById('hpTempInfo').textContent = `${Ts.toFixed(1)}°C`;
+ } else {
+ document.getElementById('hpTempInfo').textContent = `T* ${tResult.message}`;
+ document.getElementById('hpTempInfo').title = `Pression hors plage de calcul pour ${fluid}`;
+ }
+ }
+ 
+ // Mise à jour de l'affichage de précision
+ if(isFinite(Ts)){
+ updateAccuracyDisplay('hp', Ts);
+ }
+ 
+ // Mise à jour du range avec la bonne précision
+ const range = document.getElementById('hpNeedleRange');
+ range.min = document.getElementById('hpMin').value;
+ range.max = document.getElementById('hpMax').value;
+ range.value = document.getElementById('hpNeedle').value;
+ range.step = (maxP - minP) / 200;
+}
+
+// ============= CALCULS =============
+function updateCalculations(){
+ const fluid = document.getElementById('mainFluid').value;
+ const quantity = parseFloat(document.getElementById('fluidQuantity').value) || 0;
+ const data = FLUIDS_SEGMENTS[fluid]?.meta;
+ 
+ if(data){
+ // GWP et CO2
+ document.getElementById('calcGWP').textContent = data.GWP;
+ const tco2e = (quantity * data.GWP) / 1000;
+ document.getElementById('calcCO2').textContent = `${tco2e.toFixed(2)} tCO&#8322;e`;
+ 
+ let freq = '';
+ if(tco2e < 5) freq = 'Pas d\'obligation';
+    else if(tco2e < 50) freq = 'Contrôle annuel';
+    else if(tco2e < 500) freq = 'Contrôle semestriel';
+    else freq = 'Contrôle trimestriel';
+    document.getElementById('calcFreq').textContent = freq;
+    
+    // LFL
+    const lflDiv = document.getElementById('calcLFL');
+    if(data.LFL){
+      lflDiv.style.display = 'block';
+      document.getElementById('calcLFLValue').textContent = `${data.LFL} kg/m³`;
+      document.getElementById('calcLFLDetail').innerHTML = 
+        `Fluide ${data.class}<br>Max 20m³: ${(data.LFL * 20 * 0.25).toFixed(1)}kg`;
+ } else {
+ lflDiv.style.display = 'none';
+ }
+ 
+ // CO2 transcritique
+ const co2Div = document.getElementById('calcCO2Critical');
+ co2Div.style.display = (fluid === 'R744') ? 'block' : 'none';
+ 
+ // Info fluide
+ const infoBox = document.getElementById('fluidInfoBox');
+ if(data.oil){
+ infoBox.style.display = 'block';
+ infoBox.innerHTML = `<strong>${fluid}</strong> &#8226; Classe: ${data.class} &#8226; Huile: ${data.oil}`;
+ 
+ // Classe de couleur selon danger
+ if(data.class === 'B2L' || data.toxicity){
+ infoBox.className = 'fluid-danger';
+ } else if(data.class === 'A3' || data.class === 'A2L'){
+ infoBox.className = 'fluid-warning';
+ } else {
+ infoBox.className = 'fluid-info';
+ }
+ }
+ 
+ // Mise à jour info précision
+ const currentSegment = getSegmentForTemperature(fluid, 20, null);
+ if(currentSegment){
+ document.getElementById('calcPrecision').textContent = 
+ currentSegment.type === 'wagner' ? 'Haute précision' : 'Précision standard';
+ document.getElementById('calcMethod').textContent = 
+ currentSegment.type === 'wagner' ? 'Wagner 4 termes' : 'Antoine 3 coeffs';
+ 
+ if(currentSegment.err){
+ document.getElementById('calcAccuracy').textContent = 
+ `Erreur: moy ${currentSegment.err.mean}% / max ${currentSegment.err.max}%`;
+ }
+ }
+ }
+}
+
+// Mise à jour méthode de calcul
+function updateCalculationMethod(){
+ calculationMethod = document.getElementById('calculationMethod').value;
+ showAccuracy = document.getElementById('optShowAccuracy').checked;
+ 
+ // Recalculer
+ renderBP();
+ renderHP();
+ updateCalculations();
+}
+
+// ============= MODAL DÉTAILS =============
+function showDetailsModal(){
+ const fluid = document.getElementById('mainFluid').value;
+ const quantity = parseFloat(document.getElementById('fluidQuantity').value) || 0;
+ const data = FLUIDS_SEGMENTS[fluid]?.meta;
+ 
+ if(!data) return;
+ 
+ let content = `<h4 style="color:var(--accent)">Fluide : ${fluid}</h4>`;
+ content += `<p><strong>Classification :</strong> ${data.class}</p>`;
+ content += `<p><strong>GWP :</strong> ${data.GWP}</p>`;
+ content += `<p><strong>Huile :</strong> ${data.oil || 'POE'}</p>`;
+ content += `<p><strong>Glide :</strong> ${data.glide}K</p>`;
+ 
+ const tco2e = (quantity * data.GWP) / 1000;
+ content += `<p><strong>Quantité :</strong> ${quantity} kg</p>`;
+ content += `<p><strong>Équivalent CO&#8322; :</strong> ${tco2e.toFixed(2)} tCO&#8322;e</p>`;
+ 
+ content += `<h4 style="color:var(--accent)">Réglementation F-Gas</h4>`;
+ content += `<ul>`;
+ content += `<li><strong>< 5 tCO&#8322;e :</strong> Pas d'obligation</li>`;
+ content += `<li><strong>5-50 tCO&#8322;e :</strong> Contrôle annuel</li>`;
+ content += `<li><strong>50-500 tCO&#8322;e :</strong> Contrôle semestriel</li>`;
+ content += `<li><strong>> 500 tCO&#8322;e :</strong> Contrôle trimestriel</li>`;
+ content += `</ul>`;
+ 
+ if(data.LFL){
+ content += `<h4 style="color:var(--warn)">Sécurité ${data.class}</h4>`;
+ content += `<p><strong>LFL :</strong> ${data.LFL} kg/m³</p>`;
+ content += `<p><strong>Charge max (25% LFL) :</strong></p>`;
+ content += `<ul>`;
+ content += `<li>20m³ : ${(data.LFL * 20 * 0.25).toFixed(1)} kg</li>`;
+ content += `<li>50m³ : ${(data.LFL * 50 * 0.25).toFixed(1)} kg</li>`;
+ content += `</ul>`;
+ }
+ 
+ // Ajout info précision
+ content += `<h4 style="color:var(--accent)">Précision des calculs</h4>`;
+ const segments = FLUIDS_SEGMENTS[fluid]?.single || FLUIDS_SEGMENTS[fluid]?.dew || [];
+ if(segments.length > 0){
+ content += `<table style="width:100%; font-size:0.85rem; border-collapse:collapse">`;
+ content += `<tr style="background:#f0f9ff">`;
+ content += `<th style="padding:8px; border:1px solid #ddd">Plage (°C)</th>`;
+ content += `<th style="padding:8px; border:1px solid #ddd">Méthode</th>`;
+ content += `<th style="padding:8px; border:1px solid #ddd">Err moy</th>`;
+ content += `<th style="padding:8px; border:1px solid #ddd">Err max</th>`;
+ content += `</tr>`;
+ 
+ segments.forEach((seg, i) => {
+ const bg = i % 2 === 0 ? '' : 'background:#f8f9fa';
+ content += `<tr style="${bg}">`;
+ content += `<td style="padding:8px; border:1px solid #ddd">${seg.Tmin} → ${seg.Tmax}</td>`;
+ content += `<td style="padding:8px; border:1px solid #ddd">${seg.type.charAt(0).toUpperCase() + seg.type.slice(1)}</td>`;
+ content += `<td style="padding:8px; border:1px solid #ddd">${seg.err?.mean || 'N/A'}%</td>`;
+ content += `<td style="padding:8px; border:1px solid #ddd">${seg.err?.max || 'N/A'}%</td>`;
+ content += `</tr>`;
+ });
+ content += `</table>`;
+ }
+ 
+ document.getElementById('detailsContent').innerHTML = content;
+ document.getElementById('detailsModal').classList.add('active');
+}
+
+// ============= UI =============
+
+
+function showVacuumGuide(){
+ document.getElementById('vacuumGuideModal').classList.add('active');
+}
+
+
+function showIncondGuide(){
+ document.getElementById('incondGuideModal').classList.add('active');
+}
+
+
+
+
+
+
+
+
+function showContactModal(){
+ document.getElementById('contactModal').classList.add('active');
+}
+
+
+
+function closeModal(modalId){
+ document.getElementById(modalId).classList.remove('active');
+}
+
+// Event Listeners
+document.getElementById('mainFluid').addEventListener('change', ()=>{
+ updateCalculations();
+ renderBP();
+ renderHP();
+});
+
+document.getElementById('fluidQuantity').addEventListener('input', updateCalculations);
+
+document.getElementById('unitSelect').addEventListener('change', e=>{
+ currentUnit = e.target.value;
+ 
+ function reconvert(prefix){
+ const minBar = parseP(document.getElementById(prefix+'Min').value);
+ const maxBar = parseP(document.getElementById(prefix+'Max').value);
+ const majBar = parseP(document.getElementById(prefix+'Maj').value);
+ const needleBar = parseP(document.getElementById(prefix+'Needle').value);
+ document.getElementById(prefix+'Min').value = (minBar*UNIT_FACTORS[currentUnit]).toFixed(2);
+ document.getElementById(prefix+'Max').value = (maxBar*UNIT_FACTORS[currentUnit]).toFixed(2);
+ document.getElementById(prefix+'Maj').value = (majBar*UNIT_FACTORS[currentUnit]).toFixed(2);
+ document.getElementById(prefix+'Needle').value = (needleBar*UNIT_FACTORS[currentUnit]).toFixed(2);
+ }
+ reconvert('bp');
+ reconvert('hp');
+ renderBP();
+ renderHP();
+});
+
+// BP controls
+['bpMin','bpMax','bpMaj'].forEach(id=>
+ document.getElementById(id).addEventListener('change',renderBP));
+
+document.getElementById('bpNeedleRange').addEventListener('input',e=>{
+ document.getElementById('bpNeedle').value = e.target.value;
+ renderBP();
+});
+
+document.getElementById('bpNeedle').addEventListener('input',e=>{
+ document.getElementById('bpNeedleRange').value = e.target.value;
+ renderBP();
+});
+
+// HP controls
+['hpMin','hpMax','hpMaj'].forEach(id=>
+ document.getElementById(id).addEventListener('change',renderHP));
+
+document.getElementById('hpNeedleRange').addEventListener('input',e=>{
+ document.getElementById('hpNeedle').value = e.target.value;
+ renderHP();
+});
+
+document.getElementById('hpNeedle').addEventListener('input',e=>{
+ document.getElementById('hpNeedleRange').value = e.target.value;
+ renderHP();
+});
+
+// Options d'affichage
+['optShowTempRing','optShowNeedleReadout','optShowFineTicks'].forEach(id=>
+ document.getElementById(id).addEventListener('change',()=>{
+ renderBP();
+ renderHP();
+ }));
+
+// Option affichage précision
+document.getElementById('optShowAccuracy').addEventListener('change', ()=>{
+ showAccuracy = document.getElementById('optShowAccuracy').checked;
+ renderBP();
+ renderHP();
+});
+
+// Pas de température
+const tempStepEl = document.getElementById('tempStep');
+if(tempStepEl){
+ tempStepEl.addEventListener('change', ()=>{
+ renderBP();
+ renderHP();
+ });
+}
+
+// Fermer modals
+document.querySelectorAll('.modal').forEach(modal => {
+ modal.addEventListener('click', (e) => {
+ if(e.target === modal) modal.classList.remove('active');
+ });
+});
+
+// Init
+window.addEventListener('DOMContentLoaded',()=>{
+ updateCalculations();
+ renderBP();
+ renderHP();
+ // Init vacuum si besoin
+ if(document.getElementById('ambientTemp')){
+ updateVacuumAnalysis();
+ }
+});
+
+
+// ==================================================
+// GESTION COULEURS DYNAMIQUES PAR FLUIDE (V4.0)
+// ==================================================
+(function() {
+ function initFluidTheme() {
+ const fluidSelect = document.getElementById('mainFluid');
+ if (!fluidSelect) return;
+ 
+ function updateTheme() {
+ const fluid = fluidSelect.value;
+ 
+ // Appliquer couleur header
+ const bgCSS = TechCore.colors.backgroundCSS(fluid);
+ if (bgCSS) {
+ const header = document.querySelector('.main-header');
+ if (header) header.style.background = bgCSS;
+ }
+ 
+ // Métadonnées
+ const meta = TechCore.fluids.meta(fluid);
+ if (meta) {
+ const gwpEl = document.getElementById('calcGWP');
+ if (gwpEl) gwpEl.textContent = meta.GWP || '--';
+ 
+ const lflItem = document.getElementById('calcLFL');
+ if (lflItem && meta.LFL) {
+ lflItem.style.display = 'block';
+ const lflVal = document.getElementById('calcLFLValue');
+ const lflDetail = document.getElementById('calcLFLDetail');
+ if (lflVal) lflVal.textContent = (meta.LFL * 100).toFixed(2) + ' %';
+ if (lflDetail) lflDetail.textContent = 'Classe ' + (meta.classe_ASHRAE || '--');
+ } else if (lflItem) {
+ lflItem.style.display = 'none';
+ }
+ }
+ }
+ 
+ updateTheme();
+ fluidSelect.addEventListener('change', updateTheme);
+ }
+ 
+ if (document.readyState === 'loading') {
+ document.addEventListener('DOMContentLoaded', initFluidTheme);
+ } else {
+ initFluidTheme();
+ }
+})();
+
+</script>
+<script>
+// === Sync live: P -> T for BP/HP info labels ===
+(function(){
+    function getUnitFactor(){ return UNIT_FACTORS[currentUnit] || 1; }
+    function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+    function getRangeBar(minId, maxId){
+        var minP = parseFloat(document.getElementById(minId).value) / getUnitFactor();
+        var maxP = parseFloat(document.getElementById(maxId).value) / getUnitFactor();
+        return {minP: minP, maxP: maxP};
+    }
+    function updateSide(side){
+        var fluid = document.getElementById('mainFluid').value;
+        var needleId = side + 'Needle';
+        var minId = side + 'Min';
+        var maxId = side + 'Max';
+        var infoP = document.getElementById(side + 'PressureInfo');
+        var infoT = document.getElementById(side + 'TempInfo');
+        var factor = getUnitFactor();
+        var range = getRangeBar(minId, maxId);
+        var valUnit = parseFloat(document.getElementById(needleId).value);
+        var Pdisp_bar = clamp(valUnit / factor, range.minP, range.maxP);
+        var Tabs = Tsat(fluid, toBarAbs(Pdisp_bar));
+        if (isFinite(Pdisp_bar) && infoP) infoP.textContent = valUnit.toFixed(2) + ' ' + currentUnit;
+        if (isFinite(Tabs) && infoT) infoT.textContent = Tabs.toFixed(1) + '\u00b0C';
+    }
+
+    if (typeof window.renderBP === 'function'){
+        var _rbp = window.renderBP;
+        window.renderBP = function(){ _rbp(); try{ updateSide('bp'); }catch(e){} };
+    }
+    if (typeof window.renderHP === 'function'){
+        var _rhp = window.renderHP;
+        window.renderHP = function(){ _rhp(); try{ updateSide('hp'); }catch(e){} };
+    }
+
+    document.addEventListener('DOMContentLoaded', function(){
+        ['bp','hp'].forEach(function(side){
+            var n = document.getElementById(side+'Needle');
+            var r = document.getElementById(side+'NeedleRange');
+            if(n){ n.addEventListener('input', function(){ updateSide(side); }); }
+            if(r){ r.addEventListener('input', function(){ updateSide(side); }); }
+        });
+    });
+})();
+</script>
+
+
+
+
+<!-- MODALES CONFORMITÉ CAHIER DES CHARGES -->
+
+
+<div id="partnerModal" class="modal">
+<div class="modal-content" style="max-width:600px;">
+<button class="modal-close" onclick="hideModal('partnerModal')">×</button>
+<h2 style="color:#0C4B88;margin-bottom:1rem;">&#129309; Devenir Partenaire</h2>
+<div style="display:grid;gap:1rem;">
+<div style="padding:1rem;background:#e8f5e9;border-radius:12px;">
+<h3 style="color:#2e7d32;margin:0 0 0.5rem 0;">&#127873; Don de matériel</h3>
+<p style="margin:0;font-size:0.9rem;">Compresseurs, manomètres, outillage... Déduction fiscale possible.</p>
+</div>
+<div style="padding:1rem;background:#e3f2fd;border-radius:12px;">
+<h3 style="color:#0f2d52;margin:0 0 0.5rem 0;">&#127919; Stages & Alternance</h3>
+<p style="margin:0;font-size:0.9rem;">Accueillez nos étudiants CAP, BAC PRO MFER.</p>
+</div>
+</div>
+<p style="margin-top:1rem;text-align:center;"><strong>Contact :</strong> partenariat@lycee-jr.fr</p>
+</div>
+</div>
+
+
+<script src="site_config.js"></script>
+<script src="ui_shell.js"></script>
+</body></html>

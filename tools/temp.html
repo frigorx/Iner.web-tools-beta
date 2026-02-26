@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Température — Convertisseur</title>
+  <link rel="stylesheet" href="../theme.css" />
+  <script src="../site_config.js"></script>
+  <script src="../ui_shell.js" defer></script>
+  <script src="tools_common.js" defer></script>
+<link rel="stylesheet" href="../theme_force.css">
+</head>
+<body>
+  <div id="iw-header" data-subtitle="Outils atelier — Température"></div>
+  <nav id="iw-nav"></nav>
+
+  <main class="iw-container">
+    <div class="iw-card">
+      <div class="iw-card-title">🌡️ Convertisseur de température</div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div>
+          <label class="iw-calc-label">Valeur</label>
+          <input id="val" class="iw-input" inputmode="decimal" placeholder="ex : 25" />
+        </div>
+        <div>
+          <label class="iw-calc-label">Unité</label>
+          <select id="unit" class="iw-select">
+            <option value="C">°C</option>
+            <option value="F">°F</option>
+            <option value="K">K</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div class="iw-calc"><div class="iw-calc-label">°C</div><div class="iw-calc-value" id="out_C">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">°F</div><div class="iw-calc-value" id="out_F">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">K</div><div class="iw-calc-value" id="out_K">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">ΔT (K = °C)</div><div class="iw-calc-value" id="out_dT">—</div></div>
+      </div>
+
+      <div class="iw-alert iw-alert-info" style="margin-top:0.8rem;">
+        Rappel : pour un écart, <strong>1 K = 1 °C</strong> (ΔT).
+      </div>
+
+      <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.8rem;">
+        <a class="iw-btn" href="index.html">⬅️ Retour outils</a>
+        <button class="iw-btn iw-btn-primary" id="copy">Copier résultats</button>
+      </div>
+    </div>
+  </main>
+
+  <footer id="iw-footer"></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const {parseNumber, fmt, copyText, setText} = window.iwTools;
+
+  const valEl = document.getElementById('val');
+  const unitEl = document.getElementById('unit');
+
+  function compute(){
+    const v = parseNumber(valEl.value);
+    const u = unitEl.value;
+
+    let C = NaN;
+    if(Number.isFinite(v)){
+      if(u === 'C') C = v;
+      if(u === 'F') C = (v - 32) * 5/9;
+      if(u === 'K') C = v - 273.15;
+    }
+    const F = Number.isFinite(C) ? (C * 9/5) + 32 : NaN;
+    const K = Number.isFinite(C) ? C + 273.15 : NaN;
+
+    setText('out_C', fmt(C, 2));
+    setText('out_F', fmt(F, 2));
+    setText('out_K', fmt(K, 2));
+    setText('out_dT', Number.isFinite(C) ? (fmt(C,2) + ' K') : '—');
+
+    return {C, F, K};
+  }
+
+  valEl.addEventListener('input', compute);
+  unitEl.addEventListener('change', compute);
+
+  document.getElementById('copy').addEventListener('click', async function(){
+    const r = compute();
+    const text = `Température\n- °C: ${fmt(r.C,2)}\n- °F: ${fmt(r.F,2)}\n- K: ${fmt(r.K,2)}`;
+    await copyText(text);
+    this.textContent = '✅ Copié';
+    setTimeout(()=> this.textContent='Copier résultats', 900);
+  });
+
+  compute();
+});
+</script>
+</body>
+</html>

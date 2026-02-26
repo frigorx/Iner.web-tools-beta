@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InerWeb Fluide — Module Retrofit</title>
+<meta name="author" content="F. Henninot">
+<link rel="stylesheet" href="theme.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(180deg,#faf7f2 0%,#f0ebe3 100%);color:#0f2d52;font-size:15px;line-height:1.5}
+a{color:#e8914a;text-decoration:none}a:hover{text-decoration:underline}
+
+
+.main-header{background:linear-gradient(135deg,#e8914a 0%,#f3b07a 50%,#f3b07a 100%);color:white;padding:.8rem 1.5rem;box-shadow:0 4px 20px rgba(255,107,53,0.3);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.header-left{display:flex;align-items:center;gap:.6rem}
+.logo-slot{background:rgba(255,255,255,0.95);border-radius:16px;padding:6px 12px;box-shadow:0 3px 8px rgba(0,0,0,0.1);min-width:60px;min-height:45px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s}
+.logo-slot:hover{transform:translateY(-2px)}
+.logo-slot img{max-height:40px;width:auto}
+.logo-slot.empty{border:2px dashed rgba(255,255,255,0.4);background:rgba(255,255,255,0.15)}
+.logo-slot.empty span{font-size:.55rem;color:rgba(255,255,255,0.7)}
+.header-center{flex:1;text-align:center}
+.header-center h1{margin:0;font-size:1.6rem;font-weight:800;font-family:Impact,'Arial Black',sans-serif;letter-spacing:2px;text-shadow:2px 2px 4px rgba(0,0,0,0.2)}
+.header-center p{margin:.2rem 0 0;font-size:.82rem;opacity:.95}
+.version-badge{display:inline-block;background:#27ae60;color:white;padding:2px 6px;border-radius:4px;font-size:.7rem;font-weight:700;margin-left:.4rem;font-family:system-ui}
+.header-right{background:rgba(0,0,0,0.2);border-radius:16px;padding:8px 14px;backdrop-filter:blur(10px);font-size:.75rem;line-height:1.5}
+nav.main-nav{background:linear-gradient(135deg,#fef3c7,#fde68a);padding:.5rem .8rem;display:flex;justify-content:center;gap:.4rem;flex-wrap:wrap;border-bottom:2px solid #e8914a}
+nav.main-nav a{padding:.35rem .75rem;background:white;border-radius:20px;text-decoration:none;color:#0f2d52;font-weight:600;font-size:.75rem;transition:all .2s;box-shadow:0 2px 4px rgba(0,0,0,.06)}
+nav.main-nav a:hover,nav.main-nav a.active{background:linear-gradient(135deg,#e8914a,#f3b07a);color:white}
+
+.zoom-controls{position:fixed;bottom:20px;right:20px;display:flex;gap:.5rem;z-index:100;background:white;padding:.5rem;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12)}
+.zoom-btn{width:36px;height:36px;border-radius:50%;border:none;background:linear-gradient(135deg,#e8914a,#f3b07a);color:white;font-size:1.2rem;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
+.zoom-btn:hover{transform:scale(1.1)}
+
+
+.page{padding:1.2rem 2rem;max-width:1600px;margin:0 auto}
+h1{font-size:1.3rem;color:#0f2d52;margin-bottom:.15rem}
+.intro{font-size:.85rem;color:#78909c;margin-bottom:1.2rem}
+
+/* ========== SECTION 1 : SELECTION FLUIDE + FICHE ========== */
+.section-select{
+    display:grid;grid-template-columns:380px 1fr;gap:1.2rem;
+    background:#fff;border-radius:16px;padding:1.2rem;border:1px solid #dce3eb;
+    margin-bottom:1rem;
+}
+.select-col h2{font-size:.95rem;color:#0f2d52;margin-bottom:.6rem;border-bottom:2px solid #e8914a;padding-bottom:.3rem;display:inline-block}
+.field{margin-bottom:.55rem}
+.field label{display:block;font-size:.78rem;font-weight:600;color:#546e7a;margin-bottom:.1rem}
+.field select,.field input{width:100%;padding:.45rem .6rem;border:1px solid #ccc;border-radius:5px;font-size:.88rem;font-family:inherit;background:#fff;transition:border-color .2s}
+.field select:focus,.field input:focus{border-color:#e8914a;outline:none}
+.field .hint{font-size:.65rem;color:#b0bec5;margin-top:.06rem}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+
+/* FICHE RICHE pleine largeur colonne droite */
+.fiche-area{display:none;overflow:auto}
+.fiche-area.visible{display:block}
+.fiche-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.5rem}
+.fiche-header h3{font-size:1.05rem;color:#0f2d52;font-weight:700}
+.fiche-cols{display:grid;grid-template-columns:1fr 1fr;gap:.4rem 1.5rem}
+.fg{display:flex;justify-content:space-between;padding:.18rem 0;border-bottom:1px solid #f0f3f7;font-size:.82rem}
+.fg:last-child{border:none}
+.fg .k{color:#78909c}.fg .v{color:#0f2d52;font-weight:600}
+.fiche-sections{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:.6rem}
+.fsec{background:#f8f9fb;border-radius:6px;padding:.6rem;border:1px solid #e8ecf0}
+.fsec h4{font-size:.78rem;color:#546e7a;font-weight:700;margin-bottom:.3rem}
+.fiche-badge{display:inline-block;padding:3px 10px;border-radius:4px;font-size:.68rem;font-weight:700;margin:.15rem .25rem .15rem 0}
+.fb-ok{background:#c8e6c9;color:#1b5e20}
+.fb-warn{background:#fff3e0;color:#e65100}
+.fb-danger{background:#ffcdd2;color:#b71c1c}
+.fb-info{background:#e3f2fd;color:#0f2d52}
+.fgas-tbl{width:100%;border-collapse:collapse;font-size:.72rem;margin-top:.3rem}
+.fgas-tbl th{background:#0f2d52;color:#fff;padding:.2rem .4rem;text-align:left}
+.fgas-tbl td{padding:.18rem .4rem;border-bottom:1px solid #e5e7eb}
+.fgas-tbl tr.past td{color:#ccc;text-decoration:line-through}
+.alert{padding:.5rem .7rem;border-radius:5px;margin-top:.3rem;font-size:.78rem;display:flex;align-items:flex-start;gap:.4rem}
+.alert-warn{background:#d4f0e8;border-left:3px solid #ffa000;color:#e65100}
+.alert-danger{background:#ffebee;border-left:3px solid #e53935;color:#b71c1c}
+.alert-info{background:#e3f2fd;border-left:3px solid #1e88e5;color:#0d47a1}
+.note-text{font-size:.72rem;color:#90a4ae;font-style:italic;margin-top:.3rem}
+
+/* ========== SECTION 2 : PARAMS + BOUTON (ligne compacte) ========== */
+.section-params{
+    display:grid;grid-template-columns:1fr 1fr 1fr 1fr auto;gap:.8rem;align-items:end;
+    background:#fff;border-radius:16px;padding:1rem 1.2rem;border:1px solid #dce3eb;
+    margin-bottom:1rem;
+}
+.cb-group{display:flex;gap:.8rem;flex-wrap:wrap;align-items:center}
+.cb-row{display:flex;align-items:center;gap:.3rem;font-size:.78rem;white-space:nowrap}
+.cb-row input[type=checkbox]{accent-color:#e8914a;width:16px;height:16px}
+.btn-go{
+    padding:.6rem 1.8rem;border:none;border-radius:6px;
+    background:linear-gradient(135deg,#e8914a,#f3b07a);color:#fff;
+    font-weight:700;font-size:.95rem;cursor:pointer;transition:all .2s;
+    white-space:nowrap;height:42px;
+}
+.btn-go:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,107,53,.25)}
+
+/* ========== SECTION 3 : RESULTATS ========== */
+.results-area{min-height:200px}
+.empty-state{text-align:center;padding:2.5rem 1rem;color:#b0bec5;font-size:.95rem}
+.empty-state .big{font-size:2.5rem;margin-bottom:.4rem}
+
+.block{margin-bottom:1rem;border-radius:12px;overflow:hidden;border:1px solid #dce3eb}
+.block-hdr{padding:.6rem 1rem;font-size:.88rem;font-weight:700;display:flex;align-items:center;gap:.4rem}
+.block-n1 .block-hdr{background:#e8f5e9;color:#1b5e20}
+.block-n2 .block-hdr{background:#fff3e0;color:#e65100}
+.block-n3 .block-hdr{background:#fce4ec;color:#b71c1c}
+.block-body{background:#fff;padding:.6rem}
+.block-empty{padding:.6rem 1rem;font-size:.78rem;color:#b0bec5;background:#fff;font-style:italic}
+
+/* OPTION CARDS — 2 colonnes sur grand écran */
+.opts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(480px,1fr));gap:.6rem}
+.opt{border:1px solid #e5e7eb;border-radius:12px;padding:.8rem;transition:all .2s;position:relative}
+.opt:hover{border-color:#ccc;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.opt.best{border-color:#27ae60;border-width:2px}
+.opt.best::after{content:'RECOMMAND\00c9';position:absolute;top:6px;right:8px;background:#27ae60;color:#fff;padding:2px 8px;border-radius:3px;font-size:.58rem;font-weight:700;letter-spacing:.5px}
+.opt-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:.35rem;flex-wrap:wrap;gap:.3rem}
+.opt-name{font-size:1rem;font-weight:700;color:#0f2d52}
+.opt-badges{display:flex;gap:.3rem;flex-wrap:wrap}
+.badge{padding:2px 8px;border-radius:3px;font-size:.62rem;font-weight:700}
+.b-gwp{background:#e3f2fd;color:#0f2d52}
+.b-a1{background:#c8e6c9;color:#1b5e20}
+.b-a2l{background:#ffe0b2;color:#e65100}
+.b-a3{background:#ffcdd2;color:#b71c1c}
+.b-b2l{background:#e1bee7;color:#6a1b9a}
+.b-drop{background:#dcedc8;color:#33691e}
+.b-retro{background:#fff9c4;color:#f57f17}
+.b-redesign{background:#ffcdd2;color:#b71c1c}
+.b-ok150{background:#a5d6a7;color:#1b5e20}
+.b-ko150{background:#ef9a9a;color:#b71c1c}
+
+/* Infos essentielles DANS la carte */
+.opt-info{display:grid;grid-template-columns:repeat(3,1fr);gap:.3rem .8rem;margin:.3rem 0;font-size:.78rem}
+.oi{display:flex;justify-content:space-between;padding:.15rem 0;border-bottom:1px solid #f5f5f5}
+.oi .k{color:#90a4ae}.oi .v{color:#0f2d52;font-weight:600}
+
+.opt-note{font-size:.72rem;color:#78909c;margin:.2rem 0}
+.opt-btns{display:flex;gap:.4rem;margin-top:.4rem;flex-wrap:wrap}
+.toggle-btn{background:#f5f7fa;border:1px solid #dce3eb;border-radius:5px;padding:.3rem .7rem;font-size:.68rem;color:#546e7a;cursor:pointer;transition:all .15s;font-weight:600}
+.toggle-btn:hover{border-color:#e8914a;color:#e8914a;background:#fff5f0}
+.toggle-btn.active{background:#e8914a;color:#fff;border-color:#e8914a}
+.expandable{display:none;margin-top:.5rem}
+.expandable.open{display:block}
+
+/* Detail fiche inside card */
+.detail-fiche{background:#f5f8fc;border-radius:6px;padding:.6rem;border:1px solid #e5e7eb;font-size:.76rem}
+.df-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.1rem .8rem}
+.df-row{display:flex;justify-content:space-between;padding:.12rem 0}
+.df-k{color:#90a4ae}.df-v{color:#0f2d52;font-weight:600}
+
+/* Checklist */
+.checklist{background:#f8f9fa;border-radius:6px;padding:.6rem;border:1px solid #e5e7eb;font-size:.76rem}
+.chk{display:flex;align-items:flex-start;gap:.35rem;padding:.3rem 0;border-bottom:1px solid #f0f0f0}
+.chk:last-child{border:none}
+.chk-i{font-size:.85rem;flex-shrink:0}
+
+.foot{max-width:1600px;margin:1.5rem auto 0;padding:1rem 2rem;text-align:center;font-size:.68rem;color:#90a4ae;border-top:1px solid #dce3eb}
+
+/* ========== RESPONSIVE ========== */
+@media(max-width:1024px){
+    .section-select{grid-template-columns:1fr}
+    .section-params{grid-template-columns:1fr 1fr;gap:.6rem}
+    .fiche-sections{grid-template-columns:1fr}
+    .opts-grid{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+    .page{padding:.8rem}
+    .section-params{grid-template-columns:1fr}
+    .fiche-cols{grid-template-columns:1fr}
+    .opt-info{grid-template-columns:1fr 1fr}
+    .df-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+<link rel="stylesheet" href="theme_force.css">
+</head>
+<body>
+<div id="iw-header" data-subtitle="Retrofit — Aide au choix de fluide"></div>
+<nav id="iw-nav"></nav>
+
+<div class="page">
+<h1>&#128260; Module Retrofit — Aide au choix de fluide</h1>
+<p class="intro">S&#233;lectionnez votre fluide &#8594; fiche compl&#232;te. Param&#233;trez &#8594; cliquez <strong>ANALYSER</strong>.</p>
+
+<!-- ========== SECTION 1 : FLUIDE + FICHE ========== -->
+<div class="section-select">
+    <div class="select-col">
+        <h2>&#127919; Fluide actuel</h2>
+        <div class="field"><label>Fluide en place</label>
+        <select id="selOld" onchange="updateFiche()">
+        <option value="" disabled selected>-- Choisir --</option>
+        <optgroup label="HFC courants">
+        <option value="R410A">R410A (GWP 2088)</option>
+        <option value="R134a">R134a (GWP 1430)</option>
+        <option value="R404A">R404A (GWP 3922)</option>
+        <option value="R407C">R407C (GWP 1774)</option>
+        <option value="R507A">R507A (GWP 3985)</option>
+        </optgroup>
+        <optgroup label="HCFC">
+        <option value="R22">R22 (GWP 1810) — Interdit</option>
+        </optgroup>
+        </select></div>
+        <div class="row2">
+        <div class="field"><label>Charge (kg)</label>
+        <input type="number" id="inCharge" placeholder="ex: 4.5" min="0.1" max="200" step="0.1" oninput="updateFiche()" inputmode="decimal"></div>
+        <div class="field"><label>Puissance (kW)</label>
+        <input type="number" id="inPow" placeholder="ex: 8" min="0.5" max="500" step="0.5" inputmode="decimal"></div>
+        </div>
+    </div>
+    <div class="fiche-area" id="ficheArea">
+        <div class="fiche-header" id="ficheHeader"></div>
+        <div class="fiche-cols" id="ficheCols"></div>
+        <div class="fiche-sections" id="ficheSections"></div>
+        <div id="ficheAlerts"></div>
+    </div>
+</div>
+
+<!-- ========== SECTION 2 : PARAMS COMPACTS ========== -->
+<div class="section-params">
+    <div class="field" style="margin:0"><label>&#201;quipement</label>
+    <select id="selEquip">
+    <option value="split_inf12">Split &#8804;12 kW</option>
+    <option value="split_sup12">Split &gt;12 kW</option>
+    <option value="monobloc">Monobloc/PAC &#8804;12 kW</option>
+    <option value="vitrine">Vitrine/Meuble</option>
+    <option value="chambre_froide">Chambre froide</option>
+    <option value="chiller">Chiller/Groupe eau</option>
+    <option value="transport">Transport frigo</option>
+    </select></div>
+    <div class="field" style="margin:0"><label>Syst&#232;me</label>
+    <select id="selSys">
+    <option value="accessible">Accessible (r&#233;parable)</option>
+    <option value="hermetique">Herm&#233;tique (scell&#233;)</option>
+    </select></div>
+    <div class="field" style="margin:0"><label>&#201;ch&#233;ance F-Gas</label>
+    <select id="selYear">
+    <option value="2025">2025</option>
+    <option value="2027">2027</option>
+    <option value="2029" selected>2029</option>
+    <option value="2030">2030</option>
+    <option value="2033">2033</option>
+    </select></div>
+    <div>
+        <label style="font-size:.78rem;font-weight:600;color:#546e7a;display:block;margin-bottom:.1rem">S&#233;curit&#233;</label>
+        <div class="cb-group">
+        <div class="cb-row"><input type="checkbox" id="cbA2L"><label for="cbA2L">A2L</label></div>
+        <div class="cb-row"><input type="checkbox" id="cbA3"><label for="cbA3">A3</label></div>
+        <div class="cb-row"><input type="checkbox" id="cbB2L"><label for="cbB2L">B2L</label></div>
+        </div>
+    </div>
+    <button class="btn-go" onclick="doRetrofit()">&#128270; ANALYSER</button>
+</div>
+
+<!-- ========== SECTION 3 : RESULTATS ========== -->
+<div class="results-area" id="resultsArea">
+<div class="empty-state">
+<div class="big">&#128270;</div>
+<strong>S&#233;lectionnez votre fluide, renseignez la charge, puis cliquez ANALYSER</strong>
+</div>
+</div>
+
+</div>
+
+<footer id="iw-footer"></footer>
+
+<script>
+var FLUIDS={
+R410A:{nom:"R410A",cl:"A1",GWP:2088,fam:"HFC blend",comp:"R32/R125 (50/50)",huile:"POE",pS:25,pC42:25.5,gl:0.1,LFL:null,Td:90,apps:"Clim split, PAC, VRV",stat:"Phase-down",ODP:0,note:"Blend quasi-az\u00e9otrope. Standard mondial clim."},
+R134a:{nom:"R134a",cl:"A1",GWP:1430,fam:"HFC pur",comp:"CH\u2082FCF\u2083",huile:"POE",pS:8,pC42:10.7,gl:0,LFL:null,Td:75,apps:"Auto, chiller, MBP",stat:"Phase-down",ODP:0,note:"R\u00e9f\u00e9rence mondiale depuis phase-out R12."},
+R404A:{nom:"R404A",cl:"A1",GWP:3922,fam:"HFC blend",comp:"R125/R143a/R134a (44/52/4)",huile:"POE",pS:18,pC42:19.2,gl:0.7,LFL:null,Td:70,apps:"Froid commercial, transport, n\u00e9gatif",stat:"Phase-down",ODP:0,note:"Quasi-az\u00e9otrope. R\u00e9f\u00e9rence froid commercial."},
+R407C:{nom:"R407C",cl:"A1",GWP:1774,fam:"HFC blend",comp:"R32/R125/R134a (23/25/52)",huile:"POE",pS:15,pC42:18.3,gl:4.7,LFL:null,Td:85,apps:"Clim, remplacement R22",stat:"Phase-down",ODP:0,note:"Z\u00e9otrope glide 4.7K. Remplacement historique R22."},
+R507A:{nom:"R507A",cl:"A1",GWP:3985,fam:"HFC blend",comp:"R125/R143a (50/50)",huile:"POE",pS:18,pC42:19.5,gl:0,LFL:null,Td:68,apps:"Surg\u00e9lation, froid n\u00e9gatif",stat:"Phase-down",ODP:0,note:"Az\u00e9otrope. Alternative R404A."},
+R22:{nom:"R22 (HCFC)",cl:"A1",GWP:1810,fam:"HCFC",comp:"CHClF\u2082",huile:"Min\u00e9rale / AB",pS:15,pC42:16.0,gl:0,LFL:null,Td:95,apps:"Universel (ancien)",stat:"INTERDIT",ODP:0.055,note:"INTERDIT depuis 2015 (UE). Encore pr\u00e9sent parc ancien."},
+R32:{nom:"R32",cl:"A2L",GWP:675,fam:"HFC pur",comp:"CH\u2082F\u2082",huile:"POE",pS:25,pC42:26.1,gl:0,LFL:0.306,Td:105,apps:"Splits, PAC, VRV",stat:"Autoris\u00e9",ODP:0,note:"Composant du R410A. T refoulement \u00e9lev\u00e9e."},
+R454B:{nom:"R454B",cl:"A2L",GWP:466,fam:"HFO/HFC",comp:"R32/R1234yf (68.9/31.1)",huile:"POE",pS:23,pC42:24.2,gl:1.5,LFL:0.323,Td:92,apps:"Clim, PAC",stat:"Autoris\u00e9",ODP:0,note:"Opteon XL41. Candidat principal remplacement R410A."},
+R454C:{nom:"R454C",cl:"A2L",GWP:148,fam:"HFO/HFC",comp:"R32/R1234yf (21.5/78.5)",huile:"POE",pS:12,pC42:13.1,gl:3.8,LFL:0.293,Td:72,apps:"Clim, PAC",stat:"Autoris\u00e9",ODP:0,note:"GWP \u2264150. Candidat 2029. Glide significatif."},
+R455A:{nom:"R455A",cl:"A2L",GWP:146,fam:"HFO/HFC",comp:"R1234yf/R32/R744 (75.5/21.5/3)",huile:"POE",pS:12,pC42:12.8,gl:5.0,LFL:0.293,Td:70,apps:"Froid commercial, vitrines",stat:"Autoris\u00e9",ODP:0,note:"Solstice L41y. GWP \u2264150. Glide \u00e9lev\u00e9."},
+R466A:{nom:"R466A",cl:"A1",GWP:733,fam:"HFC/HFO",comp:"R32/R125/R13I1 (49/11.5/39.5)",huile:"POE",pS:24,pC42:25.0,gl:1.2,LFL:null,Td:88,apps:"Clim, remplacement R410A",stat:"Autoris\u00e9",ODP:0,note:"A1 non inflammable. GWP 733."},
+R448A:{nom:"R448A",cl:"A1",GWP:1387,fam:"HFO/HFC",comp:"5 composants (R32/R125/R1234yf/R134a/R1234ze)",huile:"POE",pS:17,pC42:18.5,gl:4.6,LFL:null,Td:78,apps:"Froid commercial",stat:"Autoris\u00e9",ODP:0,note:"Solstice N40. Z\u00e9otrope complexe."},
+R449A:{nom:"R449A",cl:"A1",GWP:1397,fam:"HFO/HFC",comp:"R32/R125/R1234yf/R134a (24/25/25/26)",huile:"POE",pS:17,pC42:18.3,gl:4.7,LFL:null,Td:79,apps:"Froid commercial",stat:"Autoris\u00e9",ODP:0,note:"Opteon XP40. Z\u00e9otrope."},
+R452A:{nom:"R452A",cl:"A1",GWP:2140,fam:"HFO/HFC",comp:"R32/R125/R1234yf (11/59/30)",huile:"POE",pS:18,pC42:19.4,gl:1.1,LFL:null,Td:68,apps:"Froid n\u00e9gatif",stat:"Autoris\u00e9",ODP:0,note:"A1 facile mais GWP 2140 = aucune am\u00e9lioration !"},
+R450A:{nom:"R450A",cl:"A1",GWP:605,fam:"HFO/HFC",comp:"R1234ze/R134a (42/58)",huile:"POE",pS:8,pC42:10.3,gl:0.8,LFL:null,Td:73,apps:"Chillers",stat:"Autoris\u00e9",ODP:0,note:"Solstice N13. Drop-in R134a."},
+R513A:{nom:"R513A",cl:"A1",GWP:631,fam:"HFO/HFC",comp:"R1234yf/R134a (56/44)",huile:"POE",pS:8,pC42:10.5,gl:0.1,LFL:null,Td:72,apps:"Chillers",stat:"Autoris\u00e9",ODP:0,note:"Opteon XP10. Drop-in R134a."},
+R1234yf:{nom:"R1234yf",cl:"A2L",GWP:4,fam:"HFO pur",comp:"CF\u2083CF=CH\u2082",huile:"POE / PAG",pS:8,pC42:10.4,gl:0,LFL:0.289,Td:68,apps:"Auto, petit froid",stat:"Autoris\u00e9",ODP:0,note:"GWP 4. Standard auto depuis 2017."},
+R1234ze:{nom:"R1234ze(E)",cl:"A2L",GWP:7,fam:"HFO pur",comp:"CHF=CHCF\u2083",huile:"POE",pS:6,pC42:7.7,gl:0,LFL:0.303,Td:65,apps:"Chillers centrifuges",stat:"Autoris\u00e9",ODP:0,note:"Basse pression. GWP 7."},
+R290:{nom:"R290 (Propane)",cl:"A3",GWP:3,fam:"Naturel (HC)",comp:"C\u2083H\u2088",huile:"Min\u00e9rale / POE",pS:15,pC42:14.6,gl:0,LFL:0.038,Td:70,apps:"Petit froid, vitrines, monoblocs",stat:"Autoris\u00e9",ODP:0,note:"Inflammable. Charge limit\u00e9e EN 378."},
+R600a:{nom:"R600a (Isobutane)",cl:"A3",GWP:3,fam:"Naturel (HC)",comp:"C\u2084H\u2081\u2080",huile:"Min\u00e9rale",pS:4,pC42:5.3,gl:0,LFL:0.043,Td:55,apps:"Froid domestique",stat:"Autoris\u00e9",ODP:0,note:"Standard frigo domestique mondial."},
+R744:{nom:"R744 (CO\u2082)",cl:"A1",GWP:1,fam:"Naturel",comp:"CO\u2082",huile:"POE sp\u00e9ciale",pS:90,pC42:null,gl:0,LFL:null,Td:110,apps:"Supermarch\u00e9s, cascade",stat:"Autoris\u00e9",ODP:0,note:"Transcritique >31\u00b0C. 90+ bar."},
+R717:{nom:"R717 (NH\u2083)",cl:"B2L",GWP:0,fam:"Naturel",comp:"NH\u2083",huile:"Min\u00e9rale / PAO",pS:15,pC42:16.2,gl:0,LFL:0.116,Td:120,apps:"Industrie, entrep\u00f4ts",stat:"Autoris\u00e9",ODP:0,note:"Toxique + inflammable. Salle machines."},
+R1233zd:{nom:"R1233zd(E)",cl:"A1",GWP:1,fam:"HCFO",comp:"CHCl=CHCF\u2083",huile:"POE",pS:3,pC42:4.1,gl:0,LFL:null,Td:60,apps:"Chillers centrifuges",stat:"Autoris\u00e9",ODP:0.00034,note:"Basse pression. Remplacement R123."},
+R452B:{nom:"R452B",cl:"A2L",GWP:698,fam:"HFO/HFC",comp:"R32/R125/R1234yf (67/7/26)",huile:"POE",pS:24,pC42:25.2,gl:1.3,LFL:0.312,Td:93,apps:"Clim",stat:"Autoris\u00e9",ODP:0,note:"Opteon XL55. Alternative R32/R454B."}
+};
+
+var RMAP={
+R410A:[
+{to:"R466A",N:1,ty:"retrofit",r:0.95,pOk:1,hc:0,tw:[],nt:"A1, GWP 733 (pas \u2264150)"},
+{to:"R32",N:2,ty:"retrofit",r:0.78,pOk:1,hc:0,tw:["V\u00e9rifier T refoulement (<120\u00b0C)","Composants sans source d'\u00e9tincelle"],nt:"Standard industrie. GWP 675"},
+{to:"R454B",N:2,ty:"retrofit",r:0.90,pOk:1,hc:0,tw:["D\u00e9tecteur A2L"],nt:"Transition. GWP 466"},
+{to:"R452B",N:2,ty:"retrofit",r:0.92,pOk:1,hc:0,tw:["D\u00e9tecteur A2L"],nt:"Alternative R32. GWP 698"},
+{to:"R454C",N:2,ty:"retrofit",r:0.85,pOk:0,hc:0,tw:["Pressions diff\u00e9rentes","D\u00e9tecteur obligatoire","Ventilation m\u00e9canique"],nt:"\u2264150 ! Glide 3.8K"},
+{to:"R290",N:3,ty:"redesign",r:0.40,pOk:0,hc:1,tw:["REFONTE","D\u00e9tecteur gaz","Ventilation ATEX","Composants ATEX","Charge max EN 378"],nt:"GWP 3 \u2014 Changement total"},
+{to:"R744",N:3,ty:"redesign",r:0,pOk:0,hc:1,tw:["REFONTE COMPL\u00c8TE (90+ bar)","Huile POE CO\u2082","Composants HP"],nt:"GWP 1 \u2014 Nouveau syst\u00e8me"}
+],
+R134a:[
+{to:"R450A",N:1,ty:"drop-in",r:0.95,pOk:1,hc:0,tw:[],nt:"Drop-in A1. GWP 605"},
+{to:"R513A",N:1,ty:"drop-in",r:0.95,pOk:1,hc:0,tw:[],nt:"Drop-in A1. GWP 631"},
+{to:"R1234yf",N:2,ty:"retrofit",r:0.90,pOk:1,hc:0,tw:["Joints HFO","D\u00e9tecteur A2L"],nt:"GWP 4 ! Quasi drop-in"},
+{to:"R1234ze",N:2,ty:"retrofit",r:0.85,pOk:1,hc:0,tw:["Perfs r\u00e9duites T cond. haute"],nt:"GWP 7. Chillers"},
+{to:"R290",N:3,ty:"redesign",r:0.35,pOk:0,hc:1,tw:["REFONTE","ATEX","EN 378"],nt:"GWP 3"},
+{to:"R744",N:3,ty:"redesign",r:0,pOk:0,hc:1,tw:["REFONTE COMPL\u00c8TE"],nt:"GWP 1"}
+],
+R404A:[
+{to:"R448A",N:1,ty:"retrofit",r:0.92,pOk:1,hc:0,tw:["D\u00e9tendeur (glide 4.6K)","Charge liquide"],nt:"A1. GWP 1387 (transition)"},
+{to:"R449A",N:1,ty:"retrofit",r:0.93,pOk:1,hc:0,tw:["D\u00e9tendeur (glide 4.7K)","Charge liquide"],nt:"A1. GWP 1397 (transition)"},
+{to:"R452A",N:1,ty:"retrofit",r:0.95,pOk:1,hc:0,tw:[],nt:"A1. GWP 2140 = AUCUNE am\u00e9lioration !"},
+{to:"R454C",N:2,ty:"retrofit",r:0.85,pOk:1,hc:0,tw:["D\u00e9tecteur A2L","Ventilation","Charge liquide (glide 3.8K)"],nt:"\u2264150 ! Candidat 2030"},
+{to:"R455A",N:2,ty:"retrofit",r:0.88,pOk:1,hc:0,tw:["D\u00e9tecteur A2L","Ventilation","Charge liquide (glide 5K)"],nt:"\u2264150 ! Froid commercial"},
+{to:"R290",N:3,ty:"redesign",r:0.30,pOk:0,hc:1,tw:["REFONTE","ATEX","EN 378"],nt:"Meubles autonomes neufs"},
+{to:"R744",N:3,ty:"redesign",r:0,pOk:0,hc:1,tw:["REFONTE (cascade/transcritique)"],nt:"Supermarch\u00e9s neufs"},
+{to:"R717",N:3,ty:"redesign",r:0,pOk:0,hc:1,tw:["REFONTE","Salle machines","D\u00e9tection NH\u2083"],nt:"Industrie"}
+],
+R407C:[
+{to:"R466A",N:1,ty:"retrofit",r:0.95,pOk:1,hc:0,tw:[],nt:"A1, GWP 733"},
+{to:"R32",N:2,ty:"retrofit",r:0.80,pOk:1,hc:0,tw:["T refoulement","Composants A2L"],nt:"GWP 675"},
+{to:"R454B",N:2,ty:"retrofit",r:0.88,pOk:1,hc:0,tw:["D\u00e9tecteur A2L"],nt:"GWP 466"},
+{to:"R454C",N:2,ty:"retrofit",r:0.82,pOk:0,hc:0,tw:["Pressions diff.","D\u00e9tecteur + ventilation"],nt:"\u2264150"},
+{to:"R290",N:3,ty:"redesign",r:0.40,pOk:0,hc:1,tw:["REFONTE"],nt:"Monoblocs neufs"},
+{to:"R744",N:3,ty:"redesign",r:0,pOk:0,hc:1,tw:["REFONTE COMPL\u00c8TE"],nt:"Cas sp\u00e9cifiques"}
+],
+R507A:[
+{to:"R448A",N:1,ty:"retrofit",r:0.92,pOk:1,hc:0,tw:["Charge liquide","D\u00e9tendeur"],nt:"GWP 1387"},
+{to:"R449A",N:1,ty:"retrofit",r:0.93,pOk:1,hc:0,tw:["Charge liquide"],nt:"GWP 1397"},
+{to:"R454C",N:2,ty:"retrofit",r:0.85,pOk:1,hc:0,tw:["D\u00e9tecteur A2L","Ventilation","Charge liquide"],nt:"\u2264150"},
+{to:"R455A",N:2,ty:"retrofit",r:0.88,pOk:1,hc:0,tw:["D\u00e9tecteur A2L","Ventilation"],nt:"\u2264150"},
+{to:"R290",N:3,ty:"redesign",r:0.30,pOk:0,hc:1,tw:["REFONTE"],nt:"Meubles autonomes"},
+{to:"R744",N:3,ty:"redesign",r:0,pOk:0,hc:1,tw:["REFONTE"],nt:"Supermarch\u00e9s"}
+],
+R22:[
+{to:"R407C",N:1,ty:"retrofit",r:0.90,pOk:1,hc:1,tw:["VIDANGE huile min\u00e9rale \u2192 POE (<5%)","Filtre + joints","Charge liquide (glide 4.7K)"],nt:"GWP 1774. Transition"},
+{to:"R448A",N:1,ty:"retrofit",r:0.88,pOk:1,hc:1,tw:["VIDANGE \u2192 POE","Charge liquide"],nt:"Froid commercial. GWP 1387"},
+{to:"R449A",N:1,ty:"retrofit",r:0.90,pOk:1,hc:1,tw:["VIDANGE \u2192 POE","Charge liquide"],nt:"GWP 1397"},
+{to:"R32",N:2,ty:"redesign",r:0.75,pOk:1,hc:1,tw:["Compresseur (souvent)","POE","A2L"],nt:"Souvent = nouveau syst\u00e8me"},
+{to:"R290",N:3,ty:"redesign",r:0.35,pOk:1,hc:0,tw:["REFONTE COMPL\u00c8TE"],nt:"Nouveau"},
+{to:"R744",N:3,ty:"redesign",r:0,pOk:0,hc:1,tw:["REFONTE COMPL\u00c8TE"],nt:"Nouveau"}
+]
+};
+
+var FGAS=[
+{cat:"R\u00e9frig. self-contained",s:150,d:2025,eq:["vitrine"]},
+{cat:"AC/PAC monobloc \u226412kW",s:150,d:2027,eq:["monobloc"]},
+{cat:"Split \u226412 kW",s:150,d:2029,eq:["split_inf12"]},
+{cat:"R\u00e9frig. autres",s:150,d:2030,eq:["chambre_froide","chiller","transport"]},
+{cat:"Split >12 kW",s:150,d:2033,eq:["split_sup12"]}
+];
+
+function esc(s){var d=document.createElement("div");d.textContent=s;return d.innerHTML}
+function getFreq(t){
+    if(t>=500)return{t:"Contr\u00f4le 3 mois (6 si d\u00e9tecteur)",l:"danger"};
+    if(t>=50)return{t:"Contr\u00f4le 6 mois (12 si d\u00e9tecteur)",l:"warn"};
+    if(t>=5)return{t:"Contr\u00f4le 12 mois (24 si d\u00e9tecteur)",l:"warn"};
+    return{t:"Pas de contr\u00f4le p\u00e9riodique",l:"ok"};
+}
+
+function updateFiche(){
+    var k=document.getElementById("selOld").value;
+    var a=document.getElementById("ficheArea");
+    if(!k||!FLUIDS[k]){a.classList.remove("visible");return}
+    var f=FLUIDS[k],ch=parseFloat(document.getElementById("inCharge").value)||0;
+    var tco=ch>0?(ch*f.GWP/1000):null;
+
+    document.getElementById("ficheHeader").innerHTML='<h3>'+esc(f.nom)+'</h3><span class="badge b-'+f.cl.toLowerCase()+'">'+f.cl+'</span><span class="badge b-gwp">GWP '+f.GWP+'</span>'+(f.stat==="INTERDIT"?'<span class="badge b-ko150">INTERDIT</span>':'');
+
+    var g='';
+    g+=fi("Famille",f.fam);g+=fi("Composition",f.comp);g+=fi("ODP",f.ODP);g+=fi("Huile",f.huile);
+    g+=fi("Pression service","~"+f.pS+" bar");g+=fi("P condensation 42\u00b0C",f.pC42?f.pC42+" bar":"Transcritique");
+    g+=fi("Glide",f.gl+" K"+(f.gl>1?" \u26a0 Z\u00e9otrope":""));g+=fi("LFL",f.LFL?f.LFL+" kg/m\u00b3":"Non inflammable");
+    g+=fi("T refoulement typ.",f.Td+"\u00b0C");g+=fi("Applications",f.apps);g+=fi("Statut",f.stat);
+    if(ch>0)g+=fi("Charge d\u00e9clar\u00e9e",ch+" kg");
+    document.getElementById("ficheCols").innerHTML=g;
+
+    var sec='';
+    // Section Réglementaire
+    sec+='<div class="fsec"><h4>\u2696\ufe0f R\u00e9glementation avec cette charge</h4>';
+    if(ch>0&&tco!==null){
+        sec+='<span class="fiche-badge fb-info">tCO\u2082e = '+tco.toFixed(2)+'</span>';
+        var fr=getFreq(tco);
+        sec+='<span class="fiche-badge '+(fr.l==="danger"?"fb-danger":fr.l==="warn"?"fb-warn":"fb-ok")+'">'+fr.t+'</span>';
+        if(tco>=5)sec+='<br><span class="fiche-badge fb-warn">CERFA FI-BSD obligatoire</span>';
+        if(tco>=500)sec+='<span class="fiche-badge fb-danger">D\u00e9tecteur fixe OBLIGATOIRE</span>';
+        if(tco<5)sec+='<br><span class="fiche-badge fb-ok">Pas de BSD requis</span>';
+    }else{
+        sec+='<div style="font-size:.76rem;color:#b0bec5;font-style:italic">Renseignez la charge pour voir les obligations</div>';
+    }
+    if(f.ODP>0)sec+='<br><span class="fiche-badge fb-danger">ODP '+f.ODP+' \u2014 COUCHE D\'OZONE</span>';
+    sec+='</div>';
+
+    // Section F-Gas
+    sec+='<div class="fsec"><h4>\ud83d\udcc5 \u00c9ch\u00e9ances F-Gas</h4>';
+    if(f.GWP>150){
+        sec+='<span class="fiche-badge fb-danger">GWP '+f.GWP+' > 150 \u2014 interdit \u00e0 terme</span>';
+        sec+='<table class="fgas-tbl"><tr><th>Cat\u00e9gorie</th><th>Seuil</th><th>Date</th></tr>';
+        FGAS.forEach(function(r){sec+='<tr'+(r.d<=2025?' class="past"':'')+'><td>'+r.cat+'</td><td>\u2264'+r.s+'</td><td>'+r.d+'</td></tr>'});
+        sec+='</table>';
+    }else{
+        sec+='<span class="fiche-badge fb-ok">GWP '+f.GWP+' \u2264 150 \u2014 Conforme toutes \u00e9ch\u00e9ances</span>';
+    }
+    sec+='</div>';
+    document.getElementById("ficheSections").innerHTML=sec;
+
+    var al='';
+    if(f.gl>1)al+='<div class="alert alert-warn"><span>\u26a0\ufe0f</span><div><strong>Z\u00e9otrope (glide '+f.gl+'K)</strong> \u2014 Charge liquide. Surchauffe ros\u00e9e. Sous-refroidissement bulle.</div></div>';
+    if(f.Td>=100)al+='<div class="alert alert-warn"><span>\ud83c\udf21\ufe0f</span><div><strong>T refoulement '+f.Td+'\u00b0C</strong> \u2014 Ne pas d\u00e9passer 120\u00b0C.</div></div>';
+    if(f.stat==="INTERDIT")al+='<div class="alert alert-danger"><span>\ud83d\udeab</span><div><strong>FLUIDE INTERDIT</strong> \u2014 Toute intervention = remplacement obligatoire.</div></div>';
+    al+='<div class="note-text">'+esc(f.note)+'</div>';
+    document.getElementById("ficheAlerts").innerHTML=al;
+    a.classList.add("visible");
+}
+
+function fi(k,v){return '<div class="fg"><span class="k">'+esc(k)+'</span><span class="v">'+esc(String(v))+'</span></div>'}
+
+function doRetrofit(){
+    var ok=document.getElementById("selOld").value,area=document.getElementById("resultsArea");
+    if(!ok||!FLUIDS[ok]){area.innerHTML='<div class="alert alert-danger"><span>\u274c</span><div>S\u00e9lectionnez un fluide.</div></div>';return}
+    var eq=document.getElementById("selEquip").value,yr=+document.getElementById("selYear").value;
+    var ch=parseFloat(document.getElementById("inCharge").value)||3;
+    var aA2L=document.getElementById("cbA2L").checked,aA3=document.getElementById("cbA3").checked,aB2L=document.getElementById("cbB2L").checked;
+    if(document.getElementById("selSys").value==="hermetique"){area.innerHTML='<div class="alert alert-danger"><span>\u26d4</span><div><strong>Herm\u00e9tique</strong> \u2014 Retrofit impossible.</div></div>';return}
+    var maps=RMAP[ok];if(!maps){area.innerHTML='<div class="empty-state">Pas de donn\u00e9es retrofit.</div>';return}
+    var lim=99999;FGAS.forEach(function(r){if(r.eq.indexOf(eq)>=0&&yr>=r.d)lim=Math.min(lim,r.s)});
+    var of=FLUIDS[ok],n1=[],n2=[],n3=[];
+    maps.forEach(function(m){
+        var f=FLUIDS[m.to];if(!f)return;
+        if(f.cl==="A2L"&&!aA2L)return;if(f.cl==="A3"&&!aA3)return;if(f.cl==="B2L"&&!aB2L)return;
+        var e=Object.assign({},m,{fl:f,gOk:f.GWP<=lim});
+        if(m.N===1)n1.push(e);else if(m.N===2)n2.push(e);else n3.push(e);
+    });
+    [n1,n2,n3].forEach(function(a){a.sort(function(a,b){return a.fl.GWP-b.fl.GWP})});
+    var av=n1.concat(n2).concat(n3).filter(function(e){return e.gOk&&e.ty!=="redesign"});
+    if(av.length)av[0].best=true;
+
+    var h='';
+    var eqL={split_inf12:"Split \u226412kW",split_sup12:"Split >12kW",monobloc:"Monobloc/PAC",vitrine:"Vitrine",chambre_froide:"Chambre froide",chiller:"Chiller",transport:"Transport"}[eq]||eq;
+    if(lim<99999)h+='<div class="alert alert-info"><span>\ud83d\udcc5</span><div><strong>'+eqL+' / '+yr+'</strong> \u2014 GWP max autoris\u00e9 : '+lim+'</div></div>';
+    if(of.GWP>lim)h+='<div class="alert alert-warn"><span>\u26a0\ufe0f</span><div><strong>'+esc(of.nom)+'</strong> (GWP '+of.GWP+') non conforme en '+yr+'.</div></div>';
+    if(!aA2L&&!aA3&&lim<=150)h+='<div class="alert alert-danger"><span>\ud83d\udea8</span><div><strong>Impasse A1</strong> \u2014 Aucune option \u2264150 en A1. Cochez A2L ou envisagez refonte N3.</div></div>';
+    var tot=maps.length,shown=n1.length+n2.length+n3.length;
+    if(shown<tot)h+='<div style="font-size:.75rem;color:#90a4ae;margin-bottom:.5rem">'+(tot-shown)+' option(s) masqu\u00e9e(s) par filtres s\u00e9curit\u00e9</div>';
+
+    h+=rBlock("N1 \u2014 M\u00eame classe (A1 \u2192 A1)","block-n1",n1,lim,ch,of);
+    h+=rBlock("N2 \u2014 A2L autoris\u00e9","block-n2",n2,lim,ch,of);
+    h+=rBlock("N3 \u2014 Naturels / Refonte","block-n3",n3,lim,ch,of);
+    area.innerHTML=h;
+}
+
+function rBlock(title,cls,entries,lim,ch,of){
+    var h='<div class="block '+cls+'"><div class="block-hdr">'+title+' ('+entries.length+')</div>';
+    if(!entries.length){h+='<div class="block-empty">Aucune option avec ces filtres.</div>'}
+    else{
+        h+='<div class="block-body"><div class="opts-grid">';
+        entries.forEach(function(e,i){
+            var f=e.fl,uid=cls.replace("block-","")+i;
+            var nc=e.r>0?(ch*e.r).toFixed(1):"N/A";
+            var gg=of.GWP>0?Math.round((1-f.GWP/of.GWP)*100):0;
+            var ntco=e.r>0?(parseFloat(nc)*f.GWP/1000):0;
+            var nfr=ntco>0?getFreq(ntco):null;
+
+            h+='<div class="opt'+(e.best?' best':'')+'">';
+            h+='<div class="opt-head"><span class="opt-name">'+esc(f.nom)+'</span><div class="opt-badges">';
+            h+='<span class="badge b-'+f.cl.toLowerCase()+'">'+f.cl+'</span>';
+            h+='<span class="badge b-gwp">GWP '+f.GWP+'</span>';
+            if(e.gOk&&lim<99999)h+='<span class="badge b-ok150">\u2264'+lim+' \u2713</span>';
+            if(!e.gOk&&lim<99999)h+='<span class="badge b-ko150">'+'>'+lim+'</span>';
+            h+='<span class="badge b-'+({dropin:"drop","drop-in":"drop",retrofit:"retro",redesign:"redesign"}[e.ty]||"retro")+'">'+(e.ty==="drop-in"?"Drop-in":e.ty==="retrofit"?"Retrofit":"Refonte")+'</span>';
+            h+='</div></div>';
+
+            // Infos essentielles VISIBLES dans la carte
+            h+='<div class="opt-info">';
+            h+=oi("Charge estim\u00e9e",nc+" kg ("+Math.round(e.r*100)+"%)");
+            h+=oi("Gain GWP",(gg>0?"-":"")+gg+"%");
+            h+=oi("Huile",e.hc?"\u26a0 Vidange obligatoire":"\u2713 Compatible");
+            h+=oi("Pression",e.pOk?"\u2713 Compatible":"\u26a0 Diff\u00e9rente");
+            h+=oi("Glide",f.gl+" K"+(f.gl>1?" \u26a0":""));
+            h+=oi("T refoul.",f.Td+"\u00b0C"+(f.Td>=100?" \u26a0":""));
+            if(ntco>0){h+=oi("tCO\u2082e",ntco.toFixed(2));h+=oi("Contr\u00f4le",nfr?nfr.t:"—")}
+            if(f.LFL)h+=oi("LFL",f.LFL+" kg/m\u00b3");
+            h+='</div>';
+
+            h+='<div class="opt-note">'+esc(e.nt)+'</div>';
+
+            if(f.gl>1)h+='<div class="alert alert-warn" style="margin-top:.2rem;margin-bottom:0;font-size:.72rem"><span>\u26a0\ufe0f</span><div><strong>Z\u00e9otrope '+f.gl+'K</strong> \u2014 Charge LIQUIDE. Surchauffe sur ros\u00e9e.</div></div>';
+
+            h+='<div class="opt-btns">';
+            h+='<button class="toggle-btn" onclick="tgl(\'d'+uid+'\',this)">\ud83d\udcc4 Fiche compl\u00e8te</button>';
+            h+='<button class="toggle-btn" onclick="tgl(\'c'+uid+'\',this)">\u2705 Checklist</button>';
+            if(f.cl==="A2L"||f.cl==="A3")h+='<a href="charge_a2l_v5.html" class="toggle-btn" style="text-decoration:none">\u26a1 Charge max EN 378</a>';
+            h+='</div>';
+
+            // Fiche complète dépliable
+            h+='<div class="expandable" id="d'+uid+'"><div class="detail-fiche">';
+            h+='<div style="font-weight:700;color:#0f2d52;margin-bottom:.3rem">'+esc(f.nom)+' \u2014 Fiche technique</div>';
+            h+='<div class="df-grid">';
+            h+=df("Classe",f.cl);h+=df("GWP",f.GWP);h+=df("Famille",f.fam);
+            h+=df("Composition",f.comp);h+=df("ODP",f.ODP);h+=df("Huile",f.huile);
+            h+=df("P service","~"+f.pS+" bar");h+=df("P cond 42\u00b0C",f.pC42?f.pC42+" bar":"Transcritique");
+            h+=df("Glide",f.gl+" K");h+=df("LFL",f.LFL?f.LFL+" kg/m\u00b3":"Non infl.");
+            h+=df("T refoul.",f.Td+"\u00b0C");h+=df("Applications",f.apps);
+            h+='</div>';
+            if(ntco>0){
+                h+='<div style="margin-top:.3rem;padding-top:.3rem;border-top:1px solid #e5e7eb">';
+                h+='<span class="fiche-badge fb-info">tCO\u2082e = '+ntco.toFixed(2)+'</span>';
+                if(nfr)h+='<span class="fiche-badge '+(nfr.l==="danger"?"fb-danger":nfr.l==="warn"?"fb-warn":"fb-ok")+'">'+nfr.t+'</span>';
+                h+=ntco>=5?'<span class="fiche-badge fb-warn">BSD</span>':'<span class="fiche-badge fb-ok">Pas de BSD</span>';
+                h+='</div>';
+            }
+            h+=f.GWP<=150?'<div style="margin-top:.2rem"><span class="fiche-badge fb-ok">\u2264150 \u2714</span></div>':'<div style="margin-top:.2rem"><span class="fiche-badge fb-warn">GWP '+f.GWP+' > 150 \u2014 transition</span></div>';
+            h+='<div style="font-size:.66rem;color:#90a4ae;margin-top:.2rem;font-style:italic">'+esc(f.note)+'</div>';
+            h+='</div></div>';
+
+            // Checklist dépliable
+            h+='<div class="expandable" id="c'+uid+'">'+bCL(e,f,of,ch,nc)+'</div>';
+            h+='</div>';
+        });
+        h+='</div></div>';
+    }
+    h+='</div>';return h;
+}
+
+function oi(k,v){return '<div class="oi"><span class="k">'+esc(k)+'</span><span class="v">'+esc(v)+'</span></div>'}
+function df(k,v){return '<div class="df-row"><span class="df-k">'+esc(k)+'</span><span class="df-v">'+esc(String(v))+'</span></div>'}
+
+function bCL(e,f,of,och,nc){
+    var h='<div class="checklist"><div style="font-weight:700;color:#0f2d52;margin-bottom:.3rem">'+esc(of.nom)+' \u2192 '+esc(f.nom)+'</div>';
+    var s=1;
+    h+=ck(s++,"\ud83d\udd27","R\u00e9cup\u00e9rer "+of.nom+" ("+och+" kg)");
+    h+=ck(s++,"\ud83d\udccb","Peser bouteille r\u00e9cup. \u2014 CERFA si \u22655 tCO\u2082e");
+    if(e.hc)h+=ck(s++,"\ud83d\udd34","VIDANGE : "+of.huile+" \u2192 "+f.huile+" (r\u00e9siduel <5%)");
+    else h+=ck(s++,"\u2705","Huile compatible ("+f.huile+")");
+    h+=ck(s++,"\ud83d\udd27","Filtre d\u00e9shydrateur"+(e.hc?" + joints + voyant":""));
+    e.tw.forEach(function(t){h+=ck(s++,t.indexOf("REFONTE")>=0?"\ud83d\udea8":"\u26a0\ufe0f",t)});
+    h+=ck(s++,"\ud83c\udf21\ufe0f","Vide < 2 mbar (1500 \u00b5m) \u2014 d\u00e9clin 15 min");
+    if(e.r>0)h+=ck(s++,"\u2696\ufe0f","Charger "+f.nom+(f.gl>1?" LIQUIDE":"")+" \u2014 ~"+nc+" kg ("+Math.round(e.r*100)+"%) puis ajuster SR/SC");
+    h+=ck(s++,"\ud83d\udcca","Mesurer surchauffe + sous-refroidissement");
+    if(f.Td>=95)h+=ck(s++,"\ud83c\udf21\ufe0f","T refoulement < 120\u00b0C (typ. "+f.Td+"\u00b0C)");
+    h+=ck(s++,"\ud83c\udff7\ufe0f","\u00c9tiquette : "+f.nom+" / GWP "+f.GWP+" / "+f.cl+" / "+nc+" kg");
+    if(e.r>0){var nt=(parseFloat(nc)*f.GWP/1000);
+        if(nt>=5){var nf=getFreq(nt);h+=ck(s++,"\ud83d\udcc5","tCO\u2082e "+nt.toFixed(2)+" \u2192 "+nf.t)}
+        else h+=ck(s++,"\u2705","tCO\u2082e "+nt.toFixed(2)+" < 5 \u2192 pas de contr\u00f4le")
+    }
+    h+=ck(s++,"\ud83d\udcdd","Registre + fiche intervention");
+    h+='</div>';return h;
+}
+function ck(n,i,t){return '<div class="chk"><span class="chk-i">'+i+'</span><div><strong>'+n+'.</strong> '+esc(t)+'</div></div>'}
+function tgl(id,btn){var el=document.getElementById(id);if(!el)return;var o=el.classList.toggle("open");if(btn)btn.classList.toggle("active",o)}
+
+
+
+
+
+
+
+</script><div class="zoom-controls"><button class="zoom-btn" onclick="zoom(-1)">&#8722;</button><button class="zoom-btn" onclick="zoom(0)">&#9673;</button><button class="zoom-btn" onclick="zoom(1)">&#43;</button></div>
+<script src="site_config.js"></script>
+<script src="ui_shell.js"></script>
+</body></html>

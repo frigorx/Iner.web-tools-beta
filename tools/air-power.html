@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Puissance air — sensible</title>
+  <link rel="stylesheet" href="../theme.css" />
+  <script src="../site_config.js"></script>
+  <script src="../ui_shell.js" defer></script>
+  <script src="tools_common.js" defer></script>
+<link rel="stylesheet" href="../theme_force.css">
+</head>
+<body>
+  <div id="iw-header" data-subtitle="Outils atelier — Puissance air (sensible)"></div>
+  <nav id="iw-nav"></nav>
+
+  <main class="iw-container">
+    <div class="iw-card">
+      <div class="iw-card-title">💨 Puissance sensible côté air</div>
+
+      <div class="iw-alert iw-alert-info" style="margin-top:0.6rem;">
+        Formule atelier : <strong>P(W) ≈ 0,34 × V̇(m³/h) × ΔT(°C)</strong> → donc <strong>P(kW) ≈ 0,34 × V̇ × ΔT / 1000</strong>.
+      </div>
+
+      <div class="iw-grid-3" style="margin-top:0.8rem;">
+        <div>
+          <label class="iw-calc-label">Débit d’air V̇ (m³/h)</label>
+          <input id="q" class="iw-input" inputmode="decimal" placeholder="ex : 850" />
+        </div>
+        <div>
+          <label class="iw-calc-label">T reprise (°C)</label>
+          <input id="tin" class="iw-input" inputmode="decimal" placeholder="ex : 26" />
+        </div>
+        <div>
+          <label class="iw-calc-label">T soufflage (°C)</label>
+          <input id="tout" class="iw-input" inputmode="decimal" placeholder="ex : 14" />
+        </div>
+      </div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div>
+          <label class="iw-calc-label">ΔT (°C) (optionnel)</label>
+          <input id="dt" class="iw-input" inputmode="decimal" placeholder="sinon calculé par T reprise - T soufflage" />
+        </div>
+        <div class="iw-calc good">
+          <div class="iw-calc-label">Puissance sensible</div>
+          <div class="iw-calc-value" id="out_p">—</div>
+        </div>
+      </div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div class="iw-calc">
+          <div class="iw-calc-label">ΔT utilisé</div>
+          <div class="iw-calc-value" id="out_dt">—</div>
+        </div>
+        <div class="iw-calc">
+          <div class="iw-calc-label">Équivalent BTU/h</div>
+          <div class="iw-calc-value" id="out_btu">—</div>
+        </div>
+      </div>
+
+      <div class="iw-alert iw-alert-warn" style="margin-top:0.8rem;">
+        Limite : ça ne tient pas compte de l’humidité (latent). Pour du diagnostic rapide, ça fait le job.
+      </div>
+
+      <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.8rem;">
+        <a class="iw-btn" href="index.html">⬅️ Retour outils</a>
+        <button class="iw-btn iw-btn-primary" id="copy">Copier résultats</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer id="iw-footer"></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const {parseNumber, fmt, copyText, setText} = window.iwTools;
+  const BTU_PER_KW = 3412.141633;
+
+  const qEl = document.getElementById('q');
+  const tinEl = document.getElementById('tin');
+  const toutEl = document.getElementById('tout');
+  const dtEl = document.getElementById('dt');
+
+  function compute(){
+    const q = parseNumber(qEl.value);
+    const dtDirect = parseNumber(dtEl.value);
+    const tin = parseNumber(tinEl.value);
+    const tout = parseNumber(toutEl.value);
+
+    let dt = NaN;
+    if(Number.isFinite(dtDirect)) dt = dtDirect;
+    else if(Number.isFinite(tin) && Number.isFinite(tout)) dt = tin - tout;
+
+    const p_kW = (Number.isFinite(q) && Number.isFinite(dt)) ? (0.34 * q * dt / 1000) : NaN;
+    const p_btu = Number.isFinite(p_kW) ? p_kW * BTU_PER_KW : NaN;
+
+    setText('out_dt', Number.isFinite(dt) ? `${fmt(dt,2)} °C` : '—');
+    setText('out_p', Number.isFinite(p_kW) ? `${fmt(p_kW,2)} kW` : '—');
+    setText('out_btu', Number.isFinite(p_btu) ? `${fmt(p_btu,0)} BTU/h` : '—');
+
+    return {q, dt, p_kW, p_btu};
+  }
+
+  [qEl, tinEl, toutEl, dtEl].forEach(el=> el.addEventListener('input', compute));
+
+  document.getElementById('copy').addEventListener('click', async function(){
+    const r = compute();
+    const text = `Puissance air (sensible)\n- Débit: ${Number.isFinite(r.q)?fmt(r.q,0)+' m³/h':'—'}\n- ΔT: ${Number.isFinite(r.dt)?fmt(r.dt,2)+' °C':'—'}\n- P: ${Number.isFinite(r.p_kW)?fmt(r.p_kW,2)+' kW':'—'}`;
+    await copyText(text);
+    this.textContent='✅ Copié';
+    setTimeout(()=> this.textContent='Copier résultats', 900);
+  });
+
+  compute();
+});
+</script>
+</body>
+</html>

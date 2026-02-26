@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>COP / EER — coût</title>
+  <link rel="stylesheet" href="../theme.css" />
+  <script src="../site_config.js"></script>
+  <script src="../ui_shell.js" defer></script>
+  <script src="tools_common.js" defer></script>
+<link rel="stylesheet" href="../theme_force.css">
+</head>
+<body>
+  <div id="iw-header" data-subtitle="Outils atelier — COP/EER & coût"></div>
+  <nav id="iw-nav"></nav>
+
+  <main class="iw-container">
+    <div class="iw-card">
+      <div class="iw-card-title">📈 COP / EER + estimation conso</div>
+
+      <div class="iw-alert iw-alert-info" style="margin-top:0.6rem;">
+        COP/EER = <strong>P utile</strong> / <strong>P électrique</strong>. Pour un ordre de grandeur, ça suffit.
+      </div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div class="iw-card">
+          <div class="iw-card-title">Machine A</div>
+          <label class="iw-calc-label">Puissance utile (kW)</label>
+          <input id="a_pu" class="iw-input" inputmode="decimal" placeholder="ex : 7" />
+          <div style="height:0.6rem;"></div>
+          <label class="iw-calc-label">Puissance électrique (kW)</label>
+          <input id="a_pe" class="iw-input" inputmode="decimal" placeholder="ex : 2,2" />
+          <div class="iw-calc good" style="margin-top:0.8rem;"><div class="iw-calc-label">COP / EER</div><div class="iw-calc-value" id="a_cop">—</div></div>
+        </div>
+
+        <div class="iw-card">
+          <div class="iw-card-title">Machine B (option)</div>
+          <label class="iw-calc-label">Puissance utile (kW)</label>
+          <input id="b_pu" class="iw-input" inputmode="decimal" placeholder="ex : 7" />
+          <div style="height:0.6rem;"></div>
+          <label class="iw-calc-label">Puissance électrique (kW)</label>
+          <input id="b_pe" class="iw-input" inputmode="decimal" placeholder="ex : 1,8" />
+          <div class="iw-calc" style="margin-top:0.8rem;"><div class="iw-calc-label">COP / EER</div><div class="iw-calc-value" id="b_cop">—</div></div>
+        </div>
+      </div>
+
+      <div class="iw-grid-3" style="margin-top:0.8rem;">
+        <div>
+          <label class="iw-calc-label">Heures/an</label>
+          <input id="h" class="iw-input" inputmode="decimal" value="800" />
+        </div>
+        <div>
+          <label class="iw-calc-label">Prix élec (€/kWh)</label>
+          <input id="prix" class="iw-input" inputmode="decimal" value="0,25" />
+        </div>
+        <div class="iw-calc">
+          <div class="iw-calc-label">Économie annuelle (si A et B)</div>
+          <div class="iw-calc-value" id="save">—</div>
+        </div>
+      </div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div class="iw-calc"><div class="iw-calc-label">Conso A (kWh/an)</div><div class="iw-calc-value" id="a_kwh">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">Coût A (€/an)</div><div class="iw-calc-value" id="a_cost">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">Conso B (kWh/an)</div><div class="iw-calc-value" id="b_kwh">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">Coût B (€/an)</div><div class="iw-calc-value" id="b_cost">—</div></div>
+      </div>
+
+      <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.8rem;">
+        <a class="iw-btn" href="index.html">⬅️ Retour outils</a>
+        <button class="iw-btn" id="clear">Effacer</button>
+        <button class="iw-btn iw-btn-primary" id="copy">Copier résultats</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer id="iw-footer"></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const {parseNumber, fmt, copyText, setText} = window.iwTools;
+
+  const a_pu = document.getElementById('a_pu');
+  const a_pe = document.getElementById('a_pe');
+  const b_pu = document.getElementById('b_pu');
+  const b_pe = document.getElementById('b_pe');
+  const hEl = document.getElementById('h');
+  const prixEl = document.getElementById('prix');
+
+  function compute(){
+    const APU = parseNumber(a_pu.value);
+    const APE = parseNumber(a_pe.value);
+    const BPU = parseNumber(b_pu.value);
+    const BPE = parseNumber(b_pe.value);
+    const H = parseNumber(hEl.value);
+    const PR = parseNumber(prixEl.value);
+
+    const aCOP = (Number.isFinite(APU) && Number.isFinite(APE) && APE>0) ? (APU/APE) : NaN;
+    const bCOP = (Number.isFinite(BPU) && Number.isFinite(BPE) && BPE>0) ? (BPU/BPE) : NaN;
+
+    const aKwh = (Number.isFinite(APE) && Number.isFinite(H)) ? (APE*H) : NaN;
+    const bKwh = (Number.isFinite(BPE) && Number.isFinite(H)) ? (BPE*H) : NaN;
+
+    const aCost = (Number.isFinite(aKwh) && Number.isFinite(PR)) ? (aKwh*PR) : NaN;
+    const bCost = (Number.isFinite(bKwh) && Number.isFinite(PR)) ? (bKwh*PR) : NaN;
+
+    const save = (Number.isFinite(aCost) && Number.isFinite(bCost)) ? (aCost - bCost) : NaN;
+
+    setText('a_cop', Number.isFinite(aCOP)?fmt(aCOP,2):'—');
+    setText('b_cop', Number.isFinite(bCOP)?fmt(bCOP,2):'—');
+
+    setText('a_kwh', Number.isFinite(aKwh)?fmt(aKwh,0):'—');
+    setText('b_kwh', Number.isFinite(bKwh)?fmt(bKwh,0):'—');
+
+    setText('a_cost', Number.isFinite(aCost)?fmt(aCost,0)+' €':'—');
+    setText('b_cost', Number.isFinite(bCost)?fmt(bCost,0)+' €':'—');
+
+    if(Number.isFinite(save)){
+      const s = Math.abs(save);
+      const sign = save>=0 ? 'économisés' : 'de surcoût';
+      setText('save', fmt(s,0) + ' € ' + sign);
+    } else {
+      setText('save','—');
+    }
+
+    return {aCOP,bCOP,aKwh,bKwh,aCost,bCost,save,H,PR};
+  }
+
+  [a_pu,a_pe,b_pu,b_pe,hEl,prixEl].forEach(el=> el.addEventListener('input', compute));
+
+  document.getElementById('clear').addEventListener('click', function(){
+    a_pu.value=''; a_pe.value=''; b_pu.value=''; b_pe.value='';
+    compute();
+  });
+
+  document.getElementById('copy').addEventListener('click', async function(){
+    const r = compute();
+    const text = `COP/EER & coût\n- A COP: ${Number.isFinite(r.aCOP)?fmt(r.aCOP,2):'—'} | A coût/an: ${Number.isFinite(r.aCost)?fmt(r.aCost,0)+' €':'—'}\n- B COP: ${Number.isFinite(r.bCOP)?fmt(r.bCOP,2):'—'} | B coût/an: ${Number.isFinite(r.bCost)?fmt(r.bCost,0)+' €':'—'}\n- Heures/an: ${Number.isFinite(r.H)?fmt(r.H,0):'—'} | Prix: ${Number.isFinite(r.PR)?fmt(r.PR,2)+' €/kWh':'—'}`;
+    await copyText(text);
+    this.textContent='✅ Copié';
+    setTimeout(()=> this.textContent='Copier résultats', 900);
+  });
+
+  compute();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="InerWeb Fluide — Suite pédagogique interactive pour le froid et la climatisation">
+<meta name="author" content="F. Henninot">
+<title>InerWeb Fluide v5.2 — Suite Pédagogique Froid &amp; CVC</title>
+<link rel="stylesheet" href="theme.css">
+<style>
+/* ========== INDEX — HERO ========== */
+.hero {
+    background: linear-gradient(135deg, #0f2d52, #1a4a6e, #2aafaf);
+    border-radius: 0 0 40px 0;
+    padding: 2.5rem 2rem 2rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0;
+}
+.hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #e8914a, #f3b07a, #e8914a);
+}
+.hero h2 {
+    color: white;
+    font-size: calc(1.6rem * var(--font-scale));
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin-bottom: .4rem;
+    text-shadow: 1px 1px 4px rgba(0,0,0,.15);
+}
+.hero h2 .accent { color: #e8914a; }
+.hero p {
+    color: rgba(255,255,255,.88);
+    font-size: calc(.92rem * var(--font-scale));
+    max-width: 650px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+.hero-badges {
+    display: flex;
+    justify-content: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+}
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .35rem .8rem;
+    background: rgba(255,255,255,.15);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 999px;
+    color: white;
+    font-size: calc(.72rem * var(--font-scale));
+    font-weight: 600;
+}
+
+/* ========== INDEX — FORMATIONS BAR ========== */
+.formations-bar {
+    background: linear-gradient(135deg, var(--mint), var(--mint-deep));
+    padding: .8rem 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+    border-bottom: 3px solid var(--mint-border);
+}
+.formations-bar .label {
+    font-weight: 700;
+    font-size: calc(.82rem * var(--font-scale));
+    color: var(--navy);
+}
+.form-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .35rem .7rem;
+    border-radius: 999px;
+    background: white;
+    font-size: calc(.76rem * var(--font-scale));
+    box-shadow: 0 2px 6px rgba(0,0,0,.04);
+}
+.form-level {
+    background: var(--orange);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: calc(.65rem * var(--font-scale));
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(232,145,74,.25);
+}
+
+/* ========== INDEX — MAIN LAYOUT ========== */
+.index-body {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem;
+}
+
+/* ========== INDEX — MODULE CARDS ========== */
+.section-title {
+    font-size: calc(1rem * var(--font-scale));
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: .8rem;
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+}
+
+.modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: .8rem;
+    margin-bottom: 1.5rem;
+}
+
+.mod-card {
+    background: white;
+    border: 1px solid var(--card-border);
+    border-left: 5px solid var(--orange);
+    border-radius: 22px;
+    padding: 1rem 1.1rem;
+    display: flex;
+    gap: .8rem;
+    align-items: flex-start;
+    text-decoration: none;
+    color: var(--text);
+    transition: all .3s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 2px 10px rgba(15,45,82,.05);
+    position: relative;
+    overflow: hidden;
+}
+.mod-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 5px; right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255,255,255,.4), transparent);
+    border-radius: 22px 22px 0 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .3s;
+}
+.mod-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 28px rgba(15,45,82,.1), 0 3px 10px rgba(232,145,74,.08);
+    text-decoration: none;
+    border-color: rgba(232,145,74,.2);
+}
+.mod-card:hover::before { opacity: 1; }
+
+.mod-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--orange-warm);
+    border-radius: 16px;
+    flex-shrink: 0;
+}
+.mod-info { flex: 1; min-width: 0; }
+.mod-name {
+    font-size: calc(.88rem * var(--font-scale));
+    font-weight: 700;
+    color: var(--orange);
+    margin-bottom: .2rem;
+}
+.mod-desc {
+    font-size: calc(.72rem * var(--font-scale));
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+/* Vitrine est maintenant gérée globalement par theme.css */
+
+/* ========== INDEX — VIDEO ========== */
+.video-card {
+    background: white;
+    border: 1px solid var(--card-border);
+    border-left: 5px solid var(--orange);
+    border-radius: 22px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+.video-card h4 {
+    font-size: calc(.88rem * var(--font-scale));
+    color: var(--orange);
+    margin-bottom: .5rem;
+}
+.video-slot {
+    background: linear-gradient(135deg, #0f2d52, #1a4a6e);
+    border-radius: 16px;
+    min-height: 180px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,.45);
+    font-size: calc(.8rem * var(--font-scale));
+    text-align: center;
+    overflow: hidden;
+}
+.video-slot iframe {
+    width: 100%; height: 100%;
+    min-height: 180px;
+    border: none;
+    border-radius: 16px;
+}
+
+/* ========== INDEX — PARTENAIRES ========== */
+.partners-section {
+    background: white;
+    border: 1px solid var(--card-border);
+    border-left: 5px solid var(--turquoise);
+    border-radius: 22px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+.partners-section h4 {
+    font-size: calc(.88rem * var(--font-scale));
+    color: var(--navy);
+    margin-bottom: .5rem;
+}
+.partners-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .5rem;
+}
+.partner-slot {
+    background: var(--bg);
+    border: 2px dashed var(--card-border);
+    border-radius: 14px;
+    padding: .6rem;
+    text-align: center;
+    min-height: 65px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s;
+    cursor: pointer;
+}
+.partner-slot:hover {
+    border-color: var(--orange);
+    background: var(--orange-warm);
+}
+.partner-slot img { max-height: 40px; width: auto; margin-bottom: .2rem; }
+.partner-slot .label { font-size: .6rem; color: var(--muted); }
+
+/* ========== RESPONSIVE ========== */
+@media (max-width: 900px) {
+    .hero h2 { font-size: calc(1.3rem * var(--font-scale)); }
+    .index-body { padding: 1rem; }
+}
+@media (max-width: 600px) {
+    .modules-grid { grid-template-columns: 1fr; }
+    .hero { padding: 1.8rem 1.2rem 1.5rem; border-radius: 0 0 24px 0; }
+    .hero h2 { font-size: calc(1.1rem * var(--font-scale)); }
+}
+</style>
+<link rel="stylesheet" href="theme_force.css">
+</head>
+<body>
+
+<div id="iw-header" data-subtitle="Suite P&eacute;dagogique &mdash; Froid &amp; CVC"></div>
+<nav id="iw-nav"></nav>
+
+<!-- ========== HERO ========== -->
+<div class="hero">
+    <h2>&#9732; Outils <span class="accent">interactifs</span> pour le froid et la climatisation</h2>
+    <p>Simulation, diagnostic, dimensionnement et r&eacute;glementation &mdash; application gratuite pour l&rsquo;enseignement professionnel</p>
+    <div class="hero-badges">
+        <span class="hero-badge">&#127919; 10 modules</span>
+        <span class="hero-badge">&#129514; 23 fluides</span>
+        <span class="hero-badge">&#128736;&#65039; Outils atelier</span>
+        <span class="hero-badge">&#128214; P&eacute;dagogique</span>
+    </div>
+</div>
+
+<!-- ========== FORMATIONS ========== -->
+<div class="formations-bar" id="formationsBar">
+    <span class="label">&#127891; Formations :</span>
+</div>
+
+<!-- ========== BODY : MAIN CONTENT ========== -->
+<div class="index-body">
+
+        <div class="section-title">&#127919; Acc&eacute;der aux modules</div>
+        <div class="modules-grid" id="modulesGrid"></div>
+
+        <div class="video-card">
+            <h4>&#127916; Pr&eacute;sentation</h4>
+            <div class="video-slot" id="videoSlot">
+                <div id="videoPlaceholder">&#127916;<br>Espace vid&eacute;o de pr&eacute;sentation</div>
+            </div>
+        </div>
+
+        <div class="partners-section">
+            <h4>&#129309; Partenaires</h4>
+            <div class="partners-grid" id="partnersGrid">
+                <div class="partner-slot"><span class="label">Logo partenaire</span></div>
+                <div class="partner-slot"><span class="label">Logo partenaire</span></div>
+                <div class="partner-slot"><span class="label">Logo partenaire</span></div>
+                <div class="partner-slot"><span class="label">Logo partenaire</span></div>
+            </div>
+        </div>
+
+</div>
+
+<footer id="iw-footer"></footer>
+
+<script src="site_config.js"></script>
+<script src="ui_shell.js"></script>
+<script>
+(function(){
+    var C = typeof SITE_CONFIG !== 'undefined' ? SITE_CONFIG : {};
+    var M = C.modules || [];
+    var F = C.formations || [];
+    var V = C.vitrine || {};
+    var P = C.partenaires || [];
+    var E = C.etablissement || {};
+    var VID = V.video_url || '';
+
+    function esc(s) {
+        if (!s) return '';
+        var d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    // === MODULES GRID ===
+    var mg = document.getElementById('modulesGrid');
+    if (mg && M.length) {
+        mg.innerHTML = '';
+        M.forEach(function(m) {
+            mg.innerHTML +=
+                '<a class="mod-card" href="' + esc(m.href) + '">' +
+                    '<div class="mod-icon">' + (m.icone || '') + '</div>' +
+                    '<div class="mod-info">' +
+                        '<div class="mod-name">' + esc(m.nom) + '</div>' +
+                        '<div class="mod-desc">' + esc(m.desc || '') + '</div>' +
+                    '</div>' +
+                '</a>';
+        });
+    }
+
+    // === FORMATIONS BAR ===
+    var fb = document.getElementById('formationsBar');
+    if (fb && F.length) {
+        F.forEach(function(f) {
+            fb.innerHTML +=
+                '<div class="form-pill">' +
+                    '<span class="form-level">' + esc(f.niveau) + '</span>' +
+                    '<span style="font-weight:600">' + esc(f.nom) + '</span>' +
+                    '<span style="color:var(--muted);font-size:.72rem">' + esc(f.duree) + '</span>' +
+                '</div>';
+        });
+    }
+
+    // === VIDEO ===
+    if (VID) {
+        var vs = document.getElementById('videoSlot');
+        if (vs) vs.innerHTML = '<iframe src="' + esc(VID) + '" allowfullscreen></iframe>';
+    }
+
+    // === PARTENAIRES ===
+    if (P.length) {
+        var pg = document.getElementById('partnersGrid');
+        if (pg) {
+            pg.innerHTML = '';
+            P.forEach(function(p) {
+                var d = document.createElement('div');
+                d.className = 'partner-slot';
+                d.innerHTML = (p.logo ? '<img src="' + esc(p.logo) + '" alt="' + esc(p.nom) + '">' : '') +
+                    '<span class="label">' + esc(p.nom) + '</span>';
+                if (p.url) d.onclick = function() { window.open(p.url, '_blank'); };
+                pg.appendChild(d);
+            });
+        }
+    }
+
+    // Vitrine est maintenant gérée globalement par ui_shell.js
+
+})();
+</script>
+</body>
+</html>

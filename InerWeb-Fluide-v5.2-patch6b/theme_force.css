@@ -1,0 +1,354 @@
+/**
+ * ================================================
+ * INERWEB FLUIDE — THEME_FORCE.CSS v5.2
+ * ================================================
+ * Surcharge les anciens styles inline avec la
+ * palette v5.2 "Plus d'orange biomorphique".
+ * À charger APRÈS theme.css et APRÈS les <style> inline.
+ * ================================================
+ */
+
+/* ========== FOND GLOBAL ========== */
+body {
+    background: linear-gradient(180deg, #faf7f2 0%, #f0ebe3 100%) !important;
+    background-attachment: fixed !important;
+    color: #2c3e50 !important;
+    font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* ========== OLD HEADER → Navy + liseré orange ========== */
+.main-header,
+.iw-header,
+[class*="main-header"] {
+    background: linear-gradient(135deg, #0f2d52, #1a4a6e, #2aafaf) !important;
+    border-bottom: 4px solid #e8914a !important;
+    box-shadow: 0 4px 20px rgba(15, 45, 82, 0.15) !important;
+    border-radius: 0 0 0 40px !important;
+}
+
+/* ========== OLD GRADIENTS → Orange #e8914a ========== */
+.version-badge,
+.iw-version {
+    background: #e8914a !important;
+    box-shadow: 0 2px 8px rgba(232, 145, 74, 0.4) !important;
+    border-radius: 999px !important;
+}
+
+/* ========== OLD NAV ========== */
+.iw-nav {
+    background: linear-gradient(135deg, #d4f0e8, #b8e6d8) !important;
+    border-bottom: 3px solid #7ecfbf !important;
+    box-shadow: 0 2px 12px rgba(42, 175, 175, 0.1) !important;
+}
+.iw-nav a {
+    border-radius: 999px !important;
+    background: white !important;
+    color: #0f2d52 !important;
+}
+.iw-nav a.active {
+    background: #e8914a !important;
+    color: white !important;
+    box-shadow: 0 3px 12px rgba(232, 145, 74, 0.4) !important;
+}
+.iw-nav a:hover:not(.active) {
+    background: #fdf6ef !important;
+    color: #e8914a !important;
+}
+
+/* ========== OLD CARDS ========== */
+.panel-card,
+.center-zone,
+.iw-card,
+[class*="panel-card"] {
+    background: #ffffff !important;
+    border: 1px solid #ece4da !important;
+    border-left: 5px solid #e8914a !important;
+    border-radius: 22px !important;
+    box-shadow: 0 4px 16px rgba(15, 45, 82, 0.07), 0 1px 3px rgba(232, 145, 74, 0.05) !important;
+}
+
+/* ========== OLD PANEL TITLES → Orange ========== */
+.panel-title,
+.iw-card-title,
+.iw-card h3,
+.gauges-header h2 {
+    color: #e8914a !important;
+    -webkit-text-fill-color: #e8914a !important;
+    background: none !important;
+    -webkit-background-clip: unset !important;
+}
+
+/* ========== OLD BUTTONS → Pill biomorphique ========== */
+.btn,
+.iw-btn,
+.vacuum-mode-btn,
+.retrofit-mode-btn,
+.promo-btn.primary,
+[class*="btn-primary"],
+button[class*="btn"] {
+    border-radius: 999px !important;
+}
+
+/* CTA principal = orange */
+.btn:not(.btn-secondary):not(.btn-outline),
+.iw-btn-primary,
+.vacuum-mode-btn,
+.promo-btn.primary {
+    background: #e8914a !important;
+    border-color: #e8914a !important;
+    color: white !important;
+    box-shadow: 0 4px 18px rgba(232, 145, 74, 0.35) !important;
+}
+.btn:not(.btn-secondary):not(.btn-outline):hover,
+.iw-btn-primary:hover,
+.vacuum-mode-btn:hover,
+.promo-btn.primary:hover {
+    background: #d47a35 !important;
+}
+
+/* Retrofit button */
+.retrofit-mode-btn {
+    background: linear-gradient(135deg, #0f2d52, #1a4a6e) !important;
+}
+
+/* ========== OLD CALC ITEMS → v5.2 styles ========== */
+.calc-item,
+.iw-calc {
+    border-radius: 14px !important;
+    box-shadow: 0 2px 8px rgba(15, 45, 82, 0.05) !important;
+}
+.calc-item:not(.warn):not(.danger),
+.iw-calc:not(.warn):not(.key):not(.good):not(.danger):not(.bad) {
+    background: #eef8f7 !important;
+    border-left: 5px solid #2aafaf !important;
+}
+.calc-item.warn,
+.iw-calc.warn,
+.iw-calc.key {
+    background: #fdf6ef !important;
+    border-left: 5px solid #e8914a !important;
+}
+.calc-item.danger,
+.iw-calc.danger,
+.iw-calc.bad {
+    background: #fdeaea !important;
+    border-left: 5px solid #e74c3c !important;
+}
+
+/* ========== OLD INPUTS → Focus orange ========== */
+input[type="number"],
+input[type="text"],
+input[type="range"],
+select,
+.iw-input,
+.iw-select {
+    border-radius: 14px !important;
+    border: 2px solid #ece4da !important;
+}
+input[type="number"]:focus,
+input[type="text"]:focus,
+select:focus,
+.iw-input:focus,
+.iw-select:focus {
+    border-color: #e8914a !important;
+    box-shadow: 0 0 0 4px rgba(232, 145, 74, 0.12), inset 0 2px 4px rgba(0, 0, 0, 0.03) !important;
+    outline: none !important;
+}
+
+/* ========== OLD PROMO/RIGHT PANEL → Vitrine menthe ========== */
+.right-panel,
+.promo-header,
+[class*="right-panel"] {
+    background: linear-gradient(135deg, #e8f6f2, #d5f0ec) !important;
+    border: 1px solid #a8ddd3 !important;
+    border-radius: 22px !important;
+}
+
+.promo-logo {
+    background: white !important;
+    color: #e8914a !important;
+    box-shadow: 0 6px 20px rgba(15, 45, 82, 0.12) !important;
+}
+
+.promo-btn {
+    border-radius: 999px !important;
+    border: 2px solid #a8ddd3 !important;
+}
+.promo-btn:hover {
+    background: #e8914a !important;
+    color: white !important;
+    border-color: #e8914a !important;
+}
+
+/* ========== OLD PILLS ========== */
+.pill,
+.iw-pill {
+    border-radius: 999px !important;
+}
+.pill {
+    background: #e8914a !important;
+    box-shadow: 0 2px 8px rgba(232, 145, 74, 0.35) !important;
+}
+
+/* ========== OLD FOOTER → Navy ========== */
+footer,
+.iw-footer {
+    background: linear-gradient(135deg, #0f2d52, #1a4a6e) !important;
+    border-top: 3px solid #e8914a !important;
+    border-radius: 24px 0 0 0 !important;
+    box-shadow: none !important;
+}
+
+/* ========== OLD MODALS ========== */
+.modal,
+.iw-modal {
+    background: rgba(15, 45, 82, 0.55) !important;
+}
+.modal-content,
+.iw-modal-content {
+    border-radius: 24px 24px 28px 20px !important;
+    box-shadow: 0 24px 64px rgba(15, 45, 82, 0.25) !important;
+}
+.modal-close,
+.iw-modal-close {
+    background: #e8914a !important;
+    border-radius: 50% !important;
+    box-shadow: 0 3px 10px rgba(232, 145, 74, 0.35) !important;
+}
+
+/* ========== OLD ZOOM CONTROLS ========== */
+.zoom-controls,
+.iw-zoom {
+    border-radius: 999px !important;
+    box-shadow: 0 6px 30px rgba(15, 45, 82, 0.12) !important;
+}
+.zoom-btn,
+.iw-zoom button {
+    background: #0f2d52 !important;
+    box-shadow: 0 2px 8px rgba(15, 45, 82, 0.2) !important;
+}
+.zoom-btn:hover,
+.iw-zoom button:hover {
+    background: #e8914a !important;
+}
+
+/* ========== OLD GAUGE CARDS ========== */
+.gauge-card {
+    border-radius: 22px !important;
+}
+.gauge-card.bp {
+    background: linear-gradient(135deg, #eef8f7 0%, #d5f0ec 100%) !important;
+    border: 2px solid #2aafaf !important;
+}
+.gauge-card.hp {
+    background: linear-gradient(135deg, #fdf6ef 0%, #f8e8d6 100%) !important;
+    border: 2px solid #e8914a !important;
+}
+
+/* ========== OLD FLUID INFO ========== */
+.fluid-info {
+    border-radius: 12px !important;
+    background: #eef4fa !important;
+    border-left: 4px solid #2aafaf !important;
+}
+.fluid-warning {
+    background: #fdf6ef !important;
+    border-left-color: #e8914a !important;
+}
+.fluid-danger {
+    background: #fdeaea !important;
+    border-left-color: #e74c3c !important;
+}
+
+/* ========== OLD INFO ICONS ========== */
+.info-icon {
+    background: #e8914a !important;
+    border-radius: 50% !important;
+}
+
+/* ========== OLD COMPAT BADGES ========== */
+.compat-success { background: #27ae60 !important; border-radius: 999px !important; }
+.compat-warning { background: #e8914a !important; border-radius: 999px !important; }
+.compat-danger  { background: #e74c3c !important; border-radius: 999px !important; }
+.compat-info    { background: #2aafaf !important; border-radius: 999px !important; }
+
+/* ========== OLD PRECISION INDICATOR ========== */
+.precision-indicator {
+    background: linear-gradient(135deg, #27ae60, #1a8a4a) !important;
+    border-radius: 999px !important;
+}
+
+/* ========== OLD ACCURACY BADGES ========== */
+.accuracy-badge.high   { background: #27ae60 !important; }
+.accuracy-badge.medium { background: #e8914a !important; }
+.accuracy-badge.low    { background: #e74c3c !important; }
+
+/* ========== OLD RETROFIT ========== */
+.retrofit-warning {
+    background: rgba(232, 145, 74, 0.08) !important;
+    border: 2px solid #e8914a !important;
+    color: #e8914a !important;
+    border-radius: 14px !important;
+}
+.retrofit-panel {
+    background: linear-gradient(135deg, #eef4fa, #e8f6f2) !important;
+    border-radius: 18px !important;
+}
+.retrofit-result {
+    border-radius: 16px !important;
+}
+
+/* ========== OLD VACUUM ========== */
+.vacuum-panel {
+    background: linear-gradient(135deg, #eef8f7, #d5f0ec) !important;
+    border-radius: 18px !important;
+}
+.vacuum-gauge {
+    border-radius: 18px !important;
+}
+
+/* ========== OLD AID CARDS (diagnostic) ========== */
+.aid-card {
+    border-radius: 18px !important;
+    box-shadow: 0 4px 16px rgba(15, 45, 82, 0.07) !important;
+    border-left: 5px solid #e8914a !important;
+}
+.aid-card h3 {
+    color: #e8914a !important;
+}
+.aid-badge {
+    border-radius: 999px !important;
+    background: #fdf6ef !important;
+    border: 1px solid #ece4da !important;
+}
+.aid-chip {
+    background: #eef8f7 !important;
+    border: 1px solid #a8ddd3 !important;
+    color: #0f2d52 !important;
+    border-radius: 999px !important;
+}
+
+/* ========== LOGO CARDS (old header) ========== */
+.logo-card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border-radius: 14px !important;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1) !important;
+}
+.logo-card.groupe {
+    background: linear-gradient(135deg, #0f2d52, #1a4a6e) !important;
+}
+
+/* ========== LEGAL PAGES ========== */
+.legal-page,
+.mentions-page {
+    background: #faf7f2 !important;
+}
+
+/* ========== SCROLLBAR ========== */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f0ebe3; }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #e8914a, #d47a35);
+    border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover { background: #d47a35; }

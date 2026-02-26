@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="780" height="140" viewBox="0 0 780 140">
+      <text fill="#1b3a63" font-size="56px" x="24" y="80">❄️</text>
+      <text fill="#1b3a63" font-family="Trebuchet MS" font-size="52px" font-weight="bold" x="100" y="75">iner</text>
+      <text fill="#1b3a63" font-family="Segoe Script, Brush Script MT, cursive" font-size="52px" font-weight="normal" x="195" y="75">Web</text>
+      <line stroke="#e8914a" stroke-width="4" x1="100" x2="300" y1="80" y2="80"/>
+      <rect fill="#e8914a" x="320" y="5" rx="8" ry="8" width="190" height="42"/>
+      <text fill="#ffffff" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="24px" font-weight="bold" x="415" y="35" text-anchor="middle">Classroom</text>
+      <text fill="#cccccc" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14px" x="100" y="110">par F. Henninot</text>
+    </svg>

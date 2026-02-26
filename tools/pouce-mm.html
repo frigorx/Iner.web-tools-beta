@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pouce ↔ mm — Tubes & longueurs</title>
+  <link rel="stylesheet" href="../theme.css" />
+  <script src="../site_config.js"></script>
+  <script src="../ui_shell.js" defer></script>
+  <script src="tools_common.js" defer></script>
+<link rel="stylesheet" href="../theme_force.css">
+</head>
+<body>
+  <div id="iw-header" data-subtitle="Outils atelier — Pouce ↔ mm"></div>
+  <nav id="iw-nav"></nav>
+
+  <main class="iw-container">
+    <div class="iw-card">
+      <div class="iw-card-title">📏 Pouce ↔ mm (utile pour tubes)</div>
+
+      <div class="iw-alert iw-alert-info" style="margin-top:0.6rem;">
+        Vous pouvez saisir une fraction (ex : <strong>3/8</strong>) ou un décimal (ex : <strong>0,375</strong>).
+      </div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div>
+          <label class="iw-calc-label">Pouces (in)</label>
+          <input id="inch" class="iw-input" inputmode="text" placeholder="ex : 1/4" />
+        </div>
+        <div>
+          <label class="iw-calc-label">Millimètres (mm)</label>
+          <input id="mm" class="iw-input" inputmode="decimal" placeholder="ex : 6,35" />
+        </div>
+      </div>
+
+      <div class="iw-grid-2" style="margin-top:0.9rem;">
+        <div class="iw-calc good"><div class="iw-calc-label">Résultat</div><div class="iw-calc-value" id="out">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">Diamètres cuivre courants</div><div class="iw-calc-value" style="font-size:0.92rem; font-weight:600;" id="std">—</div></div>
+      </div>
+
+      <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.8rem;">
+        <a class="iw-btn" href="index.html">⬅️ Retour outils</a>
+        <button class="iw-btn" id="clear">Effacer</button>
+        <button class="iw-btn iw-btn-primary" id="copy">Copier</button>
+      </div>
+    </div>
+  </main>
+
+  <footer id="iw-footer"></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const {parseNumber, fmt, copyText, setText, setHTML} = window.iwTools;
+  const MM_PER_IN = 25.4;
+
+  const inchEl = document.getElementById('inch');
+  const mmEl = document.getElementById('mm');
+
+  function parseInch(v){
+    if(!v) return NaN;
+    v = String(v).trim().replace(',', '.');
+    // fraction a/b
+    if(v.includes('/')){
+      const parts = v.split('/').map(s=>s.trim());
+      if(parts.length===2){
+        const a = parseNumber(parts[0]);
+        const b = parseNumber(parts[1]);
+        if(Number.isFinite(a) && Number.isFinite(b) && b!==0) return a/b;
+      }
+    }
+    return parseNumber(v);
+  }
+
+  const std = [
+    {in:'1/8', mm:3.18},
+    {in:'3/16', mm:4.76},
+    {in:'1/4', mm:6.35},
+    {in:'5/16', mm:7.94},
+    {in:'3/8', mm:9.52},
+    {in:'1/2', mm:12.70},
+    {in:'5/8', mm:15.88},
+    {in:'3/4', mm:19.05},
+    {in:'7/8', mm:22.22},
+    {in:'1 1/8', mm:28.58},
+    {in:'1 3/8', mm:34.93}
+  ];
+
+  function renderStd(){
+    const chips = std.map(s=>`<span class="iw-pill iw-pill-outline" style="margin:2px;">${s.in} → ${fmt(s.mm,2)} mm</span>`).join('');
+    setHTML('std', `<div style="display:flex;flex-wrap:wrap;gap:4px;">${chips}</div>`);
+  }
+
+  let lock = false;
+
+  function fromInch(){
+    if(lock) return;
+    lock = true;
+    const inch = parseInch(inchEl.value);
+    const mm = Number.isFinite(inch) ? inch * MM_PER_IN : NaN;
+    if(Number.isFinite(mm)) mmEl.value = String(mm.toFixed(2)).replace('.', ',');
+    setText('out', Number.isFinite(mm) ? `${fmt(inch,4)} in = ${fmt(mm,2)} mm` : '—');
+    lock = false;
+  }
+
+  function fromMm(){
+    if(lock) return;
+    lock = true;
+    const mm = parseNumber(mmEl.value);
+    const inch = Number.isFinite(mm) ? mm / MM_PER_IN : NaN;
+    if(Number.isFinite(inch)) inchEl.value = String(inch.toFixed(4)).replace('.', ',');
+    setText('out', Number.isFinite(inch) ? `${fmt(mm,2)} mm = ${fmt(inch,4)} in` : '—');
+    lock = false;
+  }
+
+  inchEl.addEventListener('input', fromInch);
+  mmEl.addEventListener('input', fromMm);
+
+  document.getElementById('clear').addEventListener('click', function(){
+    inchEl.value=''; mmEl.value=''; setText('out','—');
+  });
+
+  document.getElementById('copy').addEventListener('click', async function(){
+    const inch = parseInch(inchEl.value);
+    const mm = parseNumber(mmEl.value);
+    let text='Pouce ↔ mm\n';
+    if(Number.isFinite(inch)) text += `- in: ${fmt(inch,4)}\n`;
+    if(Number.isFinite(mm)) text += `- mm: ${fmt(mm,2)}\n`;
+    await copyText(text.trim());
+    this.textContent='✅ Copié';
+    setTimeout(()=> this.textContent='Copier', 900);
+  });
+
+  renderStd();
+});
+</script>
+</body>
+</html>

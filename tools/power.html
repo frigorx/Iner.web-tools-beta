@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Puissance — Convertisseur</title>
+  <link rel="stylesheet" href="../theme.css" />
+  <script src="../site_config.js"></script>
+  <script src="../ui_shell.js" defer></script>
+  <script src="tools_common.js" defer></script>
+<link rel="stylesheet" href="../theme_force.css">
+</head>
+<body>
+  <div id="iw-header" data-subtitle="Outils atelier — Puissance"></div>
+  <nav id="iw-nav"></nav>
+
+  <main class="iw-container">
+    <div class="iw-card">
+      <div class="iw-card-title">⚡ Convertisseur de puissance</div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div>
+          <label class="iw-calc-label">Valeur</label>
+          <input id="val" class="iw-input" inputmode="decimal" placeholder="ex : 3,5" />
+        </div>
+        <div>
+          <label class="iw-calc-label">Unité</label>
+          <select id="unit" class="iw-select">
+            <option value="kW">kW</option>
+            <option value="BTUh">BTU/h</option>
+            <option value="TR">TR (tonne de froid)</option>
+            <option value="kcalh">kcal/h</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="iw-alert iw-alert-info" style="margin-top:0.8rem;">
+        Conversions indicatives (atelier). Base : 1 TR = 12 000 BTU/h.
+      </div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div class="iw-calc"><div class="iw-calc-label">kW</div><div class="iw-calc-value" id="out_kW">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">BTU/h</div><div class="iw-calc-value" id="out_BTU">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">TR</div><div class="iw-calc-value" id="out_TR">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">kcal/h</div><div class="iw-calc-value" id="out_kcal">—</div></div>
+      </div>
+
+      <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.8rem;">
+        <a class="iw-btn" href="index.html">⬅️ Retour outils</a>
+        <button class="iw-btn iw-btn-primary" id="copy">Copier résultats</button>
+      </div>
+    </div>
+  </main>
+
+  <footer id="iw-footer"></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const {parseNumber, fmt, copyText, setText} = window.iwTools;
+
+  // Constantes
+  const KW_PER_TR = 3.5168528420667; // 12000 BTU/h
+  const BTU_PER_KW = 3412.141633;
+  const KCAL_PER_KW = 860.4206501;
+
+  const valEl = document.getElementById('val');
+  const unitEl = document.getElementById('unit');
+
+  function compute(){
+    const v = parseNumber(valEl.value);
+    const u = unitEl.value;
+
+    let kW = NaN;
+    if(Number.isFinite(v)){
+      if(u === 'kW') kW = v;
+      if(u === 'BTUh') kW = v / BTU_PER_KW;
+      if(u === 'TR') kW = v * KW_PER_TR;
+      if(u === 'kcalh') kW = v / KCAL_PER_KW;
+    }
+
+    const btu = Number.isFinite(kW) ? kW * BTU_PER_KW : NaN;
+    const tr  = Number.isFinite(kW) ? kW / KW_PER_TR : NaN;
+    const kcal= Number.isFinite(kW) ? kW * KCAL_PER_KW : NaN;
+
+    setText('out_kW', fmt(kW, 3));
+    setText('out_BTU', fmt(btu, 0));
+    setText('out_TR', fmt(tr, 3));
+    setText('out_kcal', fmt(kcal, 0));
+
+    return {kW, btu, tr, kcal};
+  }
+
+  function bind(){
+    valEl.addEventListener('input', compute);
+    unitEl.addEventListener('change', compute);
+    document.getElementById('copy').addEventListener('click', async function(){
+      const r = compute();
+      const text = `Puissance\n- kW: ${fmt(r.kW,3)}\n- BTU/h: ${fmt(r.btu,0)}\n- TR: ${fmt(r.tr,3)}\n- kcal/h: ${fmt(r.kcal,0)}`;
+      await copyText(text);
+      this.textContent = '✅ Copié';
+      setTimeout(()=> this.textContent='Copier résultats', 900);
+    });
+  }
+
+  bind();
+  compute();
+});
+</script>
+</body>
+</html>

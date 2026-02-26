@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Débit d’air — Grille anémomètre</title>
+  <link rel="stylesheet" href="../theme.css" />
+  <script src="../site_config.js"></script>
+  <script src="../ui_shell.js" defer></script>
+  <script src="tools_common.js" defer></script>
+  <style>
+    .gridInputs{display:grid; gap:0.5rem;}
+    .gridInputs[data-n="3"]{grid-template-columns:repeat(3,1fr);}
+    .gridInputs[data-n="4"]{grid-template-columns:repeat(4,1fr);}
+    .cell{display:flex; flex-direction:column; gap:0.2rem;}
+    .cell small{color:var(--muted); font-weight:600; font-size:0.72rem;}
+  </style>
+<link rel="stylesheet" href="../theme_force.css">
+</head>
+<body>
+  <div id="iw-header" data-subtitle="Outils atelier — Débit d’air (grille)"></div>
+  <nav id="iw-nav"></nav>
+
+  <main class="iw-container">
+    <div class="iw-card">
+      <div class="iw-card-title">🧮 Débit d’air par grille (anémomètre)</div>
+
+      <div class="iw-grid-3" style="margin-top:0.8rem;">
+        <div>
+          <label class="iw-calc-label">Largeur grille (mm)</label>
+          <input id="w" class="iw-input" inputmode="decimal" value="600" />
+        </div>
+        <div>
+          <label class="iw-calc-label">Hauteur grille (mm)</label>
+          <input id="h" class="iw-input" inputmode="decimal" value="300" />
+        </div>
+        <div>
+          <label class="iw-calc-label">Points de mesure</label>
+          <select id="n" class="iw-select">
+            <option value="3">3 × 3 (9 points)</option>
+            <option value="4">4 × 4 (16 points)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="iw-alert iw-alert-info" style="margin-top:0.8rem;">
+        Conseil : faites des points <strong>répartis</strong>, évitez les bords immédiats. Mesurez en m/s.
+      </div>
+
+      <div style="margin-top:0.8rem;" class="gridInputs" id="grid" data-n="3"></div>
+
+      <div class="iw-grid-3" style="margin-top:0.9rem;">
+        <div class="iw-calc"><div class="iw-calc-label">Surface</div><div class="iw-calc-value" id="out_area">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">Vitesse moyenne</div><div class="iw-calc-value" id="out_v">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">Débit</div><div class="iw-calc-value" id="out_q">—</div></div>
+      </div>
+
+      <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.8rem;">
+        <a class="iw-btn" href="index.html">⬅️ Retour outils</a>
+        <button class="iw-btn" id="reset">Réinitialiser</button>
+        <button class="iw-btn iw-btn-primary" id="copy">Copier résultats</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer id="iw-footer"></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const {parseNumber, fmt, copyText, setText} = window.iwTools;
+
+  const wEl = document.getElementById('w');
+  const hEl = document.getElementById('h');
+  const nEl = document.getElementById('n');
+  const gridEl = document.getElementById('grid');
+
+  function buildGrid(n){
+    gridEl.innerHTML = '';
+    gridEl.dataset.n = String(n);
+    const total = n*n;
+    for(let i=1;i<=total;i++){
+      const d = document.createElement('div');
+      d.className = 'cell';
+      d.innerHTML = `<small>P${i}</small><input class="iw-input" inputmode="decimal" placeholder="m/s" data-idx="${i}" />`;
+      gridEl.appendChild(d);
+    }
+    gridEl.querySelectorAll('input').forEach(inp=> inp.addEventListener('input', compute));
+  }
+
+  function getSpeeds(){
+    const inputs = Array.from(gridEl.querySelectorAll('input'));
+    const vals = inputs.map(i => parseNumber(i.value)).filter(Number.isFinite);
+    return vals;
+  }
+
+  function compute(){
+    const w = parseNumber(wEl.value);
+    const h = parseNumber(hEl.value);
+    const area = (Number.isFinite(w) && Number.isFinite(h)) ? (w/1000)*(h/1000) : NaN;
+    const v = getSpeeds();
+    const vavg = v.length ? (v.reduce((a,b)=>a+b,0)/v.length) : NaN;
+    const q_m3s = (Number.isFinite(area) && Number.isFinite(vavg)) ? area * vavg : NaN;
+    const q_m3h = Number.isFinite(q_m3s) ? q_m3s * 3600 : NaN;
+
+    setText('out_area', Number.isFinite(area) ? `${fmt(area,3)} m²` : '—');
+    setText('out_v', Number.isFinite(vavg) ? `${fmt(vavg,2)} m/s (${v.length} pts)` : '—');
+    setText('out_q', Number.isFinite(q_m3h) ? `${fmt(q_m3h,0)} m³/h` : '—');
+
+    return {area, vavg, q_m3h, points:v.length};
+  }
+
+  function reset(){
+    gridEl.querySelectorAll('input').forEach(i=> i.value='');
+    compute();
+  }
+
+  nEl.addEventListener('change', function(){
+    buildGrid(parseInt(nEl.value,10));
+    compute();
+  });
+  wEl.addEventListener('input', compute);
+  hEl.addEventListener('input', compute);
+
+  document.getElementById('reset').addEventListener('click', reset);
+  document.getElementById('copy').addEventListener('click', async function(){
+    const r = compute();
+    const text = `Débit d’air (grille)\n- Surface: ${Number.isFinite(r.area)?fmt(r.area,3)+' m²':'—'}\n- Vitesse moyenne: ${Number.isFinite(r.vavg)?fmt(r.vavg,2)+' m/s':'—'} (${r.points} points)\n- Débit: ${Number.isFinite(r.q_m3h)?fmt(r.q_m3h,0)+' m³/h':'—'}`;
+    await copyText(text);
+    this.textContent='✅ Copié';
+    setTimeout(()=> this.textContent='Copier résultats', 900);
+  });
+
+  buildGrid(3);
+  compute();
+});
+</script>
+</body>
+</html>

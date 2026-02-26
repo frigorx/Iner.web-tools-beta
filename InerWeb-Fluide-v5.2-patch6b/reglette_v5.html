@@ -1,0 +1,3037 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InerWeb Fluide v5.1 — Réglette P/T</title>
+    <!-- CSP stricte : aucune connexion externe autorisée -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; frame-src 'none';">
+    <!-- 
+    ============================================================
+    RÉGLETTE P/T - InerWeb Fluide v5.1
+    ============================================================
+    Auteur : F. Henninot - InerWeb Fluide, Marseille
+    Licence code : Propriétaire (usage éducatif autorisé)
+    
+    SOURCES DES DONNÉES :
+    - Tables P/T : Générées via interpolation linéaire sur 
+      données publiques de saturation (équations d'Antoine/Wagner)
+    - Classifications sécurité : Désignations ASHRAE 34 (A1, A2L, etc.)
+      sans reproduction du texte normatif
+    - GWP : Valeurs indicatives issues de sources publiques variées
+      (non contractuel, vérification obligatoire)
+    
+    RGPD : Aucune collecte de données, aucun appel réseau,
+           aucun tracking, stockage local uniquement (préférences)
+    ============================================================
+    -->
+    <link rel="stylesheet" href="theme.css">
+<style>
+        :root {
+            --primary: #0f2d52;
+            --accent: #e8914a;
+            --text: #0f2d52;
+            --muted: #6c757d;
+            --border: #dee2e6;
+            --good: #27ae60;
+            --warn: #e8914a;
+            --bad: #e74c3c;
+            --shadow: 0 8px 24px rgba(0,0,0,0.12);
+            --gradient-orange: linear-gradient(135deg, #e8914a 0%, #f3b07a 50%, #f3b07a 100%);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        /* POLICES SYSTÈME - Pas de CDN = RGPD OK */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(180deg, #faf7f2 0%, #f0ebe3 100%); 
+            min-height: 100vh; 
+            color: var(--text); 
+            line-height: 1.4;
+        }
+        
+        .font-display {
+            font-family: Impact, "Arial Black", sans-serif;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+        
+        /* === HEADER === */
+        .main-header {
+            background: var(--gradient-orange);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            box-shadow: 0 4px 20px rgba(255,107,53,0.3);
+        }
+        .header-left { display: flex; align-items: center; gap: 0.8rem; }
+        .logo-card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 10px;
+            padding: 6px 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .logo-card:hover { transform: translateY(-2px); }
+        .logo-card span { font-size: 0.6rem; font-weight: 700; color: var(--text); text-align: center; line-height: 1.1; display: block; }
+        .header-center { flex: 1; text-align: center; }
+        .header-center h1 {
+            font-size: 1.6rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+        }
+        .header-center p { font-size: 0.7rem; opacity: 0.9; }
+        .version-badge {
+            background: var(--good);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            margin-left: 0.4rem;
+        }
+        
+        /* === BANDEAU === */
+        .action-banner {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            padding: 0.4rem 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            border-bottom: 2px solid #e8914a;
+        }
+        .action-btn {
+            padding: 0.3rem 0.7rem;
+            background: white;
+            border-radius: 15px;
+            color: var(--text);
+            font-weight: 600;
+            font-size: 0.7rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-btn:hover { transform: translateY(-1px); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .action-btn.highlight { border: 2px solid #e8914a; }
+        
+        /* === CONTENU === */
+        .main-content { max-width: 1400px; margin: 0 auto; padding: 1rem; }
+        
+        .panel-card {
+            background: white;
+            border-radius: 14px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1rem;
+        }
+        
+        .panel-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--accent);
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        /* === CONFIG === */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+        }
+        .config-item {
+            background: #f8fafc;
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+        .config-item label {
+            display: block;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 0.2rem;
+            text-transform: uppercase;
+        }
+        .config-item input, .config-item select {
+            width: 100%;
+            padding: 5px 8px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: inherit;
+        }
+        .config-item input:focus, .config-item select:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+        
+        .pressure-input-group {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .pressure-input-group input {
+            flex: 1;
+            text-align: center;
+            font-size: 1rem;
+            font-weight: 800;
+            padding: 6px 2px;
+        }
+        .btn-adj {
+            width: 30px;
+            height: 30px;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--accent);
+        }
+        .btn-adj:hover { background: var(--accent); color: white; border-color: var(--accent); }
+        
+        .step-selector { display: flex; gap: 2px; margin-top: 4px; }
+        .step-btn {
+            flex: 1;
+            padding: 2px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--muted);
+        }
+        .step-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+        
+        /* === FLUIDES === */
+        .fluids-section { margin-top: 0.5rem; }
+        .category-row {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            margin-bottom: 0.3rem;
+            flex-wrap: wrap;
+        }
+        .category-label {
+            font-size: 0.55rem;
+            font-weight: 800;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            min-width: 80px;
+            text-align: center;
+        }
+        .cat-cfc { background: #6b7280; }
+        .cat-hcfc { background: #9ca3af; }
+        .cat-hfc { background: #3b82f6; }
+        .cat-hfo { background: #27ae60; }
+        .cat-nat { background: #22c55e; }
+        .cat-blend { background: #8b5cf6; }
+        
+        .fluids-grid { display: flex; flex-wrap: wrap; gap: 3px; flex: 1; }
+        .fluid-chip {
+            padding: 3px 7px;
+            border-radius: 10px;
+            border: 2px solid;
+            font-weight: 700;
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .fluid-chip.active { box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .fluid-chip:not(.active) { opacity: 0.3; }
+        .fluid-chip:hover { transform: scale(1.05); opacity: 1; }
+        .fluid-chip .status-dot { width: 5px; height: 5px; border-radius: 50%; }
+        .status-banned { background: #c0392b; }
+        .status-restrict { background: #e8914a; }
+        .status-future { background: #fbbf24; }
+        .status-ok { background: #27ae60; }
+        
+        .legend-bar {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            padding: 0.4rem;
+            background: #f8fafc;
+            border-radius: 6px;
+            margin-top: 0.4rem;
+            font-size: 0.55rem;
+        }
+        .legend-item { display: flex; align-items: center; gap: 3px; }
+        .legend-dot { width: 6px; height: 6px; border-radius: 50%; }
+        
+        /* === AFFICHAGE === */
+        .main-display {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+            margin: 0.6rem 0;
+        }
+        .display-box {
+            background: linear-gradient(135deg, #1e3a5f, #2d4a6f);
+            border-radius: 10px;
+            padding: 0.6rem;
+            text-align: center;
+            color: white;
+        }
+        .display-box.pressure { background: var(--gradient-orange); }
+        .display-box .label { font-size: 0.55rem; opacity: 0.8; text-transform: uppercase; }
+        .display-box .value { font-size: 1.8rem; font-weight: 900; }
+        .display-box .unit { font-size: 0.65rem; opacity: 0.9; }
+        
+        /* === REGLETTE === */
+        .reglette-container {
+            background: linear-gradient(180deg, #f0ebe3, #dde5ed);
+            border-radius: 10px;
+            padding: 0.6rem;
+            margin: 0.6rem 0;
+            position: relative; /* pour le curseur absolu */
+        }
+        .pressure-scale {
+            height: 50px;
+            background: linear-gradient(90deg, #3b82f6 0%, #27ae60 20%, #84cc16 40%, #eab308 60%, #f97316 80%, #e74c3c 100%);
+            border-radius: 6px;
+            position: relative;
+        }
+        .scale-marks { position: absolute; top: 0; left: 0; right: 0; height: 100%; }
+        .scale-mark { position: absolute; top: 0; transform: translateX(-50%); }
+        .scale-mark.major .tick { width: 2px; height: 20px; background: white; }
+        .scale-mark.major .val { font-size: 0.6rem; font-weight: 800; color: white; margin-top: 1px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .scale-mark.medium .tick { width: 1px; height: 14px; background: rgba(255,255,255,0.7); }
+        .scale-mark.minor .tick { width: 1px; height: 8px; background: rgba(255,255,255,0.4); }
+        
+        .cursor-line {
+            position: absolute;
+            width: 3px;
+            top: 0;
+            bottom: 0; /* traverse TOUTE la reglette-container */
+            background: linear-gradient(180deg, #c0392b, #991b1b);
+            border-radius: 2px;
+            box-shadow: 0 0 10px rgba(220,38,38,0.5);
+            cursor: ew-resize;
+            z-index: 50;
+            pointer-events: auto;
+        }
+        .cursor-handle {
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;
+            height: 16px;
+            background: linear-gradient(135deg, #c0392b, #b91c1c);
+            border-radius: 50%;
+            border: 2px solid white;
+            cursor: grab;
+            box-shadow: 0 2px 8px rgba(220,38,38,0.4);
+        }
+        .cursor-handle:active { cursor: grabbing; transform: translateX(-50%) scale(1.15); }
+        .cursor-value {
+            position: absolute;
+            bottom: -18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #c0392b;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 700;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(220,38,38,0.3);
+        }
+        
+        .fluid-lines { margin-top: 1.2rem; }
+        .fluid-line { display: flex; align-items: center; height: 32px; margin-bottom: 4px; }
+        .fluid-line-label {
+            width: 60px;
+            padding: 3px 5px;
+            border-radius: 4px;
+            color: white;
+            font-weight: 800;
+            font-size: 0.55rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .fluid-line-scale {
+            flex: 1;
+            height: 100%;
+            margin-left: 5px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 3px;
+            position: relative;
+            border: 1px solid rgba(0,0,0,0.06);
+        }
+        /* Graduations temperature ameliorees */
+        .temp-marker { position: absolute; top: 0; height: 100%; transform: translateX(-50%); }
+        .temp-marker.major .temp-tick { width: 2px; height: 100%; }
+        .temp-marker.major .temp-val { font-size: 0.5rem; font-weight: 800; position: absolute; top: -1px; white-space: nowrap; text-shadow: 0 0 3px white, 0 0 3px white; }
+        .temp-marker.medium .temp-tick { width: 1px; height: 60%; opacity: 0.6; }
+        .temp-marker.medium .temp-val { font-size: 0.4rem; font-weight: 600; position: absolute; bottom: 0; white-space: nowrap; opacity: 0.7; }
+        .temp-marker.minor .temp-tick { width: 1px; height: 35%; opacity: 0.3; }
+        
+        /* === RESULTATS === */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 0.6rem;
+            margin-top: 0.6rem;
+        }
+        .result-card {
+            background: white;
+            border-radius: 8px;
+            padding: 0.6rem;
+            border-top: 4px solid;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .result-card:hover { transform: translateY(-2px); }
+        .result-card .fluid-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.2rem; }
+        .result-card .fluid-name { font-weight: 900; font-size: 0.9rem; }
+        .result-card .safety-badge {
+            font-size: 0.5rem;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: 800;
+        }
+        .safety-A1 { background: #d1fae5; color: #065f46; }
+        .safety-A2L { background: #fef3c7; color: #806040; }
+        .safety-A2 { background: #fed7aa; color: #9a3412; }
+        .safety-A3 { background: #fecaca; color: #991b1b; }
+        .safety-B1 { background: #dbeafe; color: #1e40af; }
+        .safety-B2L { background: #e0e7ff; color: #3730a3; }
+        
+        .result-card .temp-main { 
+            font-size: 1.6rem; 
+            font-weight: 900;
+            text-align: center;
+            margin: 0.2rem 0;
+        }
+        .result-card .temp-footer {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.3rem;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 0.4rem;
+        }
+        .result-card .val-box { background: #f8fafc; padding: 0.25rem; border-radius: 3px; text-align: center; }
+        .result-card .val-label { font-size: 0.45rem; color: var(--muted); display: block; text-transform: uppercase; font-weight: 700; }
+        .result-card .val-num { font-weight: 800; font-size: 0.7rem; }
+        .result-card .info-row { display: flex; justify-content: center; gap: 0.2rem; margin-top: 0.3rem; flex-wrap: wrap; }
+        .result-card .info-tag { font-size: 0.45rem; padding: 1px 4px; border-radius: 2px; font-weight: 700; }
+        .tag-gwp { background: #fee2e2; color: #991b1b; }
+        .tag-gwp.low { background: #d1fae5; color: #065f46; }
+        .tag-gwp.medium { background: #fef3c7; color: #806040; }
+        .tag-status { background: #f1f5f9; color: #475569; }
+        
+        .result-card.error .temp-main { font-size: 0.7rem; color: var(--bad); }
+        
+        /* === FICHE DETAIL === */
+        .fluid-info-panel {
+            display: none;
+            background: white;
+            border-radius: 10px;
+            padding: 0.8rem;
+            margin-top: 0.8rem;
+            box-shadow: var(--shadow);
+            border-left: 4px solid var(--accent);
+        }
+        .fluid-info-panel.visible { display: block; }
+        .fluid-info-panel h3 { font-size: 1rem; margin-bottom: 0.6rem; }
+        .fluid-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 0.6rem;
+        }
+        .info-cell { background: #f8fafc; padding: 0.5rem; border-radius: 5px; }
+        .info-cell .label { font-size: 0.55rem; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+        .info-cell .value { font-size: 0.85rem; font-weight: 800; margin-top: 0.1rem; }
+        
+        /* === FOOTER === */
+        footer {
+            background: var(--gradient-orange);
+            color: white;
+            padding: 0.8rem;
+            text-align: center;
+            font-size: 0.65rem;
+        }
+        footer a { color: white; }
+        
+        /* === MODAL === */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+        }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            max-width: 550px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 1.2rem;
+            position: relative;
+        }
+        .modal-close {
+            position: absolute;
+            top: 0.6rem; right: 0.6rem;
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            background: var(--gradient-orange);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .modal h2 { font-size: 1rem; margin-bottom: 0.8rem; color: var(--primary); }
+        .modal p { font-size: 0.75rem; margin-bottom: 0.5rem; }
+        
+        /* Classification tableau simplifié */
+        .class-simple {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 0.5rem;
+            font-size: 0.7rem;
+            margin-top: 0.8rem;
+        }
+        .class-simple dt { font-weight: 800; }
+        .class-simple dd { margin: 0; }
+        
+        .warning-box {
+            background: #fef3c7;
+            border: 1px solid #e8914a;
+            border-radius: 6px;
+            padding: 0.6rem;
+            margin-top: 0.8rem;
+            font-size: 0.7rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header-left { display: none; }
+            .config-grid { grid-template-columns: 1fr 1fr; }
+            .main-display { grid-template-columns: 1fr; }
+            .results-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+<link rel="stylesheet" href="theme_force.css">
+</head>
+<body>
+
+<div id="iw-header" data-subtitle="Réglette Pression-Température"></div>
+<nav id="iw-nav"></nav>
+
+<main class="main-content">
+
+    <div class="panel-card">
+        <h2 class="panel-title">⚙️ CONFIGURATION</h2>
+        
+        <div class="config-grid">
+            <div class="config-item">
+                <label>Pression</label>
+                <div class="pressure-input-group">
+                    <button class="btn-adj" onclick="adjustP(-1)">−</button>
+                    <input type="number" id="pressureInput" value="10.00" step="0.1" inputmode="decimal">
+                    <button class="btn-adj" onclick="adjustP(1)">+</button>
+                </div>
+                <div class="step-selector">
+                    <button class="step-btn" data-step="0.1" onclick="setStep(0.1)">0.1</button>
+                    <button class="step-btn active" data-step="0.5" onclick="setStep(0.5)">0.5</button>
+                    <button class="step-btn" data-step="1" onclick="setStep(1)">1</button>
+                    <button class="step-btn" data-step="5" onclick="setStep(5)">5</button>
+                </div>
+            </div>
+            <div class="config-item">
+                <label>Mode</label>
+                <select id="pressureMode" onchange="rebuildAll()">
+                    <option value="gauge">Bar relatif</option>
+                    <option value="absolute">Bar absolu</option>
+                </select>
+            </div>
+            <div class="config-item">
+                <label>Patm</label>
+                <input type="number" id="patmInput" value="1.013" step="0.001" onchange="rebuildAll()" inputmode="decimal">
+            </div>
+            <div class="config-item">
+                <label>P min</label>
+                <input type="number" id="pMinInput" value="-1" step="1" onchange="rebuildAll()" inputmode="decimal">
+            </div>
+            <div class="config-item">
+                <label>P max</label>
+                <input type="number" id="pMaxInput" value="30" step="1" onchange="rebuildAll()" inputmode="decimal">
+            </div>
+            <div class="config-item">
+                <label>Graduations T</label>
+                <select id="showTempMarkers" onchange="rebuildAll()">
+                    <option value="all">Tous fluides</option>
+                    <option value="ref">Fluide ref. seul</option>
+                    <option value="none">Masquer</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="fluids-section">
+            <div class="category-row"><span class="category-label cat-cfc">🚫 CFC</span><div class="fluids-grid" id="gridCFC"></div></div>
+            <div class="category-row"><span class="category-label cat-hcfc">⚠️ HCFC</span><div class="fluids-grid" id="gridHCFC"></div></div>
+            <div class="category-row"><span class="category-label cat-hfc">🔵 HFC</span><div class="fluids-grid" id="gridHFC"></div></div>
+            <div class="category-row"><span class="category-label cat-blend">🟣 Melanges</span><div class="fluids-grid" id="gridBLEND"></div></div>
+            <div class="category-row"><span class="category-label cat-hfo">🌱 HFO</span><div class="fluids-grid" id="gridHFO"></div></div>
+            <div class="category-row"><span class="category-label cat-nat">🌍 Naturels</span><div class="fluids-grid" id="gridNAT"></div></div>
+        </div>
+        
+        <div class="legend-bar">
+            <div class="legend-item"><div class="legend-dot status-banned"></div> Interdit</div>
+            <div class="legend-item"><div class="legend-dot status-restrict"></div> En restriction</div>
+            <div class="legend-item"><div class="legend-dot status-future"></div> Restr. future</div>
+            <div class="legend-item"><div class="legend-dot status-ok"></div> Perenne</div>
+        </div>
+    </div>
+
+    <div class="panel-card">
+        <h2 class="panel-title">🎯 CONVERSION P / T</h2>
+        
+        <div class="main-display">
+            <div class="display-box pressure">
+                <div class="label">Pression</div>
+                <div class="value" id="displayP">10.00</div>
+                <div class="unit" id="displayPUnit">bar rel</div>
+            </div>
+            <div class="display-box">
+                <div class="label">Temperature (<span id="refFluidName">R134a</span>)</div>
+                <div class="value" id="displayT">--</div>
+                <div class="unit">°C</div>
+            </div>
+        </div>
+        
+        <div class="reglette-container" id="regletteContainer">
+            <div class="pressure-scale" id="pressureScale">
+                <div class="scale-marks" id="scaleMarks"></div>
+            </div>
+            <div class="fluid-lines" id="fluidLines"></div>
+            <!-- Curseur vertical qui traverse TOUTE la réglette -->
+            <div class="cursor-line" id="cursor">
+                <div class="cursor-handle"></div>
+                <div class="cursor-value" id="cursorValue">10.00</div>
+            </div>
+        </div>
+        
+        <h3 style="font-size:0.8rem;color:var(--muted);margin:0.6rem 0 0.4rem;">Resultats</h3>
+        <div class="results-grid" id="resultsGrid"></div>
+        
+        <div class="fluid-info-panel" id="fluidInfoPanel">
+            <h3 id="infoFluidName">--</h3>
+            <div class="fluid-info-grid" id="fluidInfoGrid"></div>
+        </div>
+    </div>
+
+</main>
+
+<footer id="iw-footer"></footer>
+
+<!-- MODALES -->
+<div id="legalModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="hideModal('legalModal')">×</button>
+        <h2>📋 Mentions Legales</h2>
+        <p><strong>Auteur :</strong> F. Henninot — Formateur Froid & CVC</p>
+        <p><strong>Etablissement :</strong> InerWeb Fluide, Marseille</p>
+        <p><strong>Partenaire :</strong> Partenaire</p>
+        
+        <h3 style="margin-top:1rem;font-size:0.9rem;">Sources des donnees</h3>
+        <p><strong>Tables P/T :</strong> Generees par interpolation lineaire sur donnees publiques de saturation (equations d'Antoine/Wagner). Tables indicatives, verifier avec instruments de mesure.</p>
+        <p><strong>Classifications securite :</strong> Designations conformes a la norme internationale (A1, A2L, A3, B1, B2L). Consulter la documentation officielle pour details.</p>
+        <p><strong>GWP :</strong> Valeurs indicatives issues de sources publiques variees. Non contractuel.</p>
+        
+        <div class="warning-box">
+            <strong>⚠️ Avertissement :</strong> Cet outil est fourni a titre pedagogique. Les valeurs affichees sont indicatives. Toute intervention sur installation frigorifique doit etre validee par verification instrumentale.
+        </div>
+    </div>
+</div>
+
+<div id="classModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="hideModal('classModal')">×</button>
+        <h2>🏷️ Classifications de Securite</h2>
+        
+        <p>Les fluides frigorigenes sont classes selon deux criteres : <strong>toxicite</strong> (lettre) et <strong>inflammabilite</strong> (chiffre).</p>
+        
+        <h3 style="margin-top:1rem;font-size:0.85rem;">Toxicite (Lettre)</h3>
+        <dl class="class-simple">
+            <dt style="color:#27ae60">A</dt><dd>Faible toxicite - Limite d'exposition elevee</dd>
+            <dt style="color:#3b82f6">B</dt><dd>Toxicite plus elevee - Precautions specifiques requises</dd>
+        </dl>
+        
+        <h3 style="margin-top:1rem;font-size:0.85rem;">Inflammabilite (Chiffre)</h3>
+        <dl class="class-simple">
+            <dt style="background:#d1fae5;padding:2px 6px;border-radius:3px;">1</dt><dd>Non inflammable dans conditions normales</dd>
+            <dt style="background:#fef3c7;padding:2px 6px;border-radius:3px;">2L</dt><dd>Legerement inflammable, vitesse de propagation faible</dd>
+            <dt style="background:#fed7aa;padding:2px 6px;border-radius:3px;">2</dt><dd>Inflammable</dd>
+            <dt style="background:#fecaca;padding:2px 6px;border-radius:3px;">3</dt><dd>Fortement inflammable (hydrocarbures)</dd>
+        </dl>
+        
+        <div class="warning-box">
+            <strong>⚠️ Important :</strong> Les fluides classes 2L, 2, 3 ou B necessitent des precautions particulieres : ventilation, detection de fuites, formation specifique. Consulter la reglementation en vigueur.
+        </div>
+    </div>
+</div>
+
+<div id="rgpdModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="hideModal('rgpdModal')">×</button>
+        <h2>🔒 Protection des Donnees (RGPD)</h2>
+        
+        <p><strong>Par defaut, cette application ne collecte aucune donnee personnelle.</strong></p>
+        
+        <h3 style="font-size:0.8rem;margin-top:0.8rem;color:var(--accent);">Ce qui est stocke</h3>
+        <ul style="font-size:0.7rem;margin:0.4rem 0;padding-left:1.2rem;">
+            <li>Fluides actifs selectionnes</li>
+            <li>Plage de pression (Pmin/Pmax)</li>
+            <li>Mode (relatif/absolu)</li>
+        </ul>
+        
+        <h3 style="font-size:0.8rem;margin-top:0.6rem;color:var(--accent);">Ou ?</h3>
+        <p style="font-size:0.7rem;">Dans votre navigateur uniquement (localStorage). Ces donnees ne quittent jamais votre appareil.</p>
+        
+        <h3 style="font-size:0.8rem;margin-top:0.6rem;color:var(--accent);">Duree</h3>
+        <p style="font-size:0.7rem;">Jusqu'a suppression manuelle par vous.</p>
+        
+        <h3 style="font-size:0.8rem;margin-top:0.6rem;color:var(--accent);">Comment effacer ?</h3>
+        <p style="font-size:0.7rem;">Cliquez sur le bouton ci-dessous ou utilisez le bouton 🗑️ Reset dans la barre d'action.</p>
+        
+        <button onclick="resetPreferences();hideModal('rgpdModal');" style="margin-top:0.8rem;padding:0.5rem 1rem;background:var(--bad);color:white;border:none;border-radius:6px;cursor:pointer;font-weight:700;">🗑️ Effacer toutes mes preferences</button>
+        
+        <div style="margin-top:0.8rem;padding:0.5rem;background:#fef3c7;border:1px solid #e8914a;border-radius:6px;font-size:0.65rem;">
+            <strong>⚠️ Ordinateur partage :</strong> Utilisez 🗑️ Reset avant de quitter si vous ne souhaitez pas que vos preferences soient visibles par d'autres utilisateurs.
+        </div>
+        
+        <div style="margin-top:0.6rem;padding:0.5rem;background:#f1f5f9;border-radius:6px;font-size:0.65rem;">
+            <strong>Garanties techniques :</strong><br>
+            • Aucun appel reseau (CSP: connect-src 'none')<br>
+            • Aucun tracking / analytics<br>
+            • Aucune police externe (polices systeme)<br>
+            • Fonctionne 100% hors-ligne
+        </div>
+        
+        <p style="font-size:0.7rem;margin-top:0.8rem;"><strong>Contact :</strong> <span style="color:var(--muted)">contact@inerweb.fr</span></p>
+    </div>
+</div>
+
+<div id="taxeModal" class="modal">
+    <div class="modal-content">
+        <button class="modal-close" onclick="hideModal('taxeModal')">×</button>
+        <h2 style="color:#e8914a;">💰 Taxe d'Apprentissage</h2>
+        <p style="text-align:center;font-size:1rem;font-weight:800;">LPP JACQUES RAYNAUD</p>
+        <p style="text-align:center;font-size:0.8rem;">59 Trav. Charles Susini - 13013 Marseille</p>
+        <p style="margin-top:0.8rem;"><strong>Contact :</strong> <span style="color:var(--muted)">contact@inerweb.fr</span></p>
+        <p style="font-size:0.75rem;margin-top:0.5rem;">Soutenez la formation des techniciens froid et CVC de demain !</p>
+    </div>
+</div>
+
+<script>
+// ======== CERVEAU V5.0 - Moteur Antoine 35 fluides ========
+/**
+ * ================================================
+ * INERWEB FLUIDE CERVEAU v5.1
+ * ================================================
+ * Moteur thermodynamique central — Suite InerWeb Fluide-InerWeb v5
+ * Base de données embarquée : 35 fluides frigorigènes
+ * 
+ * @author F. Henninot — Enseignant Froid & CVC
+ * @etablissement InerWeb Fluide
+ * @partenaire Partenaire
+ * @date 2025-02-24
+ * @version 5.0.0
+ * @license Propriété intellectuelle : F. Henninot
+ *          Licence educative non commerciale — redistribution publique interdite
+ * 
+ * Architecture UMD — Compatible navigateurs, Node.js, AMD
+ * Variable globale : window.ManoPubCerveau
+ * 
+ * Moteurs : Antoine (±1-4%) + auto-sélection
+ * 
+ * ORIGINE DES COEFFICIENTS ANTOINE :
+ *   Calculés par régression (moindres carrés) sur des données P-T
+ *   de saturation issues de sources publiques :
+ *   - NIST Chemistry WebBook (webbook.nist.gov) — données publiques
+ *   - Tables de propriétés publiées (manuels, ASHRAE Handbook)
+ *   - Validés par croisement avec documentation constructeurs
+ *   Aucun coefficient copié depuis un logiciel sous licence.
+ *   Formule : log10(P_bar) = A - B / (T_°C + C)
+ * ================================================
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) { module.exports = factory(); }
+  else if (typeof define === 'function' && define.amd) { define([], factory); }
+  else { root.ManoPubCerveau = factory(); }
+}(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  // ==================================================
+  // 1. MÉTADONNÉES
+  // ==================================================
+  var META = {
+    version: '5.0.0', date: '2025-02-24', author: 'F. Henninot',
+    etablissement: 'InerWeb Fluide',
+    licence: 'Licence éducative non commerciale',
+    description: 'Moteur thermodynamique — 35 fluides frigorigènes',
+    coefficients: 'Calculés par régression propre — Données publiques NIST WebBook',
+    stats: { nb_fluides: 0, derniere_maj: '2025-02-24' }
+  };
+
+  // ==================================================
+  // 2. CONSTANTES PHYSIQUES
+  // ==================================================
+  var CONST = {
+    R: 8.314462618, g: 9.80665, P_atm: 1.01325, T0K: 273.15,
+    ISA: { T0: 288.15, P0: 1.01325, L: 0.0065, M: 0.0289644, R: 8.31446 }
+  };
+
+  // ==================================================
+  // 3. MOTEURS DE CALCUL THERMODYNAMIQUE
+  // ==================================================
+
+  /** Pression saturation — Antoine : log10(P_bar) = A - B/(T°C + C) */
+  function Psat_Antoine(T, c) {
+    return Math.pow(10, c.A - c.B / (T + c.C));
+  }
+
+  /** Température saturation — Antoine inversée */
+  function Tsat_Antoine(P, c) {
+    return c.B / (c.A - Math.log10(P)) - c.C;
+  }
+
+  /** Pression saturation — Wagner 4 termes */
+  function Psat_Wagner(T, w) {
+    var Tk = T + CONST.T0K;
+    var tau = 1 - Tk / w.Tc_K;
+    var lnPr = (w.Tc_K / Tk) * (
+      w.a1 * tau + w.a2 * Math.pow(tau, 1.5) +
+      w.a3 * Math.pow(tau, 3) + w.a4 * Math.pow(tau, 6)
+    );
+    return w.Pc_bar * Math.exp(lnPr);
+  }
+
+  /** Température saturation — Wagner inversée (Newton-Raphson) */
+  function Tsat_Wagner(P, w, antoine) {
+    var T = antoine ? Tsat_Antoine(P, antoine) : w.Tc_K - CONST.T0K - 50;
+    for (var i = 0; i < 30; i++) {
+      var Pc = Psat_Wagner(T, w);
+      var err = Pc - P;
+      if (Math.abs(err) < 0.00005) break;
+      var dT = 0.01;
+      var dPdT = (Psat_Wagner(T + dT, w) - Pc) / dT;
+      if (Math.abs(dPdT) < 1e-12) break;
+      var corr = err / dPdT;
+      if (Math.abs(corr) > 20) corr = 20 * Math.sign(corr);
+      T -= corr;
+      if (T + CONST.T0K > w.Tc_K * 0.999) T = w.Tc_K * 0.999 - CONST.T0K;
+    }
+    return T;
+  }
+
+  /** Calcul pression auto (Wagner si dispo, sinon Antoine) */
+  function calcPression(T, fluid, method) {
+    method = method || 'auto';
+    var th = fluid.thermo;
+    if ((method === 'wagner' || method === 'auto') && th.wagner) {
+      if (!th.wagner_plage || (T >= th.wagner_plage[0] && T <= th.wagner_plage[1])) {
+        try { return Psat_Wagner(T, th.wagner); } catch(e) { /* fallback */ }
+      }
+    }
+    if (th.antoine) return Psat_Antoine(T, th.antoine);
+    throw new Error('Aucun moteur disponible pour ' + fluid.nom);
+  }
+
+  /** Calcul température auto */
+  function calcTemperature(P, fluid, method) {
+    method = method || 'auto';
+    var th = fluid.thermo;
+    if ((method === 'wagner' || method === 'auto') && th.wagner) {
+      try { return Tsat_Wagner(P, th.wagner, th.antoine); } catch(e) { /* fallback */ }
+    }
+    if (th.antoine) return Tsat_Antoine(P, th.antoine);
+    throw new Error('Aucun moteur disponible pour ' + fluid.nom);
+  }
+
+  /** Températures bulle/rosée pour zéotropes */
+  function calcGlide(P, fluid) {
+    var Tm = calcTemperature(P, fluid);
+    var g = fluid.thermo.glide || 0;
+    return { T_bulle: Tm, T_rosee: Tm + g, T_moyenne: Tm + g/2, glide: g };
+  }
+
+  // ==================================================
+  // 4. PRESSION ATMOSPHÉRIQUE
+  // ==================================================
+  function P_atm_ISA(alt) {
+    alt = alt || 0;
+    var I = CONST.ISA;
+    return I.P0 * Math.pow(1 - I.L * alt / I.T0, (CONST.g * I.M) / (I.R * I.L));
+  }
+  function toBarAbs(Pr, Pa) { return Pr + (Pa !== undefined ? Pa : CONST.P_atm); }
+  function toBarRel(Pa, Patm) { return Pa - (Patm !== undefined ? Patm : CONST.P_atm); }
+
+  // ==================================================
+  // 5. DIAGNOSTIC TERRAIN
+  // ==================================================
+
+  function calcSR(T_asp, P_BP, fluid, alt) {
+    var Patm = P_atm_ISA(alt||0), Pabs = toBarAbs(P_BP, Patm);
+    var gl = calcGlide(Pabs, fluid);
+    var SR = T_asp - gl.T_rosee;
+    return {
+      SR: Math.round(SR*10)/10, T_sat: Math.round(gl.T_rosee*10)/10,
+      T_bulle: Math.round(gl.T_bulle*10)/10, T_rosee: Math.round(gl.T_rosee*10)/10,
+      P_abs: Math.round(Pabs*100)/100, glide: gl.glide,
+      analyse: analyseSR(SR, fluid)
+    };
+  }
+
+  function analyseSR(SR, fluid) {
+    var s = fluid.terrain || {};
+    var typ = s.SR_typique || [5,10], lo = s.SR_alarme_bas || 3, hi = s.SR_alarme_haut || 18;
+    var st, niv, causes, actions;
+    if (SR < lo) { st='CRITIQUE BAS'; niv='danger';
+      causes=['Détendeur surdim ou bloqué ouvert','Compresseur fin de vie','Aspiration liquide'];
+      actions=['⚠️ ARRÊT si bruit anormal','Vérifier détendeur','Contrôler SR compresseur'];
+    } else if (SR < typ[0]) { st='Faible'; niv='warning';
+      causes=['Détendeur légèrement surdim','Charge excessive','Évaporateur surdim'];
+      actions=['Surveiller T refoulement','Vérifier réglage détendeur','Contrôler charge'];
+    } else if (SR > hi) { st='ALARME'; niv='danger';
+      causes=['Fuite importante','Filtre colmaté','Détendeur bloqué/sous-dim','Évaporateur givré'];
+      actions=['⚠️ Recherche fuite URGENTE','Contrôler ΔP filtre','Vérifier évaporateur','Tester détendeur'];
+    } else if (SR > typ[1]) { st='Élevée'; niv='warning';
+      causes=['Manque charge modéré','Détendeur sous-alimenté','Filtre légèrement colmaté'];
+      actions=['Recherche fuite préventive','Contrôler voyant liquide','Nettoyer évaporateur'];
+    } else { st='NORMALE'; niv='success'; causes=['Régime optimal']; actions=['Surveillance régulière']; }
+    return { status:st, niveau:niv, plage_normale:typ, causes:causes, actions:actions,
+      commentaire:'SR = '+SR.toFixed(1)+'K (Normal: '+typ[0]+'-'+typ[1]+'K)' };
+  }
+
+  function calcSC(T_liq, P_HP, fluid, alt) {
+    var Patm = P_atm_ISA(alt||0), Pabs = toBarAbs(P_HP, Patm);
+    var gl = calcGlide(Pabs, fluid);
+    var SC = gl.T_bulle - T_liq;
+    return {
+      SC: Math.round(SC*10)/10, T_sat: Math.round(gl.T_bulle*10)/10,
+      T_bulle: Math.round(gl.T_bulle*10)/10, T_rosee: Math.round(gl.T_rosee*10)/10,
+      P_abs: Math.round(Pabs*100)/100, glide: gl.glide,
+      analyse: analyseSC(SC, fluid)
+    };
+  }
+
+  function analyseSC(SC, fluid) {
+    var s = fluid.terrain || {};
+    var typ = s.SC_typique || [4,8], lo = s.SC_alarme_bas || 2, hi = s.SC_alarme_haut || 12;
+    var st, niv, causes, actions;
+    if (SC < lo) { st='CRITIQUE BAS'; niv='danger';
+      causes=['Charge insuffisante','Condenseur sous-dim','Fuite importante'];
+      actions=['⚠️ Risque cavitation','Voyant liquide (bulles)','Recherche fuite URGENTE'];
+    } else if (SC < typ[0]) { st='Faible'; niv='warning';
+      causes=['Charge légèrement faible','Condenseur encrassé'];
+      actions=['Surveiller voyant liquide','Nettoyer condenseur','Contrôler ventilateurs'];
+    } else if (SC > hi) { st='ÉLEVÉ'; niv='warning';
+      causes=['Charge excessive','Restriction ligne liquide'];
+      actions=['Vérifier charge','Contrôler ligne liquide','Vérifier régulation HP'];
+    } else if (SC > typ[1]) { st='Légèrement élevé'; niv='info';
+      causes=['Charge légèrement haute']; actions=['Surveiller'];
+    } else { st='NORMALE'; niv='success'; causes=['Régime optimal']; actions=['Surveillance régulière']; }
+    return { status:st, niveau:niv, plage_normale:typ, causes:causes, actions:actions,
+      commentaire:'SC = '+SC.toFixed(1)+'K (Normal: '+typ[0]+'-'+typ[1]+'K)' };
+  }
+
+  function detectIncondensables(P_HP, T_cond, fluid, alt) {
+    var Patm = P_atm_ISA(alt||0), Pabs = toBarAbs(P_HP, Patm);
+    var Ptheo = calcPression(T_cond, fluid);
+    var Ttheo = calcTemperature(Pabs, fluid);
+    var dT = Ttheo - T_cond, dP = Pabs - Ptheo;
+    var seuil = 3, pres = dT > seuil;
+    return {
+      presence: pres, delta_T: Math.round(dT*10)/10, delta_P: Math.round(dP*100)/100,
+      T_sat_theo: Math.round(Ttheo*10)/10, P_sat_theo: Math.round(Ptheo*100)/100,
+      niveau: pres ? 'warning' : 'success',
+      diagnostic: pres
+        ? '⚠️ Incondensables détectés (ΔT='+dT.toFixed(1)+'K > '+seuil+'K)'
+        : '✓ Pas d\'incondensables (ΔT='+dT.toFixed(1)+'K)',
+      actions: pres ? ['Purger','Vérifier étanchéité','Contrôler tirage au vide'] : ['Circuit sain']
+    };
+  }
+
+  // ==================================================
+  // 6. BASE DE DONNÉES — 35 FLUIDES
+  // ==================================================
+  var DB = {};
+
+  // ==================================================
+  // GROUPE A — USAGE QUOTIDIEN TERRAIN (10 fluides)
+  // ==================================================
+
+  DB['R134a'] = {
+    nom: 'R134a',
+    nom_chimique: '1,1,1,2-Tétrafluoroéthane',
+    formule: 'CF₃CH₂F',
+    CAS: '811-97-2',
+    type: 'HFC',
+    classe: 'A1',
+    statut: 'Phase-out',
+    couleur: 'Bleu clair',
+    thermo: {
+      Tc: 101.06, Pc: 40.593, Teb: -26.07, M: 102.03, glide: 0,
+      antoine: { A: 4.30457, B: 935.397, C: 243.72 },
+      antoine_plage: [-40, 80]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 18,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 120
+    },
+    regl: {
+      GWP: 1430, ODP: 0, LFL: null,
+      huiles: ['POE 32', 'POE 68', 'PVE'],
+      phase_out: 'Interdit en neuf auto >2017 UE — Service jusqu\'à 2030'
+    },
+    retrofit: {
+      remplace: ['R12'],
+      remplace_par: ['R513A', 'R450A', 'R1234yf'],
+      compatibilite: 'Drop-in R513A/R450A très facile'
+    },
+    meta: {
+      groupe: 'A',
+      sources: ['NIST Chemistry WebBook', 'ASHRAE 2021'],
+      completude: 100,
+      validation_terrain: true
+    }
+  };
+
+  DB['R32'] = {
+    nom: 'R32',
+    nom_chimique: 'Difluorométhane',
+    formule: 'CH₂F₂',
+    CAS: '75-10-5',
+    type: 'HFC',
+    classe: 'A2L',
+    statut: 'Autorisé',
+    couleur: 'Rose',
+    thermo: {
+      Tc: 78.11, Pc: 57.82, Teb: -51.7, M: 52.02, glide: 0,
+      antoine: { A: 3.73131, B: 535.929, C: 196.744 },
+      antoine_plage: [-60, 70]
+    },
+    terrain: {
+      SR_typique: [7, 12], SR_alarme_bas: 4, SR_alarme_haut: 22,
+      SC_typique: [5, 10], SC_alarme_bas: 3, SC_alarme_haut: 15,
+      T_refoulement_max: 120
+    },
+    regl: {
+      GWP: 675, ODP: 0, LFL: 0.307,
+      huiles: ['POE 32', 'POE 68', 'PVE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R410A'],
+      remplace_par: ['R454B', 'R454C'],
+      compatibilite: 'Retrofit R410A modéré — passage A2L'
+    },
+    meta: {
+      groupe: 'A',
+      sources: ['NIST Chemistry WebBook', 'ASHRAE 2021'],
+      completude: 100,
+      validation_terrain: true
+    }
+  };
+
+  DB['R410A'] = {
+    nom: 'R410A',
+    nom_chimique: 'R32/R125 (50/50)',
+    formule: 'CH₂F₂/CHF₂CF₃',
+    CAS: 'Mélange',
+    type: 'HFC',
+    classe: 'A1',
+    statut: 'Phase-out',
+    couleur: 'Rose',
+    thermo: {
+      Tc: 71.34, Pc: 49.01, Teb: -51.4, M: 72.58, glide: 0.1,
+      antoine: { A: 4.52466, B: 939.988, C: 259.502 },
+      antoine_plage: [-50, 65]
+    },
+    terrain: {
+      SR_typique: [7, 12], SR_alarme_bas: 4, SR_alarme_haut: 22,
+      SC_typique: [5, 10], SC_alarme_bas: 3, SC_alarme_haut: 15,
+      T_refoulement_max: 115
+    },
+    regl: {
+      GWP: 2088, ODP: 0, LFL: null,
+      huiles: ['POE 32', 'POE 68'],
+      phase_out: 'Neuf interdit ~2030 — Service jusqu\'à 2035'
+    },
+    retrofit: {
+      remplace: ['R22'],
+      remplace_par: ['R32', 'R454B', 'R454C'],
+      compatibilite: 'Remplacement complet du système depuis R22'
+    },
+    meta: {
+      groupe: 'A',
+      sources: ['NIST Chemistry WebBook', 'ASHRAE 2021'],
+      completude: 95,
+      validation_terrain: true
+    }
+  };
+
+  DB['R404A'] = {
+    nom: 'R404A',
+    nom_chimique: 'R125/R143a/R134a (44/52/4)',
+    formule: 'Mélange zéotrope',
+    CAS: 'Mélange',
+    type: 'HFC',
+    classe: 'A1',
+    statut: 'Phase-out',
+    couleur: 'Orange',
+    thermo: {
+      Tc: 72.12, Pc: 37.29, Teb: -46.2, M: 97.6, glide: 0.8,
+      antoine: { A: 3.42644, B: 479.93, C: 188.021 },
+      antoine_plage: [-50, 60]
+    },
+    terrain: {
+      SR_typique: [5, 10], SR_alarme_bas: 3, SR_alarme_haut: 15,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 110
+    },
+    regl: {
+      GWP: 3922, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: '⚠️ INTERDIT en neuf depuis 2020 — Phase-out complet 2030'
+    },
+    retrofit: {
+      remplace: ['R502'],
+      remplace_par: ['R448A', 'R449A', 'R452A', 'R744'],
+      compatibilite: 'Retrofit quasi drop-in vers R448A/R449A'
+    },
+    meta: {
+      groupe: 'A',
+      sources: ['ASHRAE 2021', 'EN 378-1:2016'],
+      completude: 90,
+      validation_terrain: true
+    }
+  };
+
+  DB['R407C'] = {
+    nom: 'R407C',
+    nom_chimique: 'R32/R125/R134a (23/25/52)',
+    formule: 'Mélange zéotrope',
+    CAS: 'Mélange',
+    type: 'HFC',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 86.05, Pc: 46.25, Teb: -43.6, M: 86.2, glide: 6,
+      antoine: { A: 3.47188, B: 495.682, C: 187.245 },
+      antoine_plage: [-40, 70]
+    },
+    terrain: {
+      SR_typique: [8, 12], SR_alarme_bas: 5, SR_alarme_haut: 18,
+      SC_typique: [5, 10], SC_alarme_bas: 3, SC_alarme_haut: 12,
+      T_refoulement_max: 115
+    },
+    regl: {
+      GWP: 1774, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R22'],
+      remplace_par: ['R32', 'R454B'],
+      compatibilite: 'Principal remplacement R22 — Glide 6K attention fractionnement'
+    },
+    meta: {
+      groupe: 'A',
+      sources: ['ASHRAE 2021'],
+      completude: 90,
+      validation_terrain: true
+    }
+  };
+
+  DB['R407F'] = {
+    nom: 'R407F',
+    nom_chimique: 'R32/R125/R134a (30/30/40)',
+    formule: 'Mélange zéotrope',
+    CAS: 'Mélange',
+    type: 'HFC',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 82.7, Pc: 47.54, Teb: -46.1, M: 82.1, glide: 6.7,
+      antoine: { A: 3.66732, B: 570.568, C: 203.939 },
+      antoine_plage: [-45, 70]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 115
+    },
+    regl: {
+      GWP: 1825, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R404A', 'R507A'],
+      remplace_par: ['R448A', 'R449A'],
+      compatibilite: 'Alternative R404A froid commercial — Glide 6.7K'
+    },
+    meta: {
+      groupe: 'A',
+      sources: ['ASHRAE 2021', 'Honeywell'],
+      completude: 85,
+      validation_terrain: true
+    }
+  };
+
+  DB['R449A'] = {
+    nom: 'R449A',
+    nom_chimique: 'R32/R125/R1234yf/R134a (24.3/24.7/25.3/25.7)',
+    formule: 'Mélange zéotrope HFC/HFO',
+    CAS: 'Mélange',
+    type: 'Mélange',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 81.5, Pc: 43.4, Teb: -46, M: 87.2, glide: 4.3,
+      antoine: { A: 3.374, B: 477.762, C: 187.625 },
+      antoine_plage: [-45, 65]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 115
+    },
+    regl: {
+      GWP: 1397, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R404A', 'R507A', 'R407A', 'R407F'],
+      remplace_par: [],
+      compatibilite: 'Retrofit R404A quasi drop-in — GWP divisé par 3'
+    },
+    meta: {
+      groupe: 'A',
+      sources: ['Chemours (Opteon XP40)', 'ASHRAE 2021'],
+      completude: 85,
+      validation_terrain: true
+    }
+  };
+
+  DB['R448A'] = {
+    nom: 'R448A',
+    nom_chimique: 'R32/R125/R1234yf/R134a/R1234ze (26/26/20/21/7)',
+    formule: 'Mélange zéotrope HFC/HFO',
+    CAS: 'Mélange',
+    type: 'Mélange',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 83.7, Pc: 44.6, Teb: -45.9, M: 86.3, glide: 5.4,
+      antoine: { A: 3.39209, B: 479.944, C: 187.845 },
+      antoine_plage: [-45, 65]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 115
+    },
+    regl: {
+      GWP: 1387, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R404A', 'R507A'],
+      remplace_par: [],
+      compatibilite: 'Retrofit R404A quasi drop-in — GWP divisé par 3'
+    },
+    meta: {
+      groupe: 'A',
+      sources: ['Honeywell (Solstice N40)', 'ASHRAE 2021'],
+      completude: 85,
+      validation_terrain: true
+    }
+  };
+
+  DB['R452A'] = {
+    nom: 'R452A',
+    nom_chimique: 'R32/R125/R1234yf (11/59/30)',
+    formule: 'Mélange zéotrope HFC/HFO',
+    CAS: 'Mélange',
+    type: 'Mélange',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 74.3, Pc: 40.5, Teb: -47, M: 103.5, glide: 1,
+      antoine: { A: 3.40097, B: 482.638, C: 190.325 },
+      antoine_plage: [-45, 60]
+    },
+    terrain: {
+      SR_typique: [5, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 110
+    },
+    regl: {
+      GWP: 2140, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R404A'],
+      remplace_par: ['R448A', 'R449A'],
+      compatibilite: 'Retrofit R404A drop-in — GWP encore élevé'
+    },
+    meta: {
+      groupe: 'A',
+      sources: ['Chemours', 'ASHRAE 2021'],
+      completude: 80,
+      validation_terrain: false
+    }
+  };
+
+  DB['R454B'] = {
+    nom: 'R454B',
+    nom_chimique: 'R32/R1234yf (68.9/31.1)',
+    formule: 'Mélange zéotrope HFC/HFO',
+    CAS: 'Mélange',
+    type: 'Mélange',
+    classe: 'A2L',
+    statut: 'Autorisé',
+    couleur: 'Rose',
+    thermo: {
+      Tc: 78.1, Pc: 50.4, Teb: -50.9, M: 62.6, glide: 1.5,
+      antoine: { A: 3.83275, B: 607.165, C: 210.397 },
+      antoine_plage: [-50, 65]
+    },
+    terrain: {
+      SR_typique: [7, 12], SR_alarme_bas: 4, SR_alarme_haut: 20,
+      SC_typique: [5, 10], SC_alarme_bas: 3, SC_alarme_haut: 14,
+      T_refoulement_max: 118
+    },
+    regl: {
+      GWP: 467, ODP: 0, LFL: 0.297,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R410A'],
+      remplace_par: [],
+      compatibilite: 'Principal remplacement R410A — GWP ÷4 — A2L'
+    },
+    meta: {
+      groupe: 'A',
+      sources: ['Chemours (Opteon XL41)', 'ASHRAE 2021'],
+      completude: 85,
+      validation_terrain: false
+    }
+  };
+
+  // ==================================================
+  // GROUPE B — NOUVELLE GÉNÉRATION HFO / LOW GWP (9 fluides)
+  // ==================================================
+
+  DB['R1234yf'] = {
+    nom: 'R1234yf',
+    nom_chimique: '2,3,3,3-Tétrafluoropropène',
+    formule: 'CF₃CF=CH₂',
+    CAS: '754-12-1',
+    type: 'HFO',
+    classe: 'A2L',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 94.7, Pc: 33.82, Teb: -29.5, M: 114.04, glide: 0,
+      antoine: { A: 4.06338, B: 798.896, C: 219.842 },
+      antoine_plage: [-40, 75]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 18,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 115
+    },
+    regl: {
+      GWP: 4, ODP: 0, LFL: 0.289,
+      huiles: ['POE', 'PAG'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R134a'],
+      remplace_par: [],
+      compatibilite: 'Remplacement R134a auto — Drop-in'
+    },
+    meta: {
+      groupe: 'B',
+      sources: ['NIST Chemistry WebBook', 'Honeywell/Chemours'],
+      completude: 95,
+      validation_terrain: true
+    }
+  };
+
+  DB['R1234ze(E)'] = {
+    nom: 'R1234ze(E)',
+    nom_chimique: 'trans-1,3,3,3-Tétrafluoropropène',
+    formule: 'trans-CHF=CHCF₃',
+    CAS: '29118-24-9',
+    type: 'HFO',
+    classe: 'A2L',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 109.4, Pc: 36.36, Teb: -19, M: 114.04, glide: 0,
+      antoine: { A: 4.32742, B: 946.211, C: 231.591 },
+      antoine_plage: [-30, 80]
+    },
+    terrain: {
+      SR_typique: [5, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 120
+    },
+    regl: {
+      GWP: 7, ODP: 0, LFL: 0.303,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R134a'],
+      remplace_par: [],
+      compatibilite: 'Alternative R134a chillers/PAC — Capacité réduite ~20%'
+    },
+    meta: {
+      groupe: 'B',
+      sources: ['NIST Chemistry WebBook', 'Honeywell'],
+      completude: 85,
+      validation_terrain: false
+    }
+  };
+
+  DB['R513A'] = {
+    nom: 'R513A',
+    nom_chimique: 'R1234yf/R134a (56/44)',
+    formule: 'Mélange azéotrope HFO/HFC',
+    CAS: 'Mélange',
+    type: 'Mélange',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Bleu clair',
+    thermo: {
+      Tc: 97.3, Pc: 36.3, Teb: -29.2, M: 108.4, glide: 0.1,
+      antoine: { A: 4.02433, B: 813.051, C: 226.773 },
+      antoine_plage: [-40, 75]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 18,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 118
+    },
+    regl: {
+      GWP: 631, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R134a'],
+      remplace_par: [],
+      compatibilite: 'Drop-in R134a quasi direct — GWP ÷2 — A1'
+    },
+    meta: {
+      groupe: 'B',
+      sources: ['Chemours (Opteon XP10)', 'ASHRAE 2021'],
+      completude: 85,
+      validation_terrain: true
+    }
+  };
+
+  DB['R515B'] = {
+    nom: 'R515B',
+    nom_chimique: 'R1234ze(E)/R227ea (91.1/8.9)',
+    formule: 'Mélange azéotrope HFO/HFC',
+    CAS: 'Mélange',
+    type: 'Mélange',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 108.6, Pc: 35.6, Teb: -18.5, M: 117.5, glide: 0.1,
+      antoine: { A: 4.02758, B: 795.902, C: 210.096 },
+      antoine_plage: [-25, 80]
+    },
+    terrain: {
+      SR_typique: [5, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 120
+    },
+    regl: {
+      GWP: 293, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R134a', 'R513A'],
+      remplace_par: [],
+      compatibilite: 'Alternative R134a chillers — GWP très bas — A1'
+    },
+    meta: {
+      groupe: 'B',
+      sources: ['Honeywell (Solstice N15)', 'ASHRAE 2021'],
+      completude: 80,
+      validation_terrain: false
+    }
+  };
+
+  DB['R450A'] = {
+    nom: 'R450A',
+    nom_chimique: 'R1234ze(E)/R134a (58/42)',
+    formule: 'Mélange azéotrope HFO/HFC',
+    CAS: 'Mélange',
+    type: 'Mélange',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 104.4, Pc: 38.1, Teb: -23.4, M: 108.7, glide: 0.6,
+      antoine: { A: 3.95726, B: 775.81, C: 215.084 },
+      antoine_plage: [-35, 75]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 18,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 120
+    },
+    regl: {
+      GWP: 547, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R134a'],
+      remplace_par: [],
+      compatibilite: 'Retrofit R134a — GWP ÷3'
+    },
+    meta: {
+      groupe: 'B',
+      sources: ['Chemours (Opteon XP44)', 'ASHRAE 2021'],
+      completude: 85,
+      validation_terrain: true
+    }
+  };
+
+  DB['R454C'] = {
+    nom: 'R454C',
+    nom_chimique: 'R32/R1234yf (21.5/78.5)',
+    formule: 'Mélange zéotrope HFC/HFO',
+    CAS: 'Mélange',
+    type: 'Mélange',
+    classe: 'A2L',
+    statut: 'Autorisé',
+    couleur: 'Rose',
+    thermo: {
+      Tc: 86.3, Pc: 37.7, Teb: -37.4, M: 100.7, glide: 6,
+      antoine: { A: 4.7257, B: 1199.55, C: 281.069 },
+      antoine_plage: [-40, 70]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 18,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 115
+    },
+    regl: {
+      GWP: 148, ODP: 0, LFL: 0.293,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R404A', 'R134a'],
+      remplace_par: [],
+      compatibilite: 'Low-GWP froid commercial — A2L'
+    },
+    meta: {
+      groupe: 'B',
+      sources: ['Chemours (Opteon XL20)', 'ASHRAE 2021'],
+      completude: 80,
+      validation_terrain: false
+    }
+  };
+
+  DB['R455A'] = {
+    nom: 'R455A',
+    nom_chimique: 'R32/R1234yf/R744 (21.5/75.5/3)',
+    formule: 'Mélange zéotrope HFC/HFO/CO₂',
+    CAS: 'Mélange',
+    type: 'Mélange',
+    classe: 'A2L',
+    statut: 'Autorisé',
+    couleur: 'Rose',
+    thermo: {
+      Tc: 85.1, Pc: 37.9, Teb: -39.1, M: 87.5, glide: 8.1,
+      antoine: { A: 4.6742, B: 1172.748, C: 279.708 },
+      antoine_plage: [-40, 65]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 115
+    },
+    regl: {
+      GWP: 148, ODP: 0, LFL: 0.3,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R404A'],
+      remplace_par: [],
+      compatibilite: 'R404A très low-GWP — Glide 8K — A2L'
+    },
+    meta: {
+      groupe: 'B',
+      sources: ['Honeywell (Solstice L40X)', 'ASHRAE 2021'],
+      completude: 75,
+      validation_terrain: false
+    }
+  };
+
+  DB['R452B'] = {
+    nom: 'R452B',
+    nom_chimique: 'R32/R125/R1234yf (67/7/26)',
+    formule: 'Mélange zéotrope HFC/HFO',
+    CAS: 'Mélange',
+    type: 'Mélange',
+    classe: 'A2L',
+    statut: 'Autorisé',
+    couleur: 'Rose',
+    thermo: {
+      Tc: 78.8, Pc: 52.1, Teb: -51, M: 60.1, glide: 1.3,
+      antoine: { A: 3.8765, B: 606.847, C: 208.781 },
+      antoine_plage: [-50, 65]
+    },
+    terrain: {
+      SR_typique: [7, 12], SR_alarme_bas: 4, SR_alarme_haut: 20,
+      SC_typique: [5, 10], SC_alarme_bas: 3, SC_alarme_haut: 15,
+      T_refoulement_max: 118
+    },
+    regl: {
+      GWP: 698, ODP: 0, LFL: 0.3,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R410A'],
+      remplace_par: [],
+      compatibilite: 'Alternative R410A — GWP ÷3 — A2L'
+    },
+    meta: {
+      groupe: 'B',
+      sources: ['Daikin', 'ASHRAE 2021'],
+      completude: 80,
+      validation_terrain: false
+    }
+  };
+
+  DB['R514A'] = {
+    nom: 'R514A',
+    nom_chimique: 'R1336mzz(Z)/R1130(E) (74.7/25.3)',
+    formule: 'Mélange azéotrope HFO',
+    CAS: 'Mélange',
+    type: 'HFO',
+    classe: 'B1',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 171.3, Pc: 35.3, Teb: 29, M: 139.6, glide: 0,
+      antoine: { A: 4.29576, B: 1124.946, C: 223.927 },
+      antoine_plage: [0, 120]
+    },
+    terrain: {
+      SR_typique: [5, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 130
+    },
+    regl: {
+      GWP: 2, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R123', 'R245fa'],
+      remplace_par: [],
+      compatibilite: 'Chillers centrifuges basse pression — GWP ≈0'
+    },
+    meta: {
+      groupe: 'B',
+      sources: ['Chemours (Opteon XP30)', 'ASHRAE 2021'],
+      completude: 70,
+      validation_terrain: false
+    }
+  };
+
+  // ==================================================
+  // GROUPE C — HYDROCARBURES & NATURELS (6 fluides)
+  // ==================================================
+
+  DB['R290'] = {
+    nom: 'R290',
+    nom_chimique: 'Propane',
+    formule: 'C₃H₈',
+    CAS: '74-98-6',
+    type: 'HC',
+    classe: 'A3',
+    statut: 'Autorisé',
+    couleur: 'Rouge',
+    thermo: {
+      Tc: 96.74, Pc: 42.51, Teb: -42.1, M: 44.1, glide: 0,
+      antoine: { A: 3.9808, B: 813.121, C: 246.053 },
+      antoine_plage: [-40, 70]
+    },
+    terrain: {
+      SR_typique: [5, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 110
+    },
+    regl: {
+      GWP: 3, ODP: 0, LFL: 0.038,
+      huiles: ['Huile minérale', 'AB', 'POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: [],
+      remplace_par: [],
+      compatibilite: '⚠️ A3 INFLAMMABLE — Charges limitées — Étude sécu obligatoire'
+    },
+    meta: {
+      groupe: 'C',
+      sources: ['NIST Chemistry WebBook', 'ASHRAE 2021'],
+      completude: 95,
+      validation_terrain: true
+    }
+  };
+
+  DB['R600a'] = {
+    nom: 'R600a',
+    nom_chimique: 'Isobutane',
+    formule: 'C₄H₁₀',
+    CAS: '75-28-5',
+    type: 'HC',
+    classe: 'A3',
+    statut: 'Autorisé',
+    couleur: 'Rouge',
+    thermo: {
+      Tc: 134.66, Pc: 36.29, Teb: -11.7, M: 58.12, glide: 0,
+      antoine: { A: 4.3258, B: 1132.108, C: 272.03 },
+      antoine_plage: [-30, 80]
+    },
+    terrain: {
+      SR_typique: [5, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 110
+    },
+    regl: {
+      GWP: 3, ODP: 0, LFL: 0.043,
+      huiles: ['Huile minérale', 'AB'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R12'],
+      remplace_par: [],
+      compatibilite: '⚠️ A3 — Standard réfrigérateurs domestiques — Charges <150g'
+    },
+    meta: {
+      groupe: 'C',
+      sources: ['NIST Chemistry WebBook', 'ASHRAE 2021'],
+      completude: 90,
+      validation_terrain: true
+    }
+  };
+
+  DB['R1270'] = {
+    nom: 'R1270',
+    nom_chimique: 'Propylène (Propène)',
+    formule: 'C₃H₆',
+    CAS: '115-07-1',
+    type: 'HC',
+    classe: 'A3',
+    statut: 'Autorisé',
+    couleur: 'Rouge',
+    thermo: {
+      Tc: 91.06, Pc: 45.55, Teb: -47.7, M: 42.08, glide: 0,
+      antoine: { A: 4.00529, B: 800.534, C: 246.264 },
+      antoine_plage: [-45, 70]
+    },
+    terrain: {
+      SR_typique: [5, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 110
+    },
+    regl: {
+      GWP: 2, ODP: 0, LFL: 0.045,
+      huiles: ['Huile minérale', 'AB', 'POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: [],
+      remplace_par: [],
+      compatibilite: '⚠️ A3 — Alternative naturelle R22/R404A — Charges limitées'
+    },
+    meta: {
+      groupe: 'C',
+      sources: ['NIST Chemistry WebBook'],
+      completude: 85,
+      validation_terrain: false
+    }
+  };
+
+  DB['R744'] = {
+    nom: 'R744',
+    nom_chimique: 'Dioxyde de carbone',
+    formule: 'CO₂',
+    CAS: '124-38-9',
+    type: 'Naturel',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Gris',
+    thermo: {
+      Tc: 31, Pc: 73.77, Teb: -78.4, M: 44.01, glide: 0,
+      antoine: { A: 4.64033, B: 830.099, C: 268.13 },
+      antoine_plage: [-56, 25]
+    },
+    terrain: {
+      SR_typique: [3, 8], SR_alarme_bas: 1, SR_alarme_haut: 15,
+      SC_typique: [2, 5], SC_alarme_bas: 1, SC_alarme_haut: 8,
+      T_refoulement_max: 140
+    },
+    regl: {
+      GWP: 1, ODP: 0, LFL: null,
+      huiles: ['PAG', 'POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: [],
+      remplace_par: [],
+      compatibilite: '⚠️ Système dédié HP — Pressions >130 bar — Transcritique >31°C'
+    },
+    meta: {
+      groupe: 'C',
+      sources: ['NIST Chemistry WebBook', 'ASHRAE 2021'],
+      completude: 95,
+      validation_terrain: true
+    }
+  };
+
+  DB['R717'] = {
+    nom: 'R717',
+    nom_chimique: 'Ammoniac',
+    formule: 'NH₃',
+    CAS: '7664-41-7',
+    type: 'Naturel',
+    classe: 'B2L',
+    statut: 'Autorisé',
+    couleur: 'Vert',
+    thermo: {
+      Tc: 132.25, Pc: 113.33, Teb: -33.3, M: 17.03, glide: 0,
+      antoine: { A: 4.61754, B: 976.409, C: 245.041 },
+      antoine_plage: [-50, 80]
+    },
+    terrain: {
+      SR_typique: [4, 10], SR_alarme_bas: 2, SR_alarme_haut: 15,
+      SC_typique: [3, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 150
+    },
+    regl: {
+      GWP: 0, ODP: 0, LFL: 0.112,
+      huiles: ['Huile minérale'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: [],
+      remplace_par: [],
+      compatibilite: '⚠️ TOXIQUE + inflammable — Industriel uniquement — Formation NH₃ obligatoire'
+    },
+    meta: {
+      groupe: 'C',
+      sources: ['NIST Chemistry WebBook', 'ASHRAE 2021'],
+      completude: 90,
+      validation_terrain: true
+    }
+  };
+
+  DB['R718'] = {
+    nom: 'R718',
+    nom_chimique: 'Eau',
+    formule: 'H₂O',
+    CAS: '7732-18-5',
+    type: 'Naturel',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Incolore',
+    thermo: {
+      Tc: 373.95, Pc: 220.64, Teb: 100, M: 18.015, glide: 0,
+      antoine: { A: 5.1271, B: 1693.296, C: 230.559 },
+      antoine_plage: [0, 200]
+    },
+    terrain: {
+      SR_typique: [3, 8], SR_alarme_bas: 1, SR_alarme_haut: 12,
+      SC_typique: [2, 5], SC_alarme_bas: 1, SC_alarme_haut: 8,
+      T_refoulement_max: 180
+    },
+    regl: {
+      GWP: 0, ODP: 0, LFL: null,
+      huiles: [],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: [],
+      remplace_par: [],
+      compatibilite: 'Fluide pédagogique et industriel — Chillers centrifuges sous vide'
+    },
+    meta: {
+      groupe: 'C',
+      sources: ['NIST'],
+      completude: 80,
+      validation_terrain: false
+    }
+  };
+
+  // ==================================================
+  // GROUPE D — HISTORIQUES / FORMATION (5 fluides)
+  // ==================================================
+
+  DB['R22'] = {
+    nom: 'R22',
+    nom_chimique: 'Chlorodifluorométhane',
+    formule: 'CHClF₂',
+    CAS: '75-45-6',
+    type: 'HCFC',
+    classe: 'A1',
+    statut: 'Interdit',
+    couleur: 'Vert clair',
+    thermo: {
+      Tc: 96.15, Pc: 49.9, Teb: -40.8, M: 86.47, glide: 0,
+      antoine: { A: 4.2641, B: 897.239, C: 251.53 },
+      antoine_plage: [-50, 70]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 120
+    },
+    regl: {
+      GWP: 1810, ODP: 0.055, LFL: null,
+      huiles: ['Huile minérale', 'AB'],
+      phase_out: '⛔ INTERDIT — HCFC — Plus de recharge depuis 2015'
+    },
+    retrofit: {
+      remplace: [],
+      remplace_par: ['R407C', 'R410A', 'R32', 'R454B'],
+      compatibilite: 'Fluide historique — Formation pour compréhension parc existant'
+    },
+    meta: {
+      groupe: 'D',
+      sources: ['NIST Chemistry WebBook', 'ASHRAE 2021'],
+      completude: 95,
+      validation_terrain: true
+    }
+  };
+
+  DB['R12'] = {
+    nom: 'R12',
+    nom_chimique: 'Dichlorodifluorométhane',
+    formule: 'CCl₂F₂',
+    CAS: '75-71-8',
+    type: 'CFC',
+    classe: 'A1',
+    statut: 'Interdit',
+    couleur: 'Blanc',
+    thermo: {
+      Tc: 111.97, Pc: 41.36, Teb: -29.8, M: 120.91, glide: 0,
+      antoine: { A: 4.0518, B: 887.192, C: 249.033 },
+      antoine_plage: [-40, 80]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 100
+    },
+    regl: {
+      GWP: 10900, ODP: 1, LFL: null,
+      huiles: ['Huile minérale'],
+      phase_out: '⛔ INTERDIT — CFC — Protocole Montréal 1989'
+    },
+    retrofit: {
+      remplace: [],
+      remplace_par: ['R134a', 'R513A', 'R600a'],
+      compatibilite: 'Plus aucune utilisation autorisée'
+    },
+    meta: {
+      groupe: 'D',
+      sources: ['NIST Chemistry WebBook'],
+      completude: 90,
+      validation_terrain: true
+    }
+  };
+
+  DB['R502'] = {
+    nom: 'R502',
+    nom_chimique: 'R22/R115 (48.8/51.2)',
+    formule: 'Mélange azéotrope CFC/HCFC',
+    CAS: 'Mélange',
+    type: 'CFC',
+    classe: 'A1',
+    statut: 'Interdit',
+    couleur: 'Lavande',
+    thermo: {
+      Tc: 80.73, Pc: 40.75, Teb: -45.4, M: 111.63, glide: 0,
+      antoine: { A: 3.36277, B: 464.553, C: 186.434 },
+      antoine_plage: [-50, 60]
+    },
+    terrain: {
+      SR_typique: [5, 10], SR_alarme_bas: 3, SR_alarme_haut: 15,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 100
+    },
+    regl: {
+      GWP: 4657, ODP: 0.334, LFL: null,
+      huiles: ['Huile minérale'],
+      phase_out: '⛔ INTERDIT — CFC — Protocole Montréal'
+    },
+    retrofit: {
+      remplace: [],
+      remplace_par: ['R404A', 'R448A', 'R449A'],
+      compatibilite: 'Remplacé par R404A puis R448A/R449A'
+    },
+    meta: {
+      groupe: 'D',
+      sources: ['ASHRAE 2021'],
+      completude: 85,
+      validation_terrain: true
+    }
+  };
+
+  DB['R507A'] = {
+    nom: 'R507A',
+    nom_chimique: 'R125/R143a (50/50)',
+    formule: 'Mélange azéotrope HFC',
+    CAS: 'Mélange',
+    type: 'HFC',
+    classe: 'A1',
+    statut: 'Phase-out',
+    couleur: 'Vert émeraude',
+    thermo: {
+      Tc: 70.6, Pc: 37.05, Teb: -46.7, M: 98.86, glide: 0,
+      antoine: { A: 3.47191, B: 496.773, C: 191.511 },
+      antoine_plage: [-50, 60]
+    },
+    terrain: {
+      SR_typique: [5, 10], SR_alarme_bas: 3, SR_alarme_haut: 15,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 108
+    },
+    regl: {
+      GWP: 3985, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: '⚠️ INTERDIT en neuf — GWP très élevé'
+    },
+    retrofit: {
+      remplace: ['R502'],
+      remplace_par: ['R448A', 'R449A'],
+      compatibilite: 'Jumeau R404A — Même phase-out'
+    },
+    meta: {
+      groupe: 'D',
+      sources: ['ASHRAE 2021'],
+      completude: 85,
+      validation_terrain: true
+    }
+  };
+
+  DB['R407A'] = {
+    nom: 'R407A',
+    nom_chimique: 'R32/R125/R134a (20/40/40)',
+    formule: 'Mélange zéotrope HFC',
+    CAS: 'Mélange',
+    type: 'HFC',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 82.3, Pc: 45.2, Teb: -45.2, M: 90.1, glide: 5.8,
+      antoine: { A: 3.44313, B: 498.164, C: 191.379 },
+      antoine_plage: [-45, 65]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 115
+    },
+    regl: {
+      GWP: 2107, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R502', 'R22'],
+      remplace_par: ['R448A', 'R449A'],
+      compatibilite: 'Retrofit R502/R22 froid commercial — Glide 5.8K'
+    },
+    meta: {
+      groupe: 'D',
+      sources: ['ASHRAE 2021'],
+      completude: 80,
+      validation_terrain: true
+    }
+  };
+
+  // ==================================================
+  // GROUPE E — SPÉCIAUX / TRÈS BASSE TEMPÉRATURE (5 fluides)
+  // ==================================================
+
+  DB['R23'] = {
+    nom: 'R23',
+    nom_chimique: 'Trifluorométhane',
+    formule: 'CHF₃',
+    CAS: '75-46-7',
+    type: 'HFC',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Gris clair',
+    thermo: {
+      Tc: 26.14, Pc: 48.36, Teb: -82.1, M: 70.01, glide: 0,
+      antoine: { A: 4.65112, B: 828.802, C: 260.221 },
+      antoine_plage: [-80, 20]
+    },
+    terrain: {
+      SR_typique: [3, 8], SR_alarme_bas: 1, SR_alarme_haut: 12,
+      SC_typique: [2, 5], SC_alarme_bas: 1, SC_alarme_haut: 8,
+      T_refoulement_max: 100
+    },
+    regl: {
+      GWP: 14800, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: 'GWP très élevé — Usage très basse T uniquement'
+    },
+    retrofit: {
+      remplace: ['R13', 'R503'],
+      remplace_par: ['R744 (cascade)'],
+      compatibilite: 'Étage basse T en cascade (< -60°C)'
+    },
+    meta: {
+      groupe: 'E',
+      sources: ['NIST Chemistry WebBook'],
+      completude: 80,
+      validation_terrain: false
+    }
+  };
+
+  DB['R508B'] = {
+    nom: 'R508B',
+    nom_chimique: 'R23/R116 (46/54)',
+    formule: 'Mélange azéotrope HFC',
+    CAS: 'Mélange',
+    type: 'HFC',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Bleu foncé',
+    thermo: {
+      Tc: 14, Pc: 39.3, Teb: -87.4, M: 95.4, glide: 0,
+      antoine: { A: 4.57706, B: 755.517, C: 260.175 },
+      antoine_plage: [-90, 0]
+    },
+    terrain: {
+      SR_typique: [3, 8], SR_alarme_bas: 1, SR_alarme_haut: 12,
+      SC_typique: [2, 5], SC_alarme_bas: 1, SC_alarme_haut: 8,
+      T_refoulement_max: 90
+    },
+    regl: {
+      GWP: 13396, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: 'GWP extrême — Cryogénie uniquement'
+    },
+    retrofit: {
+      remplace: ['R503'],
+      remplace_par: ['R744 (cascade)'],
+      compatibilite: 'Cryogénie — Très basse T (< -80°C)'
+    },
+    meta: {
+      groupe: 'E',
+      sources: ['ASHRAE 2021'],
+      completude: 75,
+      validation_terrain: false
+    }
+  };
+
+  DB['R170'] = {
+    nom: 'R170',
+    nom_chimique: 'Éthane',
+    formule: 'C₂H₆',
+    CAS: '74-84-0',
+    type: 'HC',
+    classe: 'A3',
+    statut: 'Autorisé',
+    couleur: 'Rouge',
+    thermo: {
+      Tc: 32.17, Pc: 48.72, Teb: -88.6, M: 30.07, glide: 0,
+      antoine: { A: 4.149, B: 630.768, C: 244.741 },
+      antoine_plage: [-80, 20]
+    },
+    terrain: {
+      SR_typique: [3, 8], SR_alarme_bas: 1, SR_alarme_haut: 12,
+      SC_typique: [2, 5], SC_alarme_bas: 1, SC_alarme_haut: 8,
+      T_refoulement_max: 90
+    },
+    regl: {
+      GWP: 6, ODP: 0, LFL: 0.038,
+      huiles: ['Huile minérale', 'POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: [],
+      remplace_par: [],
+      compatibilite: '⚠️ A3 INFLAMMABLE — Cascade très basse T — Alternative naturelle R23'
+    },
+    meta: {
+      groupe: 'E',
+      sources: ['NIST Chemistry WebBook'],
+      completude: 75,
+      validation_terrain: false
+    }
+  };
+
+  DB['R407H'] = {
+    nom: 'R407H',
+    nom_chimique: 'R32/R125/R134a (32.5/15/52.5)',
+    formule: 'Mélange zéotrope HFC',
+    CAS: 'Mélange',
+    type: 'HFC',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 90.5, Pc: 44.6, Teb: -41.3, M: 81.3, glide: 6.5,
+      antoine: { A: 3.48155, B: 512.443, C: 192.168 },
+      antoine_plage: [-40, 70]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 115
+    },
+    regl: {
+      GWP: 1495, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R404A'],
+      remplace_par: ['R448A', 'R449A'],
+      compatibilite: 'Alternative R404A froid commercial — A1 — Glide 6.5K'
+    },
+    meta: {
+      groupe: 'E',
+      sources: ['Honeywell', 'ASHRAE 2021'],
+      completude: 75,
+      validation_terrain: false
+    }
+  };
+
+  DB['R442A'] = {
+    nom: 'R442A',
+    nom_chimique: 'R32/R125/R134a/R152a/R227ea (31/31/30/3/5)',
+    formule: 'Mélange zéotrope HFC',
+    CAS: 'Mélange',
+    type: 'HFC',
+    classe: 'A1',
+    statut: 'Autorisé',
+    couleur: 'Marron clair',
+    thermo: {
+      Tc: 83, Pc: 43.8, Teb: -46.5, M: 83, glide: 5.5,
+      antoine: { A: 3.39598, B: 484.315, C: 188.741 },
+      antoine_plage: [-45, 65]
+    },
+    terrain: {
+      SR_typique: [6, 10], SR_alarme_bas: 3, SR_alarme_haut: 16,
+      SC_typique: [4, 8], SC_alarme_bas: 2, SC_alarme_haut: 12,
+      T_refoulement_max: 115
+    },
+    regl: {
+      GWP: 1888, ODP: 0, LFL: null,
+      huiles: ['POE'],
+      phase_out: null
+    },
+    retrofit: {
+      remplace: ['R404A', 'R507A'],
+      remplace_par: ['R448A', 'R449A'],
+      compatibilite: 'Retrofit R404A/R507A — GWP moyen'
+    },
+    meta: {
+      groupe: 'E',
+      sources: ['Mexichem (RS-50)'],
+      completude: 70,
+      validation_terrain: false
+    }
+  };
+  // ==================================================
+  // 7. GESTION BASE DE DONNÉES
+  // ==================================================
+
+  function getFluid(nom) {
+    var f = DB[nom];
+    if (!f) throw new Error('Fluide non trouvé : ' + nom);
+    return f;
+  }
+
+  function registerFluid(nom, data) {
+    if (!data.thermo || !data.thermo.antoine) throw new Error('Antoine obligatoire');
+    if (!data.regl || data.regl.GWP === undefined) throw new Error('GWP obligatoire');
+    DB[nom] = data;
+    updateMeta();
+    return true;
+  }
+
+  function listFluids(f) {
+    f = f || {};
+    var n = Object.keys(DB);
+    if (f.type) n = n.filter(function(k){return DB[k].type===f.type;});
+    if (f.classe) n = n.filter(function(k){return DB[k].classe===f.classe;});
+    if (f.statut) n = n.filter(function(k){return DB[k].statut===f.statut;});
+    if (f.GWP_max !== undefined) n = n.filter(function(k){return DB[k].regl.GWP<=f.GWP_max;});
+    if (f.groupe) n = n.filter(function(k){return DB[k].meta.groupe===f.groupe;});
+    return n;
+  }
+
+  function sortByGWP(ordre) {
+    ordre = ordre || 'asc';
+    return Object.keys(DB).sort(function(a,b){
+      var d = DB[a].regl.GWP - DB[b].regl.GWP;
+      return ordre==='asc' ? d : -d;
+    });
+  }
+
+  function getRetrofitOptions(nom) {
+    return getFluid(nom).retrofit || {remplace:[],remplace_par:[],compatibilite:'Non renseigné'};
+  }
+
+  function searchFluids(q) {
+    q = q.toLowerCase();
+    return Object.keys(DB).filter(function(k){
+      var f = DB[k];
+      return k.toLowerCase().indexOf(q)!==-1 ||
+        (f.nom_chimique && f.nom_chimique.toLowerCase().indexOf(q)!==-1) ||
+        (f.type && f.type.toLowerCase().indexOf(q)!==-1) ||
+        (f.classe && f.classe.toLowerCase().indexOf(q)!==-1);
+    });
+  }
+
+  // ==================================================
+  // 8. RÉGLEMENTAIRE — F-Gas 2024/573
+  // ==================================================
+
+  /** Calcul tCO₂ équivalent */
+  function calcTCO2e(nom, charge_kg) {
+    var f = getFluid(nom);
+    return Math.round(f.regl.GWP * charge_kg / 1000 * 100) / 100;
+  }
+
+  /** Fréquence contrôle étanchéité F-Gas */
+  function getFrequenceControle(tco2e) {
+    if (tco2e < 5) return { frequence: 'Aucun', intervalle_mois: null, texte: '< 5 tCO₂e — Pas de contrôle obligatoire' };
+    if (tco2e < 50) return { frequence: 'Annuel', intervalle_mois: 12, texte: '5-50 tCO₂e — Contrôle annuel' };
+    if (tco2e < 500) return { frequence: 'Semestriel', intervalle_mois: 6, texte: '50-500 tCO₂e — Contrôle semestriel' };
+    return { frequence: 'Trimestriel', intervalle_mois: 3, texte: '≥ 500 tCO₂e — Contrôle trimestriel' };
+  }
+
+  /** Charge max A2L selon EN 378 */
+  function getChargeMaxA2L(nom, volume_local_m3, hauteur_m) {
+    var f = getFluid(nom);
+    if (!f.regl.LFL) return { charge_max_kg: null, texte: 'Non A2L/A3 — pas de limite LFL' };
+    hauteur_m = hauteur_m || 2.5;
+    // EN 378: m_max = LFL × volume^0.5 (simplification pédagogique)
+    // Formule exacte: m_max = 4 × h₀^0.5 × LFL × V_room (avec h₀ hauteur installation)
+    var m_max = f.regl.LFL * Math.pow(volume_local_m3, 0.5) * 4 * Math.pow(hauteur_m, 0.5);
+    return {
+      charge_max_kg: Math.round(m_max * 100) / 100,
+      LFL: f.regl.LFL,
+      classe: f.classe,
+      texte: f.nom + ' (' + f.classe + ') — Charge max ≈ ' + m_max.toFixed(2) + ' kg pour ' + volume_local_m3 + ' m³'
+    };
+  }
+
+  // ==================================================
+  // 9. VALIDATION & TESTS
+  // ==================================================
+
+  function validateFluid(data) {
+    var e = [];
+    if (!data.nom) e.push('nom');
+    if (!data.thermo) e.push('thermo');
+    else { if (!data.thermo.antoine) e.push('antoine'); if (data.thermo.glide===undefined) e.push('glide'); }
+    if (!data.regl) e.push('regl'); else if (data.regl.GWP===undefined) e.push('GWP');
+    if (!data.classe) e.push('classe');
+    return { valid: e.length===0, errors: e };
+  }
+
+  function validateDB() {
+    var r = {total:0, valides:0, invalides:0, erreurs:{}};
+    Object.keys(DB).forEach(function(k){
+      r.total++;
+      var v = validateFluid(DB[k]);
+      if (v.valid) r.valides++; else { r.invalides++; r.erreurs[k]=v.errors; }
+    });
+    return r;
+  }
+
+  function testPrecision(nom, refs) {
+    var f = getFluid(nom), mx=0, sm=0, det=[];
+    refs.forEach(function(ref){
+      var Pc = calcPression(ref.T, f);
+      var err = Math.abs((Pc-ref.P_ref)/ref.P_ref)*100;
+      mx = Math.max(mx,err); sm += err;
+      det.push({T:ref.T, P_ref:ref.P_ref, P_calc:Math.round(Pc*1000)/1000, erreur_pct:Math.round(err*100)/100});
+    });
+    return {fluide:nom, nb_points:refs.length, erreur_max_pct:Math.round(mx*100)/100,
+      erreur_moy_pct:Math.round(sm/refs.length*100)/100, details:det};
+  }
+
+  // ==================================================
+  // 10. UTILITAIRES
+  // ==================================================
+  function updateMeta() {
+    META.stats.nb_fluides = Object.keys(DB).length;
+    META.stats.derniere_maj = new Date().toISOString().split('T')[0];
+  }
+  updateMeta();
+
+  // ==================================================
+  // 11. API PUBLIQUE
+  // ==================================================
+  return {
+    META: META, CONST: CONST,
+    // Moteurs thermo
+    Psat_Antoine: Psat_Antoine, Tsat_Antoine: Tsat_Antoine,
+    Psat_Wagner: Psat_Wagner, Tsat_Wagner: Tsat_Wagner,
+    calcPression: calcPression, calcTemperature: calcTemperature, calcGlide: calcGlide,
+    // Atmosphère
+    P_atm_ISA: P_atm_ISA, toBarAbs: toBarAbs, toBarRel: toBarRel,
+    // Diagnostic
+    calcSR: calcSR, analyseSR: analyseSR, calcSC: calcSC, analyseSC: analyseSC,
+    detectIncondensables: detectIncondensables,
+    // Réglementaire
+    calcTCO2e: calcTCO2e, getFrequenceControle: getFrequenceControle,
+    getChargeMaxA2L: getChargeMaxA2L,
+    // Base de données
+    getFluid: getFluid, registerFluid: registerFluid, listFluids: listFluids,
+    sortByGWP: sortByGWP, getRetrofitOptions: getRetrofitOptions, searchFluids: searchFluids,
+    // Validation
+    validateFluid: validateFluid, validateDB: validateDB, testPrecision: testPrecision,
+    // Accès direct
+    get DB() { return DB; }
+  };
+}));
+// FIN INERWEB FLUIDE CERVEAU v5.1 — 35 fluides — © 2026 F. Henninot — InerWeb Fluide
+
+</script>
+<script>
+"use strict";
+// ==================================================
+// BASE DE DONNÉES 50 FLUIDES
+// Tables générées par interpolation - Sources publiques
+// GWP : Valeurs indicatives (sources variées)
+// ==================================================
+
+const FLUIDS = {
+    // === CFC (Interdits) ===
+    'R11':   { name:'R11',   color:'#6b7280', cat:'CFC', gwp:4660,  glide:0, safety:'A1', status:'banned', composition:'CCl3F', desc:'Centrifuge historique', table:[{t:-20,p:0.201},{t:0,p:0.399},{t:20,p:0.724},{t:40,p:1.223},{t:60,p:1.956}] },
+    'R12':   { name:'R12',   color:'#9ca3af', cat:'CFC', gwp:10200, glide:0, safety:'A1', status:'banned', composition:'CCl2F2', desc:'Frigo/auto historique', table:[{t:-40,p:0.642},{t:-20,p:1.509},{t:0,p:3.086},{t:20,p:5.673},{t:40,p:9.607}] },
+    'R13':   { name:'R13',   color:'#78716c', cat:'CFC', gwp:14000, glide:0, safety:'A1', status:'banned', composition:'CClF3', desc:'Tres basse temp', table:[{t:-80,p:1.51},{t:-60,p:3.59},{t:-40,p:7.44},{t:-20,p:14.0}] },
+    'R113':  { name:'R113',  color:'#a1a1aa', cat:'CFC', gwp:5820,  glide:0, safety:'A1', status:'banned', composition:'C2Cl3F3', desc:'Solvant', table:[{t:20,p:0.372},{t:40,p:0.628},{t:60,p:1.004},{t:80,p:1.530}] },
+    'R114':  { name:'R114',  color:'#a8a29e', cat:'CFC', gwp:9180,  glide:0, safety:'A1', status:'banned', composition:'C2Cl2F4', desc:'Cascade', table:[{t:-20,p:0.583},{t:0,p:1.130},{t:20,p:2.010},{t:40,p:3.330}] },
+    'R115':  { name:'R115',  color:'#d6d3d1', cat:'CFC', gwp:7670,  glide:0, safety:'A1', status:'banned', composition:'C2ClF5', desc:'Composant R502', table:[{t:-40,p:1.32},{t:-20,p:2.69},{t:0,p:4.94},{t:20,p:8.35}] },
+    'R500':  { name:'R500',  color:'#71717a', cat:'CFC', gwp:7870,  glide:0.2, safety:'A1', status:'banned', composition:'R12/R152a', desc:'Azeotrope', table:[{t:-40,p:0.76},{t:-20,p:1.72},{t:0,p:3.45},{t:20,p:6.27}] },
+    'R502':  { name:'R502',  color:'#52525b', cat:'CFC', gwp:4520,  glide:0.3, safety:'A1', status:'banned', composition:'R22/R115', desc:'Froid negatif', table:[{t:-40,p:1.080},{t:-20,p:2.367},{t:0,p:4.566},{t:20,p:7.999}] },
+
+    // === HCFC (Interdits) ===
+    'R22':   { name:'R22',   color:'#22c55e', cat:'HCFC', gwp:1760, glide:0, safety:'A1', status:'banned', composition:'CHClF2', desc:'Historique universel', table:[{t:-40,p:1.052},{t:-30,p:1.639},{t:-20,p:2.453},{t:-10,p:3.548},{t:0,p:4.980},{t:10,p:6.809},{t:20,p:9.100},{t:30,p:11.919},{t:40,p:15.336},{t:50,p:19.427}] },
+    'R123':  { name:'R123',  color:'#16a34a', cat:'HCFC', gwp:79,   glide:0, safety:'B1', status:'banned', composition:'CHCl2CF3', desc:'Centrifuge', table:[{t:0,p:0.327},{t:20,p:0.659},{t:40,p:1.219},{t:60,p:2.101}] },
+    'R124':  { name:'R124',  color:'#15803d', cat:'HCFC', gwp:527,  glide:0, safety:'A1', status:'banned', composition:'CHClFCF3', desc:'Chillers', table:[{t:-20,p:0.697},{t:0,p:1.426},{t:20,p:2.652},{t:40,p:4.555}] },
+    'R141b': { name:'R141b', color:'#166534', cat:'HCFC', gwp:782,  glide:0, safety:'A2', status:'banned', composition:'CH3CCl2F', desc:'Moussage', table:[{t:20,p:0.658},{t:40,p:1.160},{t:60,p:1.920}] },
+    'R142b': { name:'R142b', color:'#14532d', cat:'HCFC', gwp:1980, glide:0, safety:'A2', status:'banned', composition:'CH3CClF2', desc:'Mousses', table:[{t:-20,p:0.867},{t:0,p:1.699},{t:20,p:3.055},{t:40,p:5.129}] },
+
+    // === HFC Purs ===
+    'R23':   { name:'R23',   color:'#60a5fa', cat:'HFC', gwp:12400, glide:0, safety:'A1', status:'restrict', composition:'CHF3', desc:'Cascade', table:[{t:-80,p:1.75},{t:-60,p:5.26},{t:-40,p:12.80},{t:-20,p:27.00}] },
+    'R32':   { name:'R32',   color:'#c0392b', cat:'HFC', gwp:677,   glide:0, safety:'A2L', status:'future', composition:'CH2F2', desc:'PAC nouvelle gen', table:[{t:-40,p:1.774},{t:-30,p:2.734},{t:-20,p:4.058},{t:-10,p:5.826},{t:0,p:8.131},{t:10,p:11.069},{t:20,p:14.746},{t:30,p:19.275},{t:40,p:24.783},{t:50,p:31.412}] },
+    'R125':  { name:'R125',  color:'#2563eb', cat:'HFC', gwp:3170,  glide:0, safety:'A1', status:'restrict', composition:'CHF2CF3', desc:'Composant', table:[{t:-40,p:1.62},{t:-20,p:3.95},{t:0,p:8.05},{t:20,p:14.35}] },
+    'R134a': { name:'R134a', color:'#3b82f6', cat:'HFC', gwp:1300,  glide:0, safety:'A1', status:'future', composition:'CH2FCF3', desc:'Standard actuel', table:[{t:-40,p:0.512},{t:-30,p:0.844},{t:-20,p:1.327},{t:-10,p:2.006},{t:0,p:2.928},{t:10,p:4.146},{t:20,p:5.717},{t:30,p:7.702},{t:40,p:10.166},{t:50,p:13.179}] },
+    'R143a': { name:'R143a', color:'#1d4ed8', cat:'HFC', gwp:4800,  glide:0, safety:'A2L', status:'restrict', composition:'CH3CF3', desc:'Composant', table:[{t:-40,p:1.47},{t:-20,p:3.51},{t:0,p:7.08},{t:20,p:12.50}] },
+    'R152a': { name:'R152a', color:'#7c3aed', cat:'HFC', gwp:138,   glide:0, safety:'A2', status:'ok', composition:'CH3CHF2', desc:'Aerosols', table:[{t:-40,p:0.424},{t:-20,p:1.115},{t:0,p:2.492},{t:20,p:4.912},{t:40,p:8.700}] },
+    'R227ea':{ name:'R227ea',color:'#6366f1', cat:'HFC', gwp:3350,  glide:0, safety:'A1', status:'restrict', composition:'CF3CHFCF3', desc:'Protection incendie', table:[{t:-20,p:0.854},{t:0,p:1.796},{t:20,p:3.424},{t:40,p:5.976}] },
+    'R236fa':{ name:'R236fa',color:'#4f46e5', cat:'HFC', gwp:8060,  glide:0, safety:'A1', status:'restrict', composition:'CF3CH2CF3', desc:'ORC', table:[{t:0,p:1.00},{t:20,p:1.91},{t:40,p:3.39},{t:60,p:5.62}] },
+    'R245fa':{ name:'R245fa',color:'#4338ca', cat:'HFC', gwp:858,   glide:0, safety:'B1', status:'future', composition:'CHF2CH2CF3', desc:'ORC/PAC', table:[{t:0,p:0.490},{t:20,p:0.999},{t:40,p:1.853},{t:60,p:3.183}] },
+
+    // === Melanges HFC ===
+    'R404A': { name:'R404A', color:'#f97316', cat:'BLEND', gwp:3943, glide:0.5, safety:'A1', status:'restrict', composition:'R125/R143a/R134a', desc:'Froid negatif EN RESTRICTION', table:[{t:-40,p:1.353},{t:-30,p:2.078},{t:-20,p:3.071},{t:-10,p:4.391},{t:0,p:6.102},{t:10,p:8.271},{t:20,p:10.971},{t:30,p:14.284},{t:40,p:18.295},{t:50,p:23.109}] },
+    'R407A': { name:'R407A', color:'#d47a35', cat:'BLEND', gwp:1923, glide:5.8, safety:'A1', status:'future', composition:'R32/R125/R134a', desc:'Retrofit R22', table:[{t:-40,p:1.311},{t:-20,p:2.999},{t:0,p:5.974},{t:20,p:10.740},{t:40,p:17.870}] },
+    'R407C': { name:'R407C', color:'#a855f7', cat:'BLEND', gwp:1624, glide:6.1, safety:'A1', status:'future', composition:'R32/R125/R134a', desc:'Retrofit R22', table:[{t:-40,p:1.203},{t:-30,p:1.871},{t:-20,p:2.799},{t:-10,p:4.047},{t:0,p:5.679},{t:10,p:7.764},{t:20,p:10.376},{t:30,p:13.590},{t:40,p:17.489},{t:50,p:22.159}] },
+    'R407F': { name:'R407F', color:'#9333ea', cat:'BLEND', gwp:1674, glide:6.5, safety:'A1', status:'future', composition:'R32/R125/R134a', desc:'Retrofit R404A', table:[{t:-40,p:1.35},{t:-20,p:3.15},{t:0,p:6.35},{t:20,p:11.20},{t:40,p:18.00}] },
+    'R410A': { name:'R410A', color:'#ec4899', cat:'BLEND', gwp:1924, glide:0.1, safety:'A1', status:'future', composition:'R32/R125', desc:'PAC/Clim RESTRICTION FUTURE', table:[{t:-40,p:1.755},{t:-30,p:2.703},{t:-20,p:4.007},{t:-10,p:5.746},{t:0,p:8.007},{t:10,p:10.883},{t:20,p:14.475},{t:30,p:18.891},{t:40,p:24.256},{t:50,p:30.711}] },
+    'R417A': { name:'R417A', color:'#db2777', cat:'BLEND', gwp:2127, glide:4.3, safety:'A1', status:'future', composition:'R125/R134a/R600', desc:'Retrofit R22', table:[{t:-20,p:2.25},{t:0,p:4.55},{t:20,p:8.30},{t:40,p:13.80}] },
+    'R422D': { name:'R422D', color:'#be185d', cat:'BLEND', gwp:2473, glide:3.5, safety:'A1', status:'restrict', composition:'R125/R134a/R600a', desc:'Retrofit R22', table:[{t:-20,p:2.40},{t:0,p:4.80},{t:20,p:8.70},{t:40,p:14.40}] },
+    'R448A': { name:'R448A', color:'#0891b2', cat:'BLEND', gwp:1273, glide:5.5, safety:'A1', status:'future', composition:'R32/R125/R1234yf/R134a/R1234ze', desc:'Rempl. R404A', table:[{t:-40,p:1.240},{t:-30,p:1.910},{t:-20,p:2.830},{t:-10,p:4.050},{t:0,p:5.630},{t:10,p:7.620},{t:20,p:10.10},{t:30,p:13.12},{t:40,p:16.78}] },
+    'R449A': { name:'R449A', color:'#0d9488', cat:'BLEND', gwp:1282, glide:5.3, safety:'A1', status:'future', composition:'R32/R125/R1234yf/R134a', desc:'Rempl. R404A', table:[{t:-40,p:1.252},{t:-30,p:1.928},{t:-20,p:2.855},{t:-10,p:4.083},{t:0,p:5.674},{t:10,p:7.688},{t:20,p:10.19},{t:30,p:13.25},{t:40,p:16.94}] },
+    'R450A': { name:'R450A', color:'#14b8a6', cat:'BLEND', gwp:547,  glide:0.6, safety:'A1', status:'ok', composition:'R134a/R1234ze', desc:'Rempl. R134a', table:[{t:-20,p:1.08},{t:0,p:2.38},{t:20,p:4.68},{t:40,p:8.35}] },
+    'R452A': { name:'R452A', color:'#1a8a4a', cat:'BLEND', gwp:1945, glide:1.2, safety:'A1', status:'future', composition:'R32/R125/R1234yf', desc:'Rempl. R404A', table:[{t:-40,p:1.530},{t:-20,p:3.380},{t:0,p:6.540},{t:20,p:11.50},{t:40,p:18.80}] },
+    'R453A': { name:'R453A', color:'#047857', cat:'BLEND', gwp:1765, glide:5.0, safety:'A1', status:'future', composition:'R32/R125/R134a/R227ea/R600/R601a', desc:'Retrofit R22', table:[{t:-20,p:2.15},{t:0,p:4.35},{t:20,p:7.95},{t:40,p:13.20}] },
+    'R454B': { name:'R454B', color:'#f43f5e', cat:'BLEND', gwp:467,  glide:1.3, safety:'A2L', status:'ok', composition:'R32/R1234yf', desc:'Rempl. R410A', table:[{t:-40,p:1.50},{t:-20,p:3.60},{t:0,p:7.30},{t:20,p:13.20},{t:40,p:22.00}] },
+    'R454C': { name:'R454C', color:'#e11d48', cat:'BLEND', gwp:148,  glide:5.8, safety:'A2L', status:'ok', composition:'R32/R1234yf', desc:'Bas GWP', table:[{t:-40,p:1.05},{t:-20,p:2.55},{t:0,p:5.35},{t:20,p:9.85},{t:40,p:16.50}] },
+    'R507A': { name:'R507A', color:'#c2410c', cat:'BLEND', gwp:3985, glide:0,   safety:'A1', status:'restrict', composition:'R125/R143a', desc:'Azeotrope froid neg', table:[{t:-40,p:1.393},{t:-30,p:2.117},{t:-20,p:3.097},{t:-10,p:4.386},{t:0,p:6.041},{t:10,p:8.125},{t:20,p:10.700},{t:30,p:13.837},{t:40,p:17.611}] },
+    'R513A': { name:'R513A', color:'#06b6d4', cat:'BLEND', gwp:573,  glide:0,   safety:'A1', status:'ok', composition:'R1234yf/R134a', desc:'Rempl. R134a', table:[{t:-40,p:0.458},{t:-20,p:1.150},{t:0,p:2.475},{t:20,p:4.768},{t:40,p:8.430}] },
+
+    // === HFO ===
+    'R1234yf':{ name:'R1234yf',color:'#f43f5e', cat:'HFO', gwp:1, glide:0, safety:'A2L', status:'ok', composition:'CF3CF=CH2', desc:'Auto rempl. R134a', table:[{t:-40,p:0.565},{t:-30,p:0.900},{t:-20,p:1.377},{t:-10,p:2.034},{t:0,p:2.914},{t:10,p:4.062},{t:20,p:5.527},{t:30,p:7.362},{t:40,p:9.622},{t:50,p:12.367}] },
+    'R1234ze':{ name:'R1234ze',color:'#14b8a6', cat:'HFO', gwp:1, glide:0, safety:'A2L', status:'ok', composition:'CF3CH=CHF', desc:'Chillers', table:[{t:-40,p:0.367},{t:-30,p:0.611},{t:-20,p:0.969},{t:-10,p:1.474},{t:0,p:2.166},{t:10,p:3.084},{t:20,p:4.273},{t:30,p:5.783},{t:40,p:7.665},{t:50,p:9.972}] },
+    'R1233zd':{ name:'R1233zd',color:'#27ae60', cat:'HFO', gwp:1, glide:0, safety:'A1', status:'ok', composition:'CF3CH=CHCl', desc:'Centrifuges', table:[{t:0,p:0.412},{t:20,p:0.843},{t:40,p:1.578},{t:60,p:2.738}] },
+    'R1336mzz':{ name:'R1336mzz',color:'#22c55e', cat:'HFO', gwp:2, glide:0, safety:'A1', status:'ok', composition:'CF3CH=CHCF3', desc:'ORC', table:[{t:20,p:0.418},{t:40,p:0.810},{t:60,p:1.460},{t:80,p:2.460}] },
+
+    // === Naturels ===
+    'R290':  { name:'R290',  color:'#e74c3c', cat:'NAT', gwp:3, glide:0, safety:'A3', status:'ok', composition:'Propane', desc:'INFLAMMABLE', table:[{t:-40,p:1.111},{t:-30,p:1.678},{t:-20,p:2.445},{t:-10,p:3.453},{t:0,p:4.745},{t:10,p:6.366},{t:20,p:8.365},{t:30,p:10.790},{t:40,p:13.694},{t:50,p:17.133}] },
+    'R600':  { name:'R600',  color:'#c0392b', cat:'NAT', gwp:4, glide:0, safety:'A3', status:'ok', composition:'Butane', desc:'INFLAMMABLE', table:[{t:-20,p:0.437},{t:0,p:1.033},{t:20,p:2.078},{t:40,p:3.796},{t:60,p:6.423}] },
+    'R600a': { name:'R600a', color:'#b91c1c', cat:'NAT', gwp:3, glide:0, safety:'A3', status:'ok', composition:'Isobutane', desc:'INFLAMMABLE', table:[{t:-40,p:0.287},{t:-30,p:0.466},{t:-20,p:0.725},{t:-10,p:1.085},{t:0,p:1.570},{t:10,p:2.206},{t:20,p:3.022},{t:30,p:4.047},{t:40,p:5.312}] },
+    'R717':  { name:'R717',  color:'#16a34a', cat:'NAT', gwp:0, glide:0, safety:'B2L', status:'ok', composition:'NH3', desc:'TOXIQUE', table:[{t:-40,p:0.716},{t:-30,p:1.194},{t:-20,p:1.900},{t:-10,p:2.906},{t:0,p:4.292},{t:10,p:6.148},{t:20,p:8.570},{t:30,p:11.665},{t:40,p:15.545},{t:50,p:20.330}] },
+    'R744':  { name:'R744',  color:'#6b7280', cat:'NAT', gwp:1, glide:0, safety:'A1', status:'ok', composition:'CO2', desc:'Transcritique', isCO2:true, table:[{t:-56,p:5.306},{t:-46,p:8.002},{t:-36,p:11.607},{t:-26,p:16.293},{t:-16,p:22.237},{t:-6,p:29.632},{t:4,p:38.688},{t:14,p:49.658},{t:24,p:62.877}] },
+    'R718':  { name:'R718',  color:'#0ea5e9', cat:'NAT', gwp:0, glide:0, safety:'A1', status:'ok', composition:'H2O', desc:'Centrifuges', table:[{t:5,p:0.00872},{t:20,p:0.0234},{t:40,p:0.0738},{t:60,p:0.199},{t:80,p:0.474},{t:100,p:1.013}] }
+};
+
+// ==================================================
+// APPLICATION - OPTIMISÉE PERFORMANCE
+// ==================================================
+
+const APP = {
+    activeFluids: ['R134a', 'R410A', 'R404A', 'R32'],
+    currentP: 10.00,
+    pMin: -1,
+    pMax: 30,
+    patm: 1.013,
+    mode: 'gauge',
+    step: 0.5,
+    refFluid: 'R134a',
+    isDragging: false,
+    rafId: null
+};
+
+// Helpers
+const toAbs = (p) => APP.mode === 'gauge' ? p + APP.patm : p;
+const toDisplay = (pAbs) => APP.mode === 'gauge' ? pAbs - APP.patm : pAbs;
+const pToPercent = (p) => ((p - APP.pMin) / (APP.pMax - APP.pMin)) * 100;
+const percentToP = (pct) => APP.pMin + (pct / 100) * (APP.pMax - APP.pMin);
+
+function interpolate(table, inKey, outKey, val) {
+    for (let i = 0; i < table.length - 1; i++) {
+        if (val >= table[i][inKey] && val <= table[i+1][inKey]) {
+            const r = (val - table[i][inKey]) / (table[i+1][inKey] - table[i][inKey]);
+            return { ok: true, value: table[i][outKey] + r * (table[i+1][outKey] - table[i][outKey]) };
+        }
+    }
+    return { ok: false };
+}
+
+function T2P(key, t) {
+    const f = FLUIDS[key]; if (!f) return { ok: false };
+    // Essayer cerveau_v5 (Antoine, plus precis)
+    if (window.ManoPubCerveau) {
+        try {
+            var cf = ManoPubCerveau.getFluid(key);
+            if (cf) {
+                var plage = cf.thermo.antoine_plage;
+                if (t >= plage[0] && t <= plage[1]) {
+                    var pAbs = ManoPubCerveau.calcPression(t, cf);
+                    if (isFinite(pAbs)) return { ok: true, pAbs: pAbs, pDisplay: toDisplay(pAbs) };
+                }
+            }
+        } catch(e) {}
+    }
+    // Fallback: interpolation table
+    const tbl = f.table;
+    if (t < tbl[0].t || t > tbl[tbl.length-1].t) return { ok: false };
+    const r = interpolate(tbl, 't', 'p', t);
+    return r.ok ? { ok: true, pAbs: r.value, pDisplay: toDisplay(r.value) } : r;
+}
+
+function P2T(key, pDisp) {
+    const f = FLUIDS[key]; if (!f) return { ok: false, error: 'Inconnu' };
+    const pAbs = toAbs(pDisp);
+    if (f.isCO2 && pAbs > 73.8) return { ok: false, error: 'Transcritique' };
+    const g = f.glide || 0;
+    // Essayer cerveau_v5 (Antoine, plus precis)
+    if (window.ManoPubCerveau) {
+        try {
+            var cf = ManoPubCerveau.getFluid(key);
+            if (cf) {
+                var temp = ManoPubCerveau.calcTemperature(pAbs, cf);
+                if (isFinite(temp)) {
+                    var cg = cf.thermo.glide || 0;
+                    return { ok: true, temp: temp, tBubble: temp - cg/2, tDew: temp + cg/2, glide: cg };
+                }
+            }
+        } catch(e) {}
+    }
+    // Fallback: interpolation table
+    const tbl = f.table;
+    if (pAbs < tbl[0].p) return { ok: false, error: 'P basse' };
+    if (pAbs > tbl[tbl.length-1].p) return { ok: false, error: 'P haute' };
+    const r = interpolate(tbl, 'p', 't', pAbs);
+    if (!r.ok) return { ok: false, error: 'Hors plage' };
+    return { ok: true, temp: r.value, tBubble: r.value - g/2, tDew: r.value + g/2, glide: g };
+}
+
+function snapToGrid(p) {
+    const range = APP.pMax - APP.pMin;
+    const snapStep = range > 40 ? 1 : range > 20 ? 0.5 : range > 10 ? 0.2 : range > 5 ? 0.1 : 0.05;
+    return Math.round(p / snapStep) * snapStep;
+}
+
+// ==================================================
+// INIT
+// ==================================================
+function init() {
+    renderFluidsGrids();
+    setupInputs();
+    setupCursor();
+    rebuildAll();
+    loadPreferences();
+}
+
+function renderFluidsGrids() {
+    const grids = { CFC:'gridCFC', HCFC:'gridHCFC', HFC:'gridHFC', BLEND:'gridBLEND', HFO:'gridHFO', NAT:'gridNAT' };
+    for (const cat in grids) { document.getElementById(grids[cat]).innerHTML = ''; }
+    
+    for (const k in FLUIDS) {
+        const f = FLUIDS[k];
+        const grid = document.getElementById(grids[f.cat]);
+        if (!grid) continue;
+        
+        const active = APP.activeFluids.includes(k);
+        const chip = document.createElement('div');
+        chip.className = 'fluid-chip' + (active ? ' active' : '');
+        chip.style.background = f.color;
+        chip.style.borderColor = f.color;
+        chip.style.color = 'white';
+        chip.innerHTML = `<span class="status-dot status-${f.status}"></span>${f.name}`;
+        chip.onclick = () => toggleFluid(k);
+        grid.appendChild(chip);
+    }
+}
+
+function toggleFluid(k) {
+    const i = APP.activeFluids.indexOf(k);
+    if (i === -1) APP.activeFluids.push(k);
+    else if (APP.activeFluids.length > 1) APP.activeFluids.splice(i, 1);
+    
+    if (!APP.activeFluids.includes(APP.refFluid)) APP.refFluid = APP.activeFluids[0];
+    
+    renderFluidsGrids();
+    rebuildAll();
+    savePreferences();
+}
+
+function setupInputs() {
+    document.getElementById('pressureInput').addEventListener('input', function() {
+        APP.currentP = parseFloat(this.value) || 0;
+        updateCursorAndResults();
+    });
+}
+
+function adjustP(direction) {
+    APP.currentP = Math.round((APP.currentP + direction * APP.step) * 100) / 100;
+    APP.currentP = Math.max(APP.pMin, Math.min(APP.pMax, APP.currentP));
+    document.getElementById('pressureInput').value = APP.currentP.toFixed(2);
+    updateCursorAndResults();
+}
+
+function setStep(step) {
+    APP.step = step;
+    document.querySelectorAll('.step-btn').forEach(btn => {
+        btn.classList.toggle('active', parseFloat(btn.dataset.step) === step);
+    });
+}
+
+// ==================================================
+// SEPARATION REBUILD / UPDATE (PERFORMANCE)
+// ==================================================
+
+// Rebuild complet (changement pMin/pMax/mode/patm/fluids)
+function rebuildAll() {
+    APP.mode = document.getElementById('pressureMode').value;
+    APP.patm = parseFloat(document.getElementById('patmInput').value) || 1.013;
+    APP.pMin = parseFloat(document.getElementById('pMinInput').value) || -1;
+    APP.pMax = parseFloat(document.getElementById('pMaxInput').value) || 30;
+    
+    renderScaleMarks();
+    renderFluidLines();
+    updateCursorAndResults();
+}
+
+// Update leger (drag curseur)
+function updateCursorAndResults() {
+    updateCursor();
+    updateDisplays();
+    updateResults();
+}
+
+function renderScaleMarks() {
+    const c = document.getElementById('scaleMarks');
+    c.innerHTML = '';
+    const range = APP.pMax - APP.pMin;
+    
+    let config;
+    if (range > 60) config = { major: 20, medium: 10, minor: 5 };
+    else if (range > 40) config = { major: 10, medium: 5, minor: 2 };
+    else if (range > 20) config = { major: 5, medium: 2, minor: 1 };
+    else if (range > 10) config = { major: 2, medium: 1, minor: 0.5 };
+    else if (range > 5) config = { major: 1, medium: 0.5, minor: 0.2 };
+    else config = { major: 0.5, medium: 0.2, minor: 0.1 };
+    
+    for (let p = Math.ceil(APP.pMin / config.minor) * config.minor; p <= APP.pMax; p = Math.round((p + config.minor) * 1000) / 1000) {
+        const pct = pToPercent(p);
+        if (pct < 0 || pct > 100) continue;
+        const pRound = Math.round(p * 1000) / 1000;
+        let type = 'minor';
+        if (Math.abs(pRound % config.major) < 0.001) type = 'major';
+        else if (Math.abs(pRound % config.medium) < 0.001) type = 'medium';
+        
+        const m = document.createElement('div');
+        m.className = 'scale-mark ' + type;
+        m.style.left = pct + '%';
+        if (type === 'major') {
+            const displayVal = (Math.abs(pRound % 1) < 0.001) ? Math.round(pRound) : pRound.toFixed(1);
+            m.innerHTML = `<div class="tick"></div><div class="val">${displayVal}</div>`;
+        } else {
+            m.innerHTML = '<div class="tick"></div>';
+        }
+        c.appendChild(m);
+    }
+}
+
+function renderFluidLines() {
+    const c = document.getElementById('fluidLines');
+    c.innerHTML = '';
+    const showMode = document.getElementById('showTempMarkers').value;
+    
+    APP.activeFluids.forEach(k => {
+        const f = FLUIDS[k];
+        const row = document.createElement('div');
+        row.className = 'fluid-line';
+        row.innerHTML = `<div class="fluid-line-label" style="background:${f.color}">${f.name}</div><div class="fluid-line-scale" id="fscale-${k}"></div>`;
+        c.appendChild(row);
+        
+        // Afficher graduations selon l'option
+        if (showMode === 'all' || (showMode === 'ref' && k === APP.refFluid)) {
+            renderTempMarkers(k, f);
+        }
+    });
+}
+
+function renderTempMarkers(k, f) {
+    const s = document.getElementById('fscale-' + k);
+    if (!s) return;
+    
+    // Determiner la plage T visible via le cerveau ou les tables
+    const pMinAbs = toAbs(APP.pMin), pMaxAbs = toAbs(APP.pMax);
+    let tMin = null, tMax = null;
+    
+    // Essayer cerveau d'abord
+    if (window.ManoPubCerveau) {
+        try {
+            var cf = ManoPubCerveau.getFluid(k);
+            if (cf) {
+                var plage = cf.thermo.antoine_plage;
+                // T correspondant aux pressions min/max
+                var tAtPmin = ManoPubCerveau.calcTemperature(pMinAbs, cf);
+                var tAtPmax = ManoPubCerveau.calcTemperature(pMaxAbs, cf);
+                if (isFinite(tAtPmin)) tMin = Math.max(tAtPmin, plage[0]);
+                if (isFinite(tAtPmax)) tMax = Math.min(tAtPmax, plage[1]);
+            }
+        } catch(e) {}
+    }
+    
+    // Fallback tables
+    if (tMin === null || tMax === null) {
+        const tbl = f.table;
+        for (let i = 0; i < tbl.length; i++) {
+            if (tbl[i].p >= pMinAbs && tMin === null) tMin = tbl[i].t;
+            if (tbl[i].p <= pMaxAbs) tMax = tbl[i].t;
+        }
+    }
+    
+    if (tMin === null || tMax === null) return;
+    
+    const tRange = Math.abs(tMax - tMin);
+    let config;
+    if (tRange > 100) config = { major: 20, medium: 10, minor: 5 };
+    else if (tRange > 60) config = { major: 20, medium: 10, minor: 5 };
+    else if (tRange > 40) config = { major: 10, medium: 5, minor: 2 };
+    else if (tRange > 20) config = { major: 10, medium: 5, minor: 1 };
+    else if (tRange > 10) config = { major: 5, medium: 2, minor: 1 };
+    else config = { major: 2, medium: 1, minor: 0.5 };
+    
+    const step = config.minor;
+    const startT = Math.ceil(tMin / step) * step;
+    const endT = Math.floor(tMax / step) * step;
+    
+    for (let t = startT; t <= endT; t = Math.round((t + step) * 10) / 10) {
+        const r = T2P(k, t);
+        if (!r.ok || r.pDisplay < APP.pMin || r.pDisplay > APP.pMax) continue;
+        const pct = pToPercent(r.pDisplay);
+        if (pct < 0.5 || pct > 99.5) continue;
+        
+        let type = 'minor';
+        const tRound = Math.round(t * 10) / 10;
+        if (config.major > 0 && Math.abs(tRound % config.major) < 0.01) type = 'major';
+        else if (config.medium > 0 && Math.abs(tRound % config.medium) < 0.01) type = 'medium';
+        
+        const m = document.createElement('div');
+        m.className = 'temp-marker ' + type;
+        m.style.left = pct + '%';
+        
+        if (type === 'major') {
+            const label = (t >= 0 ? '+' : '') + Math.round(t) + '\u00b0';
+            m.innerHTML = '<div class="temp-val" style="color:' + f.color + '">' + label + '</div><div class="temp-tick" style="background:' + f.color + '"></div>';
+        } else if (type === 'medium') {
+            const label = Math.round(t) + '\u00b0';
+            m.innerHTML = '<div class="temp-val" style="color:' + f.color + '">' + label + '</div><div class="temp-tick" style="background:' + f.color + '"></div>';
+        } else {
+            m.innerHTML = '<div class="temp-tick" style="background:' + f.color + '"></div>';
+        }
+        s.appendChild(m);
+    }
+}
+
+// ==================================================
+// CURSEUR avec requestAnimationFrame
+// ==================================================
+function setupCursor() {
+    const cursor = document.getElementById('cursor');
+    const container = document.getElementById('regletteContainer');
+    const scale = document.getElementById('pressureScale');
+    
+    const startDrag = (e) => { APP.isDragging = true; e.preventDefault(); };
+    const endDrag = () => { APP.isDragging = false; };
+    
+    const doDrag = (x) => {
+        if (!APP.isDragging) return;
+        if (APP.rafId) cancelAnimationFrame(APP.rafId);
+        APP.rafId = requestAnimationFrame(() => {
+            const rect = scale.getBoundingClientRect();
+            const pct = Math.max(0, Math.min(100, ((x - rect.left) / rect.width) * 100));
+            APP.currentP = snapToGrid(percentToP(pct));
+            APP.currentP = Math.max(APP.pMin, Math.min(APP.pMax, APP.currentP));
+            document.getElementById('pressureInput').value = APP.currentP.toFixed(2);
+            updateCursorAndResults();
+        });
+    };
+    
+    cursor.addEventListener('mousedown', startDrag);
+    cursor.addEventListener('touchstart', startDrag);
+    document.addEventListener('mousemove', (e) => doDrag(e.clientX));
+    document.addEventListener('touchmove', (e) => doDrag(e.touches[0].clientX));
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchend', endDrag);
+    // Clic sur la barre de pression OU sur les bandes fluides
+    container.addEventListener('click', (e) => { 
+        if (e.target.closest('.fluid-line-label')) return; // pas clic sur le label
+        const rect = scale.getBoundingClientRect();
+        const pct = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+        APP.currentP = snapToGrid(percentToP(pct));
+        APP.currentP = Math.max(APP.pMin, Math.min(APP.pMax, APP.currentP));
+        document.getElementById('pressureInput').value = APP.currentP.toFixed(2);
+        updateCursorAndResults();
+    });
+}
+
+function updateCursor() {
+    const pct = pToPercent(APP.currentP);
+    // Positionner le curseur par rapport a la barre de pression (offset left)
+    const scale = document.getElementById('pressureScale');
+    const container = document.getElementById('regletteContainer');
+    if (scale && container) {
+        const scaleRect = scale.getBoundingClientRect();
+        const contRect = container.getBoundingClientRect();
+        const offsetLeft = scaleRect.left - contRect.left;
+        const pixelPos = offsetLeft + (pct / 100) * scaleRect.width;
+        document.getElementById('cursor').style.left = (pixelPos - 1.5) + 'px';
+    }
+    document.getElementById('cursorValue').textContent = APP.currentP.toFixed(2);
+}
+
+function updateDisplays() {
+    const unit = APP.mode === 'gauge' ? 'bar rel' : 'bar abs';
+    document.getElementById('displayP').textContent = APP.currentP.toFixed(2);
+    document.getElementById('displayPUnit').textContent = unit;
+    if (APP.activeFluids.length > 0) {
+        // Ne changer refFluid que s'il n'est plus actif
+        if (!APP.activeFluids.includes(APP.refFluid)) {
+            APP.refFluid = APP.activeFluids[0];
+        }
+        document.getElementById('refFluidName').textContent = FLUIDS[APP.refFluid].name;
+        const r = P2T(APP.refFluid, APP.currentP);
+        document.getElementById('displayT').textContent = r.ok ? r.temp.toFixed(1) : '--';
+    }
+}
+
+function updateResults() {
+    const g = document.getElementById('resultsGrid');
+    g.innerHTML = '';
+    
+    APP.activeFluids.forEach(k => {
+        const f = FLUIDS[k];
+        const r = P2T(k, APP.currentP);
+        const card = document.createElement('div');
+        card.className = 'result-card' + (r.ok ? '' : ' error');
+        card.style.borderColor = f.color;
+        card.onclick = () => showFluidInfo(k);
+        
+        if (r.ok) {
+            const ts = (r.temp >= 0 ? '+' : '') + r.temp.toFixed(1) + '°C';
+            const gwpClass = f.gwp < 150 ? 'low' : (f.gwp < 2000 ? 'medium' : '');
+            const statusLabel = {banned:'Interdit',restrict:'Restriction',future:'Restr. future',ok:'Perenne'}[f.status];
+            
+            card.innerHTML = `
+                <div class="fluid-header">
+                    <span class="fluid-name" style="color:${f.color}">${f.name}</span>
+                    <span class="safety-badge safety-${f.safety}">${f.safety}</span>
+                </div>
+                <div class="temp-main" style="color:${f.color}">${ts}</div>
+                <div class="temp-footer">
+                    <div class="val-box"><span class="val-label">Bulle</span><span class="val-num">${r.tBubble.toFixed(1)}°C</span></div>
+                    <div class="val-box"><span class="val-label">Rosee</span><span class="val-num">${r.tDew.toFixed(1)}°C</span></div>
+                </div>
+                <div class="info-row">
+                    <span class="info-tag tag-gwp ${gwpClass}">GWP ~${f.gwp}</span>
+                    <span class="info-tag tag-status">${statusLabel}</span>
+                </div>`;
+        } else {
+            card.innerHTML = `<div class="fluid-header"><span class="fluid-name" style="color:${f.color}">${f.name}</span></div><div class="temp-main">${r.error}</div>`;
+        }
+        g.appendChild(card);
+    });
+}
+
+function showFluidInfo(k) {
+    const f = FLUIDS[k];
+    const panel = document.getElementById('fluidInfoPanel');
+    document.getElementById('infoFluidName').innerHTML = `<span style="color:${f.color}">${f.name}</span> - ${f.desc}`;
+    const statusLabel = {banned:'🚫 Interdit',restrict:'⚠️ Restriction',future:'📅 Restr. future',ok:'✅ Perenne'}[f.status];
+    const gwpColor = f.gwp < 150 ? '#27ae60' : (f.gwp < 2000 ? '#e8914a' : '#e74c3c');
+    
+    document.getElementById('fluidInfoGrid').innerHTML = `
+        <div class="info-cell"><div class="label">Composition</div><div class="value">${f.composition}</div></div>
+        <div class="info-cell"><div class="label">Categorie</div><div class="value">${f.cat}</div></div>
+        <div class="info-cell"><div class="label">Securite</div><div class="value" style="font-size:1rem;">${f.safety}</div></div>
+        <div class="info-cell"><div class="label">GWP (indicatif)</div><div class="value" style="color:${gwpColor}">~${f.gwp}</div></div>
+        <div class="info-cell"><div class="label">Glide (K)</div><div class="value">${f.glide}</div></div>
+        <div class="info-cell"><div class="label">Statut</div><div class="value">${statusLabel}</div></div>`;
+    
+    panel.classList.add('visible');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ==================================================
+// STOCKAGE LOCAL (RGPD OK - pas de données personnelles)
+// Version 1 : structure avec versionnement pour évolutions futures
+// ==================================================
+const PREFS_VERSION = 1;
+
+function savePreferences() {
+    try {
+        localStorage.setItem('reglette_prefs', JSON.stringify({
+            v: PREFS_VERSION,
+            activeFluids: APP.activeFluids,
+            pMin: APP.pMin,
+            pMax: APP.pMax,
+            mode: APP.mode,
+            showTempMarkers: document.getElementById('showTempMarkers').value
+        }));
+    } catch(e) {}
+}
+
+function loadPreferences() {
+    try {
+        const saved = localStorage.getItem('reglette_prefs');
+        if (saved) {
+            const prefs = JSON.parse(saved);
+            // Migration si version différente
+            if (!prefs.v || prefs.v < PREFS_VERSION) {
+                console.log('Migration préférences v' + (prefs.v || 0) + ' → v' + PREFS_VERSION);
+            }
+            if (prefs.activeFluids) APP.activeFluids = prefs.activeFluids.filter(k => FLUIDS[k]);
+            if (prefs.pMin !== undefined) document.getElementById('pMinInput').value = prefs.pMin;
+            if (prefs.pMax !== undefined) document.getElementById('pMaxInput').value = prefs.pMax;
+            if (prefs.mode) document.getElementById('pressureMode').value = prefs.mode;
+            if (prefs.showTempMarkers) document.getElementById('showTempMarkers').value = prefs.showTempMarkers;
+            renderFluidsGrids();
+            rebuildAll();
+        }
+    } catch(e) {}
+}
+
+function resetPreferences() {
+    if (confirm('Effacer toutes vos préférences locales ?\n\nLes fluides sélectionnés et la plage de pression seront réinitialisés.')) {
+        try {
+            localStorage.removeItem('reglette_prefs');
+            // Valeurs par défaut
+            APP.activeFluids = ['R134a', 'R410A', 'R404A', 'R32'];
+            APP.pMin = -1;
+            APP.pMax = 30;
+            APP.mode = 'gauge';
+            APP.refFluid = 'R134a';
+            document.getElementById('pMinInput').value = '-1';
+            document.getElementById('pMaxInput').value = '30';
+            document.getElementById('pressureMode').value = 'gauge';
+            document.getElementById('patmInput').value = '1.013';
+            document.getElementById('showTempMarkers').value = 'all';
+            renderFluidsGrids();
+            rebuildAll();
+            alert('✅ Préférences effacées avec succès.');
+        } catch(e) {
+            alert('Erreur lors de la suppression.');
+        }
+    }
+}
+
+// ==================================================
+// LIENS EXTERNES AVEC AVERTISSEMENT (sécurisé)
+// ==================================================
+function openExternal(url) {
+    if (!confirm('Vous allez quitter l\'application pour ouvrir :\n\n' + url + '\n\nContinuer ?')) return;
+    const w = window.open(url, '_blank');
+    if (w) w.opener = null;
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+<script src="site_config.js"></script>
+<script src="ui_shell.js"></script>
+</body>
+</html>

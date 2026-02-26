@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InerWeb Fluide — Charge maximale A2L / R32</title>
+<meta name="description" content="Calcul charge maximale fluides A2L selon EN 378-1 — R32, R454B, R1234yf, R290">
+<meta name="author" content="F. Henninot">
+<link rel="stylesheet" href="theme.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(180deg,#faf7f2 0%,#f0ebe3 100%);color:#0f2d52;font-size:15px;line-height:1.5}
+
+/* NAV */
+
+.main-header{background:linear-gradient(135deg,#e8914a 0%,#f3b07a 50%,#f3b07a 100%);color:white;padding:.8rem 1.5rem;box-shadow:0 4px 20px rgba(255,107,53,0.3);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.header-left{display:flex;align-items:center;gap:.6rem}
+.logo-slot{background:rgba(255,255,255,0.95);border-radius:16px;padding:6px 12px;box-shadow:0 3px 8px rgba(0,0,0,0.1);min-width:60px;min-height:45px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s}
+.logo-slot:hover{transform:translateY(-2px)}
+.logo-slot img{max-height:40px;width:auto}
+.logo-slot.empty{border:2px dashed rgba(255,255,255,0.4);background:rgba(255,255,255,0.15)}
+.logo-slot.empty span{font-size:.55rem;color:rgba(255,255,255,0.7)}
+.header-center{flex:1;text-align:center}
+.header-center h1{margin:0;font-size:1.6rem;font-weight:800;font-family:Impact,'Arial Black',sans-serif;letter-spacing:2px;text-shadow:2px 2px 4px rgba(0,0,0,0.2)}
+.header-center p{margin:.2rem 0 0;font-size:.82rem;opacity:.95}
+.version-badge{display:inline-block;background:#27ae60;color:white;padding:2px 6px;border-radius:4px;font-size:.7rem;font-weight:700;margin-left:.4rem;font-family:system-ui}
+.header-right{background:rgba(0,0,0,0.2);border-radius:16px;padding:8px 14px;backdrop-filter:blur(10px);font-size:.75rem;line-height:1.5}
+nav.main-nav{background:linear-gradient(135deg,#fef3c7,#fde68a);padding:.5rem .8rem;display:flex;justify-content:center;gap:.4rem;flex-wrap:wrap;border-bottom:2px solid #e8914a}
+nav.main-nav a{padding:.35rem .75rem;background:white;border-radius:20px;text-decoration:none;color:#0f2d52;font-weight:600;font-size:.75rem;transition:all .2s;box-shadow:0 2px 4px rgba(0,0,0,.06)}
+nav.main-nav a:hover,nav.main-nav a.active{background:linear-gradient(135deg,#e8914a,#f3b07a);color:white}
+
+.zoom-controls{position:fixed;bottom:20px;right:20px;display:flex;gap:.5rem;z-index:100;background:white;padding:.5rem;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.12)}
+.zoom-btn{width:36px;height:36px;border-radius:50%;border:none;background:linear-gradient(135deg,#e8914a,#f3b07a);color:white;font-size:1.2rem;cursor:pointer;transition:all .3s;display:flex;align-items:center;justify-content:center}
+.zoom-btn:hover{transform:scale(1.1)}
+
+
+/* MAIN */
+.main{max-width:900px;margin:0 auto;padding:1.5rem}
+h1{font-size:1.1rem;color:#0f2d52;margin-bottom:.2rem;display:flex;align-items:center;gap:.4rem}
+.intro{font-size:.78rem;color:#78909c;margin-bottom:1.5rem}
+.ref{font-size:.65rem;color:#b0bec5;font-style:italic}
+
+/* LAYOUT 2 COLONNES */
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem}
+
+/* PANELS */
+.panel{background:#fff;border-radius:12px;padding:1.2rem;border:1px solid #dce3eb}
+.panel h2{font-size:.85rem;color:#0f2d52;font-weight:700;margin-bottom:.8rem;padding-bottom:.4rem;border-bottom:2px solid #e5e7eb;display:flex;align-items:center;gap:.3rem}
+
+/* FORM */
+.field{margin-bottom:.7rem}
+.field label{display:block;font-size:.72rem;font-weight:600;color:#546e7a;margin-bottom:.15rem}
+.field select,.field input{
+    width:100%;padding:.4rem .6rem;border:1px solid #ccc;border-radius:4px;
+    font-size:.8rem;font-family:inherit;background:#fff;transition:border-color .2s;
+}
+.field select:focus,.field input:focus{border-color:#e8914a;outline:none}
+.field .hint{font-size:.6rem;color:#b0bec5;margin-top:.1rem}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+
+/* FICHE FLUIDE */
+.fiche{background:#f5f8fc;border-radius:6px;padding:.6rem;margin-top:.5rem;font-size:.7rem}
+.fiche-row{display:flex;justify-content:space-between;padding:.15rem 0;border-bottom:1px solid #f0ebe3}
+.fiche-row:last-child{border:none}
+.fiche-row .k{color:#78909c;font-weight:500}
+.fiche-row .v{color:#0f2d52;font-weight:700}
+.safety-a1{color:#2e7d32;font-weight:700}
+.safety-a2l{color:#e65100;font-weight:700}
+.safety-a3{color:#c62828;font-weight:700}
+
+/* RESULTATS */
+.result-box{margin-top:.8rem}
+.result-card{
+    border-radius:12px;padding:1rem;margin-bottom:.6rem;
+    border-left:4px solid;
+}
+.result-card h3{font-size:.82rem;font-weight:700;margin-bottom:.3rem;display:flex;align-items:center;gap:.3rem}
+.result-card .val{font-size:1.4rem;font-weight:800;margin:.3rem 0}
+.result-card p{font-size:.7rem;line-height:1.5}
+.result-card .formula{font-size:.62rem;color:#90a4ae;font-family:'Courier New',monospace;margin-top:.3rem}
+
+.rc-ok{background:#e8f5e9;border-color:#27ae60;color:#1b5e20}
+.rc-ok .val{color:#2e7d32}
+.rc-warn{background:#fff3e0;border-color:#ff9800;color:#e65100}
+.rc-warn .val{color:#e65100}
+.rc-danger{background:#ffebee;border-color:#e74c3c;color:#b71c1c}
+.rc-danger .val{color:#c62828}
+.rc-info{background:#e3f2fd;border-color:#2aafaf;color:#0d47a1}
+.rc-info .val{color:#0f2d52}
+
+/* VERDICT */
+.verdict{
+    border-radius:12px;padding:1rem;margin-top:.6rem;
+    text-align:center;font-weight:700;font-size:.9rem;
+}
+.v-ok{background:#c8e6c9;color:#1b5e20;border:2px solid #27ae60}
+.v-detect{background:#ffe0b2;color:#e65100;border:2px solid #ff9800}
+.v-nogo{background:#ffcdd2;color:#b71c1c;border:2px solid #e74c3c}
+.verdict .sub{font-size:.7rem;font-weight:500;margin-top:.3rem;opacity:.8}
+
+/* OBLIGATIONS */
+.oblig{margin-top:.8rem}
+.oblig h3{font-size:.78rem;color:#0f2d52;margin-bottom:.4rem}
+.oblig-item{
+    display:flex;align-items:flex-start;gap:.4rem;
+    padding:.4rem;border-radius:4px;margin-bottom:.3rem;
+    font-size:.7rem;background:#f8f9fa;
+}
+.oblig-item .icon{font-size:.9rem;flex-shrink:0}
+.oblig-item.yes{background:#e8f5e9}
+.oblig-item.no{background:#ffebee}
+.oblig-item.maybe{background:#d4f0e8}
+
+/* TABLE REF */
+.ref-table{width:100%;border-collapse:collapse;font-size:.65rem;margin-top:.6rem}
+.ref-table th{background:#0f2d52;color:#fff;padding:.3rem .4rem;text-align:left;font-weight:600}
+.ref-table td{padding:.25rem .4rem;border-bottom:1px solid #e5e7eb}
+.ref-table tr:hover td{background:#f5f8fc}
+.ref-table .current{background:#fff3e0;font-weight:600}
+
+/* FOOTER */
+.foot{
+    max-width:900px;margin:1.5rem auto 0;padding:1rem;
+    text-align:center;font-size:.65rem;color:#90a4ae;
+    border-top:1px solid #dce3eb;
+}
+
+@media(max-width:768px){
+    .layout{grid-template-columns:1fr}
+    .row2{grid-template-columns:1fr}
+}
+</style>
+<link rel="stylesheet" href="theme_force.css">
+</head>
+<body>
+
+<!-- NAV -->
+<div id="iw-header" data-subtitle="Charge max A2L/A3 — EN 378"></div>
+<nav id="iw-nav"></nav>
+
+<div class="main">
+    <h1>&#128293; Charge maximale — Fluides A2L &amp; A3</h1>
+    
+    <!-- RAPPEL RÉGLEMENTAIRE SIMPLE -->
+    <div style="background:linear-gradient(135deg,#e8f6f2,#d4f0e8);border-left:5px solid #e8914a;border-radius:0 16px 16px 0;padding:1rem 1.2rem;margin-bottom:1rem;font-size:calc(.85rem * var(--font-scale));">
+        <strong style="color:#0f2d52;">&#9878;&#65039; Pourquoi ce calcul ?</strong><br>
+        Les fluides A2L (l&eacute;g&egrave;rement inflammables) et A3 (inflammables) sont soumis &agrave; une <strong>charge maximale autoris&eacute;e</strong> par la norme <strong>EN 378-1</strong> et le r&egrave;glement europ&eacute;en <strong>F-Gas (UE 2024/573)</strong>.<br>
+        Cette limite d&eacute;pend du volume de la pi&egrave;ce, du type d&rsquo;appareil et de son emplacement. <strong>D&eacute;passer la charge maximale est interdit</strong> et dangereux (risque d&rsquo;inflammabilit&eacute;).
+    </div>
+
+    <p class="intro">V&#233;rification de conformit&#233; selon <strong>EN 378-1:2016+A1:2020</strong> — Charge admissible en fonction du volume, du type d&#8217;installation et de la cat&#233;gorie du local.</p>
+    <p class="ref">R&#233;f&#233;rences : EN 378-1 Annexe C &#183; R&#232;glement UE 2024/573 (F-Gas) &#183; ASHRAE 15</p>
+
+    <div class="layout">
+
+        <!-- COLONNE GAUCHE : PARAMETRES -->
+        <div>
+            <div class="panel">
+                <h2>&#9881;&#65039; Param&#232;tres</h2>
+
+                <div class="field">
+                    <label>Fluide frigorig&#232;ne</label>
+                    <select id="selFluid" onchange="calculate()">
+                        <optgroup label="A2L — L&#233;g&#232;rement inflammable">
+                            <option value="R32" selected>R32 (Difluorom&#233;thane)</option>
+                            <option value="R454B">R454B (Opteon XL41)</option>
+                            <option value="R454C">R454C</option>
+                            <option value="R1234yf">R1234yf (HFO)</option>
+                            <option value="R1234ze">R1234ze(E) (HFO)</option>
+                        </optgroup>
+                        <optgroup label="A3 — Inflammable">
+                            <option value="R290">R290 (Propane)</option>
+                            <option value="R600a">R600a (Isobutane)</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <!-- Fiche fluide -->
+                <div class="fiche" id="ficheFluid"></div>
+
+                <div class="field" style="margin-top:.8rem">
+                    <label>Type d&#8217;installation</label>
+                    <select id="selInstall" onchange="calculate()">
+                        <option value="mural" data-h0="2.2">Split mural (h&#8320; &#8776; 2.2 m)</option>
+                        <option value="console" data-h0="0.6">Console sol (h&#8320; &#8776; 0.6 m)</option>
+                        <option value="plafonnier" data-h0="2.5">Gainable / Plafonnier (h&#8320; &#8776; 2.5 m)</option>
+                        <option value="monobloc" data-h0="1.0">Monobloc / Armoire (h&#8320; &#8776; 1.0 m)</option>
+                    </select>
+                    <div class="hint">h&#8320; = hauteur &agrave; laquelle le fluide sort en cas de fuite (d&eacute;pend du type d&rsquo;appareil). Plus c&rsquo;est haut, plus le fluide se disperse &rarr; charge autoris&eacute;e plus grande.</div>
+                </div>
+
+                <div class="field">
+                    <label>Cat&#233;gorie du local</label>
+                    <select id="selCat" onchange="calculate()">
+                        <option value="A">Cat. A — Occupation g&#233;n&#233;rale (habitation, bureau, commerce)</option>
+                        <option value="B">Cat. B — Occupation surveill&#233;e (atelier, laboratoire)</option>
+                        <option value="C">Cat. C — Acc&#232;s autoris&#233; uniquement (salle machines)</option>
+                    </select>
+                </div>
+
+                <div class="row2">
+                    <div class="field">
+                        <label>Surface au sol (m&#178;)</label>
+                        <input type="number" id="inArea" value="20" min="1" max="1000" step="1" oninput="calculate()" inputmode="decimal">
+                    </div>
+                    <div class="field">
+                        <label>Hauteur sous plafond (m)</label>
+                        <input type="number" id="inHeight" value="2.50" min="2" max="10" step="0.1" oninput="calculate()" inputmode="decimal">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Charge pr&#233;vue dans l&#8217;installation (kg)</label>
+                    <input type="number" id="inCharge" value="2.5" min="0" max="100" step="0.1" oninput="calculate()" inputmode="decimal">
+                </div>
+
+                <div class="field">
+                    <label>D&#233;tecteur de fuite install&#233; ?</label>
+                    <select id="selDetect" onchange="calculate()">
+                        <option value="0">Non</option>
+                        <option value="1">Oui — D&#233;tecteur fixe avec alarme + coupure</option>
+                    </select>
+                    <div class="hint">D&#233;tecteur conforme EN 378-3, seuil &#224; 25% LFL, avec coupure automatique</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- COLONNE DROITE : RESULTATS -->
+        <div>
+            <div class="panel">
+                <h2>&#128202; R&#233;sultats</h2>
+                <div id="results"></div>
+            </div>
+
+            <!-- TABLE REFERENCE -->
+            <div class="panel" style="margin-top:.8rem">
+                <h2>&#128218; Table de r&#233;f&#233;rence rapide — R32 mural</h2>
+                <p style="font-size:.65rem;color:#90a4ae;margin-bottom:.4rem">Charge max sans d&#233;tecteur &#183; Split mural (h&#8320;=2.2m) &#183; Cat. A</p>
+                <table class="ref-table">
+                    <tr><th>Surface</th><th>Volume (h=2.5m)</th><th>m<sub>max</sub></th><th>m<sub>abs</sub> (4&#215;LFL&#215;V)</th></tr>
+                </table>
+                <div id="refTableBody"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer id="iw-footer"></footer>
+
+<script>
+/* ================================================
+   INERWEB FLUIDE — MODULE CHARGE MAX A2L / A3
+   EN 378-1:2016+A1:2020 — Annexe C
+   ================================================ */
+
+var FLUIDS = {
+    R32: {
+        nom: "R32", chimique: "Difluorom\u00e9thane", formule: "CH\u2082F\u2082",
+        classe: "A2L", GWP: 675, LFL: 0.306, // kg/m3
+        toxicite: "Faible", odeur: "L\u00e9g\u00e8re",
+        pression_service: "~25 bar (condensation 45\u00b0C)",
+        note: "Fluide principal des splits r\u00e9cents. Remplacement du R410A."
+    },
+    R454B: {
+        nom: "R454B", chimique: "R32/R1234yf (68.9/31.1)", formule: "M\u00e9lange z\u00e9otrope",
+        classe: "A2L", GWP: 466, LFL: 0.323,
+        toxicite: "Faible", odeur: "L\u00e9g\u00e8re",
+        pression_service: "~23 bar",
+        note: "Alternative au R410A \u00e0 GWP r\u00e9duit. Glide ~1.5K."
+    },
+    R454C: {
+        nom: "R454C", chimique: "R32/R1234yf (21.5/78.5)", formule: "M\u00e9lange z\u00e9otrope",
+        classe: "A2L", GWP: 148, LFL: 0.293,
+        toxicite: "Faible", odeur: "L\u00e9g\u00e8re",
+        pression_service: "~12 bar",
+        note: "Tr\u00e8s bas GWP. Remplacement R404A en froid commercial."
+    },
+    R1234yf: {
+        nom: "R1234yf", chimique: "2,3,3,3-T\u00e9trafluoroprop\u00e8ne", formule: "CF\u2083CF=CH\u2082",
+        classe: "A2L", GWP: 4, LFL: 0.289,
+        toxicite: "Faible", odeur: "L\u00e9g\u00e8re",
+        pression_service: "~8 bar",
+        note: "HFO ultra-bas GWP. Automobile et petits \u00e9quipements."
+    },
+    R1234ze: {
+        nom: "R1234ze(E)", chimique: "Trans-1,3,3,3-T\u00e9trafluoroprop\u00e8ne", formule: "CHF=CHCF\u2083",
+        classe: "A2L", GWP: 7, LFL: 0.303,
+        toxicite: "Faible", odeur: "Faible",
+        pression_service: "~6 bar",
+        note: "HFO. Chillers et climatisation centralis\u00e9e."
+    },
+    R290: {
+        nom: "R290", chimique: "Propane", formule: "C\u2083H\u2088",
+        classe: "A3", GWP: 3, LFL: 0.038,
+        toxicite: "Faible", odeur: "Oui (odoris\u00e9)",
+        pression_service: "~15 bar",
+        note: "Naturel. Charge tr\u00e8s limit\u00e9e en local occup\u00e9 (EN 378)."
+    },
+    R600a: {
+        nom: "R600a", chimique: "Isobutane", formule: "C\u2084H\u2081\u2080",
+        classe: "A3", GWP: 3, LFL: 0.043,
+        toxicite: "Faible", odeur: "Oui",
+        pression_service: "~4 bar",
+        note: "Naturel. R\u00e9frig\u00e9rateurs domestiques (charge <150g typ.)."
+    }
+};
+
+/* Installation types with release heights */
+var INSTALL = {
+    mural: {h0: 2.2, label: "Split mural"},
+    console: {h0: 0.6, label: "Console sol"},
+    plafonnier: {h0: 2.5, label: "Gainable / Plafonnier"},
+    monobloc: {h0: 1.0, label: "Monobloc / Armoire"}
+};
+
+/* Category factors */
+var CAT_FACTOR = { A: 1.0, B: 1.5, C: 3.0 };
+var CAT_LABEL = {
+    A: "Cat. A \u2014 Occupation g\u00e9n\u00e9rale",
+    B: "Cat. B \u2014 Occupation surveill\u00e9e",
+    C: "Cat. C \u2014 Acc\u00e8s autoris\u00e9"
+};
+
+/**
+ * Calcul charge max EN 378-1 Annexe C (m\u00e9thode simplifi\u00e9e p\u00e9dagogique)
+ * m_max = 2.5 * LFL^(5/4) * sqrt(h0) * sqrt(A) * facteur_cat
+ * m_abs = 4 * LFL * V (limite absolue)
+ */
+function calcChargeMax(fluid, h0, area, height, cat, hasDetector) {
+    var LFL = fluid.LFL;
+    var V = area * height;
+
+    // Charge max sans detecteur (EN 378-1 Annex C, Table C.1)
+    var m_max_base = 2.5 * Math.pow(LFL, 1.25) * Math.sqrt(h0) * Math.sqrt(area);
+
+    // Facteur categorie
+    var m_max = m_max_base * CAT_FACTOR[cat];
+
+    // Avec detecteur conforme : facteur x1.5 (EN 378-1 sect. 6.2.3)
+    var m_max_detect = m_max * 1.5;
+
+    // Limite absolue (ne peut jamais etre depassee)
+    var m_abs = 4.0 * LFL * V;
+
+    // Pour A3, limite supplementaire EN 378 : max 1.5 kg en cat A (sans detecteur)
+    var a3_limit = null;
+    if (fluid.classe === "A3" && cat === "A") {
+        a3_limit = 1.5; // kg, limite pratique EN 378
+    }
+
+    // Charge effective applicable
+    var m_applicable = hasDetector ? Math.min(m_max_detect, m_abs) : Math.min(m_max, m_abs);
+
+    // Appliquer limite A3
+    if (a3_limit !== null && !hasDetector) {
+        m_applicable = Math.min(m_applicable, a3_limit);
+    }
+
+    return {
+        m_max_sans_detect: Math.round(m_max * 100) / 100,
+        m_max_avec_detect: Math.round(m_max_detect * 100) / 100,
+        m_abs: Math.round(m_abs * 100) / 100,
+        m_applicable: Math.round(m_applicable * 100) / 100,
+        volume: Math.round(V * 10) / 10,
+        h0: h0,
+        a3_limit: a3_limit
+    };
+}
+
+function calculate() {
+    var fluidKey = document.getElementById("selFluid").value;
+    var fluid = FLUIDS[fluidKey];
+    var installKey = document.getElementById("selInstall").value;
+    var h0 = INSTALL[installKey].h0;
+    var cat = document.getElementById("selCat").value;
+    var area = parseFloat(document.getElementById("inArea").value) || 20;
+    var height = parseFloat(document.getElementById("inHeight").value) || 2.5;
+    var charge = parseFloat(document.getElementById("inCharge").value) || 0;
+    var hasDetect = document.getElementById("selDetect").value === "1";
+
+    // Fiche fluide
+    var safetyClass = fluid.classe === "A1" ? "safety-a1" : (fluid.classe === "A3" ? "safety-a3" : "safety-a2l");
+    document.getElementById("ficheFluid").innerHTML =
+        '<div class="fiche-row"><span class="k">Classe</span><span class="v ' + safetyClass + '">' + fluid.classe + '</span></div>' +
+        '<div class="fiche-row"><span class="k">GWP</span><span class="v">' + fluid.GWP + '</span></div>' +
+        '<div class="fiche-row"><span class="k">LFL</span><span class="v">' + fluid.LFL + ' kg/m\u00b3</span></div>' +
+        '<div class="fiche-row"><span class="k">Formule</span><span class="v">' + fluid.formule + '</span></div>' +
+        '<div class="fiche-row"><span class="k">Note</span><span class="v" style="font-weight:400;font-size:.62rem">' + fluid.note + '</span></div>';
+
+    // Calcul
+    var r = calcChargeMax(fluid, h0, area, height, cat, hasDetect);
+    var V = r.volume;
+
+    // Build results HTML
+    var html = '';
+
+    // Charge max applicable
+    html += '<div class="result-card rc-info">';
+    html += '<h3>&#128207; Charge maximale admissible</h3>';
+    html += '<div class="val">' + r.m_applicable.toFixed(2) + ' kg</div>';
+    html += '<p>' + (hasDetect ? 'Avec d\u00e9tecteur conforme' : 'Sans d\u00e9tecteur') + ' \u2014 ' + CAT_LABEL[cat] + '</p>';
+    html += '<div class="formula">m = 2.5 \u00d7 LFL\u00b9\u00b7\u00b2\u2075 \u00d7 \u221ah\u2080 \u00d7 \u221aA \u00d7 f_cat'
+        + (hasDetect ? ' \u00d7 1.5' : '')
+        + ' = 2.5 \u00d7 ' + fluid.LFL + '\u00b9\u00b7\u00b2\u2075 \u00d7 \u221a' + h0 + ' \u00d7 \u221a' + area + '</div>';
+    html += '</div>';
+
+    // Detail sans/avec detecteur
+    html += '<div class="result-card rc-ok">';
+    html += '<h3>&#9989; Sans d\u00e9tecteur</h3>';
+    html += '<div class="val">' + r.m_max_sans_detect.toFixed(2) + ' kg</div>';
+    if (r.a3_limit) html += '<p>&#9888;&#65039; Limit\u00e9 \u00e0 ' + r.a3_limit + ' kg (A3 en local occup\u00e9)</p>';
+    html += '</div>';
+
+    html += '<div class="result-card rc-warn">';
+    html += '<h3>&#128270; Avec d\u00e9tecteur (&#215;1.5)</h3>';
+    html += '<div class="val">' + r.m_max_avec_detect.toFixed(2) + ' kg</div>';
+    html += '<p>D\u00e9tecteur EN 378-3, seuil 25% LFL, coupure auto</p>';
+    html += '</div>';
+
+    html += '<div class="result-card rc-danger">';
+    html += '<h3>&#9940; Limite absolue</h3>';
+    html += '<div class="val">' + r.m_abs.toFixed(2) + ' kg</div>';
+    html += '<p>4 \u00d7 LFL \u00d7 V = 4 \u00d7 ' + fluid.LFL + ' \u00d7 ' + V + ' m\u00b3 \u2014 Ne peut jamais \u00eatre d\u00e9pass\u00e9e</p>';
+    html += '</div>';
+
+    // VERDICT
+    var mRef = hasDetect ? r.m_max_avec_detect : r.m_max_sans_detect;
+    if (r.a3_limit && !hasDetect) mRef = Math.min(mRef, r.a3_limit);
+    mRef = Math.min(mRef, r.m_abs);
+
+    if (charge <= 0) {
+        html += '<div class="verdict v-ok"><div>Saisissez la charge pr\u00e9vue</div></div>';
+    } else if (charge > r.m_abs) {
+        html += '<div class="verdict v-nogo">&#9940; INTERDIT<div class="sub">'
+            + charge.toFixed(2) + ' kg d\u00e9passe la limite absolue de ' + r.m_abs.toFixed(2) + ' kg pour ce volume ('
+            + V + ' m\u00b3).<br>R\u00e9duire la charge ou augmenter le volume du local.</div></div>';
+    } else if (charge > mRef && !hasDetect) {
+        // Check si avec detecteur ca passerait
+        var mRefDetect = Math.min(r.m_max_avec_detect, r.m_abs);
+        if (charge <= mRefDetect) {
+            html += '<div class="verdict v-detect">&#9888;&#65039; D\u00c9TECTEUR OBLIGATOIRE<div class="sub">'
+                + charge.toFixed(2) + ' kg d\u00e9passe ' + r.m_max_sans_detect.toFixed(2) + ' kg (sans d\u00e9tecteur).<br>'
+                + 'Avec d\u00e9tecteur conforme EN 378-3 : admissible jusqu\'\u00e0 ' + mRefDetect.toFixed(2) + ' kg.</div></div>';
+        } else {
+            html += '<div class="verdict v-nogo">&#9940; CHARGE EXCESSIVE<div class="sub">'
+                + charge.toFixed(2) + ' kg d\u00e9passe m\u00eame avec d\u00e9tecteur (' + mRefDetect.toFixed(2) + ' kg).<br>'
+                + 'R\u00e9duire la charge ou changer de fluide.</div></div>';
+        }
+    } else if (charge > mRef && hasDetect) {
+        html += '<div class="verdict v-nogo">&#9940; CHARGE EXCESSIVE<div class="sub">'
+            + charge.toFixed(2) + ' kg d\u00e9passe ' + mRef.toFixed(2) + ' kg m\u00eame avec d\u00e9tecteur.</div></div>';
+    } else {
+        html += '<div class="verdict v-ok">&#9989; CONFORME<div class="sub">'
+            + charge.toFixed(2) + ' kg \u2264 ' + mRef.toFixed(2) + ' kg \u2014 Charge admissible'
+            + (hasDetect ? ' (avec d\u00e9tecteur)' : '') + '.</div></div>';
+    }
+
+    // Obligations
+    html += '<div class="oblig"><h3>Obligations associ\u00e9es</h3>';
+
+    // Detecteur
+    var detectNeeded = charge > r.m_max_sans_detect;
+    html += '<div class="oblig-item ' + (detectNeeded ? 'no' : 'yes') + '">';
+    html += '<div class="icon">' + (detectNeeded ? '&#128308;' : '&#128994;') + '</div>';
+    html += '<div>D\u00e9tecteur de fuite fixe : <strong>' + (detectNeeded ? 'OBLIGATOIRE' : 'Non obligatoire') + '</strong>'
+        + (detectNeeded ? ' (charge > ' + r.m_max_sans_detect.toFixed(2) + ' kg)' : '') + '</div></div>';
+
+    // Ventilation
+    var ventNeeded = fluid.classe === "A3" || (fluid.classe === "A2L" && charge > 1.0);
+    html += '<div class="oblig-item ' + (ventNeeded ? 'maybe' : 'yes') + '">';
+    html += '<div class="icon">' + (ventNeeded ? '&#128992;' : '&#128994;') + '</div>';
+    html += '<div>Ventilation m\u00e9canique : <strong>' + (ventNeeded ? 'Recommand\u00e9e / V\u00e9rifier' : 'Standard') + '</strong></div></div>';
+
+    // Signalisation
+    html += '<div class="oblig-item maybe"><div class="icon">&#128992;</div>';
+    html += '<div>Signal\u00e9tique : <strong>Affichage fluide ' + fluid.classe + ' obligatoire</strong> (nom, classe, charge)</div></div>';
+
+    // GWP > 150 : fgas
+    if (fluid.GWP > 150) {
+        var tco2e = (charge * fluid.GWP / 1000);
+        html += '<div class="oblig-item maybe"><div class="icon">&#128992;</div>';
+        html += '<div>F-Gas : ' + tco2e.toFixed(2) + ' tCO\u2082e'
+            + (tco2e >= 5 ? ' \u2014 <strong>Contr\u00f4le d\'\u00e9tanch\u00e9it\u00e9 obligatoire</strong>' : ' \u2014 Sous le seuil de 5 tCO\u2082e')
+            + '</div></div>';
+    }
+
+    html += '</div>';
+
+    document.getElementById("results").innerHTML = html;
+
+    // Reference table
+    buildRefTable(fluid, h0, cat);
+}
+
+function buildRefTable(fluid, h0, cat) {
+    var surfaces = [5, 8, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100];
+    var hRef = 2.5;
+    var currentArea = parseFloat(document.getElementById("inArea").value) || 0;
+
+    var thtml = '<table class="ref-table">';
+    thtml += '<tr><th>Surface</th><th>Volume (h=' + hRef + 'm)</th><th>m<sub>max</sub></th><th>m<sub>abs</sub></th></tr>';
+    surfaces.forEach(function(a) {
+        var V = a * hRef;
+        var m = 2.5 * Math.pow(fluid.LFL, 1.25) * Math.sqrt(h0) * Math.sqrt(a) * CAT_FACTOR[cat];
+        var mabs = 4 * fluid.LFL * V;
+        var isCurrent = (Math.abs(a - currentArea) < 1);
+        thtml += '<tr' + (isCurrent ? ' class="current"' : '') + '>';
+        thtml += '<td>' + a + ' m\u00b2</td>';
+        thtml += '<td>' + V.toFixed(0) + ' m\u00b3</td>';
+        thtml += '<td><strong>' + m.toFixed(2) + ' kg</strong></td>';
+        thtml += '<td>' + mabs.toFixed(1) + ' kg</td>';
+        thtml += '</tr>';
+    });
+    thtml += '</table>';
+    document.getElementById("refTableBody").innerHTML = thtml;
+}
+
+// Init
+calculate();
+</script>
+
+<div class="zoom-controls"><button class="zoom-btn" onclick="zoom(-1)">&#8722;</button><button class="zoom-btn" onclick="zoom(0)">&#9673;</button><button class="zoom-btn" onclick="zoom(1)">&#43;</button></div>
+<script src="site_config.js">
+
+
+
+
+
+
+</script>
+<script src="site_config.js"></script>
+<script src="ui_shell.js"></script>
+</body>
+</html>

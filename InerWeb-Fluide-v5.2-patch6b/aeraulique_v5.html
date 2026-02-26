@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InerWeb Fluide v5.1 - Aeraulique Professionnel</title>
+    <!-- Polices systeme (RGPD : pas d'appel externe) -->
+    <link rel="stylesheet" href="theme.css">
+<style>
+:root{--accent:#e8914a;--text:#0f2d52;--muted:#6c757d;--bg:#faf7f2;--ok:#27ae60;--warn:#e8914a;--danger:#e74c3c;--info:#3b82f6;--gradient-orange:linear-gradient(135deg,#e8914a 0%,#f3b07a 50%,#f3b07a 100%);--shadow:0 4px 16px rgba(0,0,0,.08)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(180deg,var(--bg),#f0ebe3);min-height:100vh;color:var(--text);font-size:14px;line-height:1.5}
+.main-header{background:var(--gradient-orange);color:#fff;padding:.8rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.8rem}
+.header-left{display:flex;align-items:center;gap:.8rem}
+.logo-card{background:#fff;border-radius:10px;padding:6px;cursor:pointer;transition:transform .2s}
+.logo-card:hover{transform:scale(1.05)} .logo-card img{height:36px;display:block}
+.header-center{flex:1;text-align:center;min-width:200px}
+.header-center h1{font-family:Impact,'Arial Black',sans-serif;font-size:1.8rem;letter-spacing:2px;line-height:1.1}
+.version-badge{background:var(--ok);padding:2px 8px;border-radius:4px;font-size:.75rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif}
+.header-right{text-align:right;font-size:.75rem;opacity:.9}
+
+
+.nav-btn:hover,
+.tabs-bar{display:flex;gap:0;background:#fff;border-radius:12px;overflow:hidden;margin:1rem 0;box-shadow:var(--shadow)}
+.tab-btn{flex:1;padding:.8rem 1rem;border:none;background:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:600;font-size:.9rem;cursor:pointer;transition:.2s;color:var(--muted);border-bottom:3px solid transparent}
+.tab-btn:hover{background:#fff5f0;color:var(--accent)} .tab-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:#fff5f0}
+.tab-page{display:none} .tab-page.active{display:block}
+.container{max-width:1100px;margin:0 auto;padding:1rem}
+.card{background:#fff;border-radius:16px;padding:1.5rem;margin-bottom:1rem;box-shadow:var(--shadow)}
+.card-title{font-size:1.1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;padding-bottom:.5rem;border-bottom:2px solid #eee}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1rem} .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+@media(max-width:768px){.grid-2,.grid-3{grid-template-columns:1fr}}
+label{display:block;font-size:.85rem;font-weight:600;margin-bottom:.3rem}
+.form-help{font-size:.75rem;color:var(--muted);margin-top:.2rem}
+input[type="number"],select{width:100%;padding:.6rem .8rem;border:2px solid #e0e0e0;border-radius:8px;font-size:.9rem;font-family:'Courier New',Consolas,monospace;transition:.2s}
+input:focus,select:focus{border-color:var(--accent);outline:none}
+.btn-group{display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0}
+.select-btn{padding:.6rem 1rem;border:2px solid #e0e0e0;border-radius:10px;background:#fff;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:.85rem;transition:.2s;text-align:center;flex:1;min-width:110px}
+.select-btn:hover{border-color:var(--accent)} .select-btn.active{border-color:var(--accent);background:#fff5f0;color:var(--accent);font-weight:700}
+.btn-calc{padding:.7rem 1.5rem;background:var(--gradient-orange);color:#fff;border:none;border-radius:8px;font-weight:700;font-size:.9rem;cursor:pointer;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;transition:.2s}
+.btn-calc:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(255,107,53,.3)}
+.result-box{background:linear-gradient(135deg,#f0f9ff,#e0f2fe);border:2px solid var(--info);border-radius:12px;padding:1rem;margin-top:.8rem}
+.result-box.hidden{display:none}
+.result-value{font-family:Impact,'Arial Black',sans-serif;font-size:2.5rem;color:var(--info);line-height:1}
+.result-unit{font-size:.85rem;color:var(--muted)}
+.result-detail{font-size:.85rem;margin-top:.3rem;display:flex;justify-content:space-between}
+.result-detail span:last-child{font-family:'Courier New',Consolas,monospace;font-weight:600}
+.formula-box{background:#f8f9fa;border:1px solid #e0e0e0;border-radius:8px;padding:.8rem;font-size:.8rem;color:var(--muted);margin-top:.8rem;font-family:'Courier New',Consolas,monospace}
+.progress-bar{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-bottom:1rem}
+.progress-step{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;background:#e0e0e0;color:var(--muted);transition:.3s}
+.progress-step.done{background:var(--ok);color:#fff} .progress-step.current{background:var(--accent);color:#fff}
+.progress-arrow{width:30px;height:2px;background:#e0e0e0} .progress-arrow.active{background:var(--ok)}
+.method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem;margin-top:.8rem}
+@media(max-width:768px){.method-grid{grid-template-columns:1fr}}
+.method-card{background:#f8f9fa;border:2px solid #e0e0e0;border-radius:10px;padding:.8rem;text-align:center}
+.method-card.recommended{border-color:var(--ok);background:#d1fae5}
+.method-value{font-family:Impact,'Arial Black',sans-serif;font-size:1.8rem;color:var(--text)}
+.method-label{font-size:.75rem;color:var(--muted)}
+.co2-levels{display:flex;gap:.3rem;margin-top:.8rem}
+.co2-level{flex:1;padding:.5rem;border-radius:6px;text-align:center;font-size:.7rem;font-weight:600;opacity:.3;transition:.3s}
+.co2-excellent{background:#c8e6c9;color:#2e7d32} .co2-bon{background:#dcedc8;color:#558b2f} .co2-moyen{background:#fff9c4;color:#f57f17} .co2-mediocre{background:#ffe0b2;color:#e65100} .co2-mauvais{background:#ffcdd2;color:#c62828}
+.vmc-toggle{display:flex;gap:0;margin-bottom:1rem}
+.vmc-btn{flex:1;padding:.6rem;border:2px solid #e0e0e0;background:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:600;font-size:.85rem;cursor:pointer;transition:.2s}
+.vmc-btn:first-child{border-radius:8px 0 0 8px} .vmc-btn:last-child{border-radius:0 8px 8px 0}
+.vmc-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+.main-footer a{color:var(--accent)}
+@media print{.main-header,.tabs-bar,.btn-calc,.tab-page{display:block!important}.card{box-shadow:none;border:1px solid #ddd}}
+@media(max-width:768px){.main-header{padding:.5rem .8rem}.header-center h1{font-size:1.3rem}.logo-card img{height:28px}.tabs-bar{flex-direction:column}}
+@media(max-width:480px){.header-left{display:none}.co2-levels{flex-direction:column}}
+    </style>
+<link rel="stylesheet" href="theme_force.css">
+</head>
+<body>
+<div id="iw-header" data-subtitle="Aéraulique CVC"></div>
+<nav id="iw-nav"></nav>
+<div class="container">
+    <div class="tabs-bar">
+        <button class="tab-btn active" onclick="showTab('clim')">Dimensionnement Gaines</button>
+        <button class="tab-btn" onclick="showTab('vmc')">VMC (DTU 68.3)</button>
+        <button class="tab-btn" onclick="showTab('psychro')">Psychrometrie</button>
+    </div>
+
+    <!-- TAB CLIMATISATION -->
+    <div class="tab-page active" id="tab-clim">
+        <div class="progress-bar">
+            <div class="progress-step current" id="step1">1</div><div class="progress-arrow" id="arrow1"></div>
+            <div class="progress-step" id="step2">2</div><div class="progress-arrow" id="arrow2"></div>
+            <div class="progress-step" id="step3">3</div>
+        </div>
+        <section class="card" id="card-step1">
+            <div class="card-title">Etape 1 - Calcul du Debit d'air</div>
+            <label>Type de local</label>
+            <div class="btn-group">
+                <button class="select-btn active" onclick="selectLocal('residentiel',this)">Residentiel<br><small>3-4 m/s</small></button>
+                <button class="select-btn" onclick="selectLocal('bureau',this)">Bureau<br><small>4-6 m/s</small></button>
+                <button class="select-btn" onclick="selectLocal('commerce',this)">Commerce<br><small>6-8 m/s</small></button>
+                <button class="select-btn" onclick="selectLocal('industriel',this)">Industriel<br><small>8-12 m/s</small></button>
+            </div>
+            <div class="grid-2" style="margin-top:.8rem">
+                <div><label>Puissance frigorifique (kW)</label><input type="number" id="puissance" step="0.1" placeholder="5.2" oninput="calculateDebit()" inputmode="decimal"></div>
+                <div><label>Usage specifique</label><select id="usage" onchange="updateUsage()"><option value="">Selectionner...</option></select></div>
+            </div>
+            <div class="grid-3" style="margin-top:.5rem">
+                <div><label>Delta T (K)</label><input type="number" id="deltaT" value="10" step="0.5" oninput="calculateDebit()" inputmode="decimal"></div>
+                <div><label>Surface (m2)</label><input type="number" id="surface" placeholder="25" oninput="calculateDebit()" inputmode="decimal"></div>
+                <div><label>Hauteur (m)</label><select id="hauteur" onchange="calculateDebit()"><option value="2.5">2.5</option><option value="2.7">2.7</option><option value="3.0">3.0</option><option value="3.5">3.5</option><option value="4.0">4.0</option><option value="5.0">5.0</option></select></div>
+            </div>
+            <div class="grid-2" style="margin-top:.5rem">
+                <div><label>Taux brassage (vol/h)</label><input type="number" id="tauxBrassage" value="6" step="1" oninput="calculateDebit()" inputmode="decimal"></div>
+                <div style="display:flex;align-items:flex-end"><button class="btn-calc" onclick="calculateDebit()" style="width:100%">Calculer</button></div>
+            </div>
+            <div class="result-box hidden" id="debit-result">
+                <div style="display:flex;align-items:baseline;gap:.5rem"><div class="result-value" id="debit-retenu">0</div><div class="result-unit">m3/h (retenu)</div></div>
+                <div class="result-detail"><span>Thermique :</span><span id="debit-thermique">-</span></div>
+                <div class="result-detail"><span>Empirique :</span><span id="debit-empirique">-</span></div>
+                <div class="result-detail"><span>Brassage :</span><span id="debit-brassage">-</span></div>
+                <div class="formula-box">Q = Phi / (rho.Cp.DT) = Phi(W) / (1200 x DT) x 3600</div>
+            </div>
+        </section>
+        <section class="card" id="card-step2" style="opacity:.5">
+            <div class="card-title">Etape 2 - Diametre de Gaine</div>
+            <div class="grid-2">
+                <div><label>Vitesse (m/s)</label><select id="vitesse" onchange="calculateDiametre()"><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="8">8</option><option value="10">10</option><option value="12">12</option></select><div class="form-help" id="vitesse-reco">Reco residentiel : 3-4 m/s</div></div>
+                <div style="display:flex;align-items:flex-end"><button class="btn-calc" onclick="calculateDiametre()" style="width:100%">Calculer</button></div>
+            </div>
+            <div class="result-box hidden" id="diametre-result">
+                <div style="display:flex;align-items:baseline;gap:.5rem"><span style="font-weight:700">Standard :</span><div class="result-value" id="diametre-std">0</div><span class="result-unit">mm</span></div>
+                <div class="result-detail"><span>Calcule :</span><span id="diam-calc">-</span></div>
+                <div class="result-detail"><span>Section :</span><span id="section-val">-</span></div>
+                <div class="result-detail"><span>V reelle :</span><span id="v-reelle">-</span></div>
+                <div class="formula-box">D = sqrt(4Q / pi.v) | Standards : 80,100,125,160,200,250,315,400,500,630,800,1000,1250 mm</div>
+            </div>
+        </section>
+        <section class="card" id="card-step3" style="opacity:.5">
+            <div class="card-title">Etape 3 - Plenum</div>
+            <div class="grid-2">
+                <div><label>Nb departs</label><select id="nbDeparts" onchange="calculatePlenum()"><option value="">--</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="6">6</option><option value="8">8</option></select></div>
+                <div><label>Vitesse plenum (m/s)</label><select id="vitessePlenum" onchange="calculatePlenum()"><option value="1.5">1.5</option><option value="2" selected>2</option><option value="2.5">2.5</option><option value="3">3</option></select><div class="form-help">V plenum &lt; V gaines</div></div>
+            </div>
+            <div class="result-box hidden" id="plenum-result">
+                <div class="method-grid">
+                    <div class="method-card"><div class="method-label">Par vitesse</div><div class="method-value" id="pm1">-</div><div class="method-label">mm</div></div>
+                    <div class="method-card"><div class="method-label">Sections x1.3</div><div class="method-value" id="pm2">-</div><div class="method-label">mm</div></div>
+                    <div class="method-card recommended"><div class="method-label">Repartition x1.5</div><div class="method-value" id="pm3">-</div><div class="method-label">mm (reco)</div></div>
+                </div>
+                <div class="formula-box" style="margin-top:.8rem">DTU 68.3 : Verifier perte de charge (Pa/m) avant validation</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- TAB VMC -->
+    <div class="tab-page" id="tab-vmc">
+        <div class="vmc-toggle">
+            <button class="vmc-btn active" onclick="selVMC('simple',this)">VMC Simple Flux</button>
+            <button class="vmc-btn" onclick="selVMC('double',this)">VMC Double Flux</button>
+        </div>
+        <section class="card">
+            <div class="card-title" id="vmc-title">VMC Simple Flux - RT2012 / RE2020</div>
+            <div class="grid-2">
+                <div><label>Surface cuisine (m2)</label><input type="number" id="surfCuisine" placeholder="12" oninput="calcVMC()" inputmode="decimal"><div class="form-help">Mini : 75 m3/h ou 5 m3/h/m2</div></div>
+                <div><label>Nb pieces principales</label><select id="nbPieces" onchange="calcVMC()"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option></select></div>
+            </div>
+            <div class="grid-3" style="margin-top:.5rem">
+                <div><label>SDB</label><select id="nbSDB" onchange="calcVMC()"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+                <div><label>WC</label><select id="nbWC" onchange="calcVMC()"><option value="1">1</option><option value="2">2</option><option value="3">3</option></select></div>
+                <div><label>Cellier</label><select id="nbCell" onchange="calcVMC()"><option value="0">Non</option><option value="1">Oui</option></select></div>
+            </div>
+            <div id="df-fields" style="display:none;margin-top:.8rem;background:#e8f5e9;padding:1rem;border-radius:10px">
+                <strong>Parametres Double Flux</strong>
+                <div class="grid-2" style="margin-top:.5rem">
+                    <div><label>Surface sejour (m2)</label><input type="number" id="surfSejour" placeholder="35" oninput="calcVMC()" inputmode="decimal"></div>
+                    <div><label>Nb chambres</label><select id="nbCh" onchange="calcVMC()"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select></div>
+                </div>
+                <div class="grid-2" style="margin-top:.5rem">
+                    <div><label>Rendement echangeur (%)</label><input type="number" id="rendEch" value="85" min="50" max="98" oninput="calcVMC()" inputmode="decimal"></div>
+                    <div><label>T ext hiver (C)</label><input type="number" id="tExtH" value="0" oninput="calcVMC()" inputmode="decimal"></div>
+                </div>
+            </div>
+            <button class="btn-calc" onclick="calcVMC()" style="width:100%;margin-top:.8rem">Calculer VMC</button>
+            <div class="result-box hidden" id="vmc-result">
+                <div style="display:flex;align-items:baseline;gap:.5rem"><div class="result-value" id="vmc-ext">0</div><div class="result-unit">m3/h extraction totale</div></div>
+                <div id="vmc-det"></div><div id="vmc-df" style="display:none"></div>
+            </div>
+        </section>
+        <section class="card">
+            <div class="card-title">Reference - Debits DTU 68.3 (arrete 24/03/1982)</div>
+            <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:.8rem">
+                <thead><tr style="background:var(--accent);color:#fff"><th style="padding:.5rem;text-align:left">Pieces</th><th style="padding:.5rem">Cuisine</th><th style="padding:.5rem">SDB</th><th style="padding:.5rem">WC</th><th style="padding:.5rem">Total min</th></tr></thead>
+                <tbody>
+                    <tr><td style="padding:.4rem;font-weight:600">1</td><td style="text-align:center">75</td><td style="text-align:center">15</td><td style="text-align:center">15</td><td style="text-align:center;font-weight:700">35</td></tr>
+                    <tr style="background:#f8f9fa"><td style="padding:.4rem;font-weight:600">2</td><td style="text-align:center">90</td><td style="text-align:center">15</td><td style="text-align:center">15</td><td style="text-align:center;font-weight:700">60</td></tr>
+                    <tr><td style="padding:.4rem;font-weight:600">3</td><td style="text-align:center">105</td><td style="text-align:center">30</td><td style="text-align:center">15</td><td style="text-align:center;font-weight:700">75</td></tr>
+                    <tr style="background:#f8f9fa"><td style="padding:.4rem;font-weight:600">4</td><td style="text-align:center">120</td><td style="text-align:center">30</td><td style="text-align:center">15</td><td style="text-align:center;font-weight:700">90</td></tr>
+                    <tr><td style="padding:.4rem;font-weight:600">5</td><td style="text-align:center">135</td><td style="text-align:center">30</td><td style="text-align:center">15</td><td style="text-align:center;font-weight:700">105</td></tr>
+                    <tr style="background:#f8f9fa"><td style="padding:.4rem;font-weight:600">6</td><td style="text-align:center">135</td><td style="text-align:center">30</td><td style="text-align:center">15</td><td style="text-align:center;font-weight:700">120</td></tr>
+                    <tr><td style="padding:.4rem;font-weight:600">7+</td><td style="text-align:center">135</td><td style="text-align:center">30</td><td style="text-align:center">15</td><td style="text-align:center;font-weight:700">135</td></tr>
+                </tbody>
+            </table></div>
+            <div class="form-help" style="margin-top:.5rem">Debits m3/h - Source : Arrete 24 mars 1982, DTU 68.3</div>
+        </section>
+    </div>
+
+    <!-- TAB PSYCHRO -->
+    <div class="tab-page" id="tab-psychro">
+        <div class="grid-2">
+            <section class="card">
+                <div class="card-title">Hygrometre - Calculs psychrometriques</div>
+                <div class="grid-2">
+                    <div><label>T seche (C)</label><input type="number" id="ts" step="0.1" placeholder="22" oninput="calcPsy()" inputmode="decimal"><div class="form-help">Temperature air</div></div>
+                    <div><label>T humide (C)</label><input type="number" id="th" step="0.1" placeholder="16" oninput="calcPsy()" inputmode="decimal"><div class="form-help">Bulbe humide</div></div>
+                </div>
+                <div><label style="margin-top:.5rem">P atm (hPa)</label><input type="number" id="patm" value="1013.25" step="0.1" oninput="calcPsy()" inputmode="decimal"></div>
+                <div class="result-box hidden" id="psy-res">
+                    <div style="display:flex;align-items:baseline;gap:.5rem"><div class="result-value" id="hr-val">0</div><div class="result-unit">% HR</div></div>
+                    <div class="result-detail"><span>Pvs :</span><span id="pvs-val">-</span></div>
+                    <div class="result-detail"><span>Pv :</span><span id="pv-val">-</span></div>
+                    <div class="result-detail"><span>x :</span><span id="x-val">-</span></div>
+                    <div class="result-detail"><span>h :</span><span id="h-val">-</span></div>
+                    <div class="formula-box">Pvs=exp(23.3265-3802.7/(T+273.18-46.68))<br>Pv=Pvs(Th)-A.P.(Ts-Th), A=6.66e-4</div>
+                </div>
+            </section>
+            <section class="card">
+                <div class="card-title">Point de Rosee &amp; Condensation</div>
+                <div class="grid-2">
+                    <div><label>T ambiante (C)</label><input type="number" id="t-ros" step="0.1" placeholder="20" oninput="calcRos()" inputmode="decimal"></div>
+                    <div><label>HR (%)</label><input type="number" id="hr-ros" min="0" max="100" placeholder="60" oninput="calcRos()" inputmode="decimal"></div>
+                </div>
+                <div class="result-box hidden" id="ros-res">
+                    <div style="display:flex;align-items:baseline;gap:.5rem"><div class="result-value" id="ros-val">0</div><div class="result-unit">C - Rosee</div></div>
+                    <div class="result-detail"><span>Risque :</span><span id="risque-val">-</span></div>
+                    <div class="result-detail"><span>Ecart :</span><span id="ecart-val">-</span></div>
+                    <div class="result-detail"><span>T surf min :</span><span id="tsurf-val">-</span></div>
+                    <div class="result-detail"><span>Confort :</span><span id="confort-val">-</span></div>
+                    <div class="formula-box">Magnus-Tetens : Tr=(b.a)/(a-a), a=17.27, b=237.7</div>
+                </div>
+            </section>
+        </div>
+        <section class="card">
+            <div class="card-title">Simulation CO2 - Qualite Air Interieur</div>
+            <div class="grid-3">
+                <div><label>Volume (m3)</label><input type="number" id="vol-co2" placeholder="50" oninput="calcCO2()" inputmode="decimal"><div class="form-help">S x H</div></div>
+                <div><label>Occupants</label><input type="number" id="nb-occ" placeholder="2" oninput="calcCO2()" inputmode="decimal"></div>
+                <div><label>Debit ventil (m3/h)</label><input type="number" id="deb-vent" placeholder="100" oninput="calcCO2()" inputmode="decimal"></div>
+            </div>
+            <div class="grid-2" style="margin-top:.5rem">
+                <div><label>Activite</label><select id="activ" onchange="calcCO2()"><option value="0.018">Repos</option><option value="0.025" selected>Leger</option><option value="0.040">Modere</option><option value="0.060">Intense</option></select></div>
+                <div><label>Duree (h)</label><input type="number" id="duree-co2" value="8" min="1" max="24" oninput="calcCO2()" inputmode="decimal"></div>
+            </div>
+            <div class="result-box hidden" id="co2-res">
+                <div style="display:flex;align-items:baseline;gap:.5rem"><div class="result-value" id="co2-val">0</div><div class="result-unit">ppm (<span id="co2-dur">0</span>h)</div></div>
+                <div class="result-detail"><span>Production :</span><span id="co2-prod">-</span></div>
+                <div class="result-detail"><span>Renouvellement :</span><span id="co2-tau">-</span></div>
+                <div class="result-detail"><span>Equilibre :</span><span id="co2-eq">-</span></div>
+                <div class="co2-levels" id="co2-lev">
+                    <div class="co2-level co2-excellent">&lt;600<br>Excellent</div>
+                    <div class="co2-level co2-bon">600-800<br>Bon</div>
+                    <div class="co2-level co2-moyen">800-1k<br>Moyen</div>
+                    <div class="co2-level co2-mediocre">1k-1.5k<br>Mediocre</div>
+                    <div class="co2-level co2-mauvais">&gt;1500<br>Mauvais</div>
+                </div>
+                <div class="formula-box" style="margin-top:.8rem">C(t) = Ce + (S/Q)(1-e^(-Qt/V)) | EN 16798 &lt;1000ppm | RE2020 25m3/h/pers</div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<footer id="iw-footer"></footer>
+
+<script>
+// ==================================================
+// AERAULIQUE v5.1 - Gaines + VMC + Psychrometrie
+// F. Henninot - InerWeb Fluide
+// ==================================================
+var DSTD=[80,100,125,160,200,250,315,400,500,630,800,1000,1250];
+var LOCAUX={
+    residentiel:{nom:'Residentiel',v:'3-4',coef:350,u:[{n:'Sejour',t:5,d:10},{n:'Chambre',t:4,d:9},{n:'Cuisine',t:7,d:12},{n:'SDB',t:10,d:12}]},
+    bureau:{nom:'Bureau',v:'4-6',coef:400,u:[{n:'Individuel',t:6,d:10},{n:'Paysager',t:8,d:11},{n:'Reunion',t:12,d:10}]},
+    commerce:{nom:'Commerce',v:'6-8',coef:450,u:[{n:'Magasin',t:10,d:11},{n:'Restaurant',t:18,d:12},{n:'Bar',t:22,d:12}]},
+    industriel:{nom:'Industriel',v:'8-12',coef:500,u:[{n:'Atelier',t:12,d:12},{n:'Production',t:15,d:14},{n:'Labo',t:20,d:10}]}
+};
+var DTU={1:{c:75,m:35},2:{c:90,m:60},3:{c:105,m:75},4:{c:120,m:90},5:{c:135,m:105},6:{c:135,m:120},7:{c:135,m:135}};
+var curL='residentiel',curVMC='simple',calcQ=0;
+
+function showTab(id){
+    var p=document.querySelectorAll('.tab-page'),b=document.querySelectorAll('.tab-btn');
+    for(var i=0;i<p.length;i++)p[i].classList.remove('active');
+    for(var i=0;i<b.length;i++)b[i].classList.remove('active');
+    document.getElementById('tab-'+id).classList.add('active');
+    b[id==='clim'?0:id==='vmc'?1:2].classList.add('active');
+}
+
+// === CLIMATISATION ===
+function selectLocal(t,btn){
+    curL=t;var bs=document.querySelectorAll('.btn-group .select-btn');
+    for(var i=0;i<bs.length;i++)bs[i].classList.remove('active');
+    if(btn)btn.classList.add('active');
+    updUsage();
+    document.getElementById('vitesse-reco').textContent='Reco '+LOCAUX[t].nom+' : '+LOCAUX[t].v+' m/s';
+    calculateDebit();
+}
+function updUsage(){
+    var s=document.getElementById('usage'),L=LOCAUX[curL];
+    s.innerHTML='<option value="">--</option>';
+    for(var i=0;i<L.u.length;i++)s.innerHTML+='<option value="'+i+'">'+L.u[i].n+' ('+L.u[i].t+'v/h, DT='+L.u[i].d+'K)</option>';
+}
+function updateUsage(){
+    var i=document.getElementById('usage').value;if(i==='')return;
+    var u=LOCAUX[curL].u[+i];
+    document.getElementById('tauxBrassage').value=u.t;
+    document.getElementById('deltaT').value=u.d;
+    calculateDebit();
+}
+function calculateDebit(){
+    var P=parseFloat(document.getElementById('puissance').value),dT=parseFloat(document.getElementById('deltaT').value);
+    var S=parseFloat(document.getElementById('surface').value),H=parseFloat(document.getElementById('hauteur').value);
+    var tb=parseFloat(document.getElementById('tauxBrassage').value);
+    if(!P||!dT)return;
+    var d1=(P*1000)/(1200*dT)*3600, d2=P*LOCAUX[curL].coef, d3=0;
+    if(S&&H&&tb)d3=S*H*tb;
+    var ds=[d1,d2];if(d3>0)ds.push(d3);
+    calcQ=Math.max.apply(null,ds);
+    document.getElementById('debit-thermique').textContent=Math.round(d1)+' m3/h';
+    document.getElementById('debit-empirique').textContent=Math.round(d2)+' m3/h';
+    document.getElementById('debit-brassage').textContent=d3>0?Math.round(d3)+' m3/h':'N/A';
+    document.getElementById('debit-retenu').textContent=Math.round(calcQ);
+    document.getElementById('debit-result').classList.remove('hidden');
+    updProg(1);calculateDiametre();
+}
+function calculateDiametre(){
+    if(calcQ<=0)return;
+    var v=parseFloat(document.getElementById('vitesse').value),Q=calcQ/3600;
+    var D=Math.sqrt(4*Q/(Math.PI*v))*1000,Ds=DSTD[DSTD.length-1];
+    for(var i=0;i<DSTD.length;i++){if(DSTD[i]>=D){Ds=DSTD[i];break;}}
+    var sec=Math.PI*Math.pow(Ds/2000,2),vr=Q/sec;
+    document.getElementById('diam-calc').textContent=Math.round(D)+' mm';
+    document.getElementById('diametre-std').textContent=Ds;
+    document.getElementById('section-val').textContent=sec.toFixed(4)+' m2';
+    document.getElementById('v-reelle').textContent=vr.toFixed(2)+' m/s';
+    document.getElementById('diametre-result').classList.remove('hidden');
+    document.getElementById('card-step2').style.opacity='1';
+    updProg(2);calculatePlenum();
+}
+function calculatePlenum(){
+    if(calcQ<=0)return;
+    var nd=parseFloat(document.getElementById('nbDeparts').value),vp=parseFloat(document.getElementById('vitessePlenum').value);
+    if(!nd||!vp)return;
+    var v=parseFloat(document.getElementById('vitesse').value),Q=calcQ/3600;
+    var s1=Q/vp,d1=Math.sqrt(4*s1/Math.PI)*1000;
+    var sd=(Q/nd)/v,s2=sd*nd*1.3,d2=Math.sqrt(4*s2/Math.PI)*1000;
+    var s3=sd*nd*1.5,d3=Math.sqrt(4*s3/Math.PI)*1000;
+    document.getElementById('pm1').textContent=Math.round(d1);
+    document.getElementById('pm2').textContent=Math.round(d2);
+    document.getElementById('pm3').textContent=Math.round(d3);
+    document.getElementById('plenum-result').classList.remove('hidden');
+    document.getElementById('card-step3').style.opacity='1';
+    updProg(3);
+}
+function updProg(s){
+    for(var i=1;i<=3;i++){var e=document.getElementById('step'+i);e.className='progress-step'+(i<s?' done':i===s?' current':'');}
+    document.getElementById('arrow1').className='progress-arrow'+(s>1?' active':'');
+    document.getElementById('arrow2').className='progress-arrow'+(s>2?' active':'');
+}
+
+// === VMC ===
+function selVMC(t,btn){
+    curVMC=t;var bs=document.querySelectorAll('.vmc-btn');
+    for(var i=0;i<bs.length;i++)bs[i].classList.remove('active');
+    if(btn)btn.classList.add('active');
+    document.getElementById('df-fields').style.display=t==='double'?'block':'none';
+    document.getElementById('vmc-title').textContent=t==='simple'?'VMC Simple Flux - RT2012/RE2020':'VMC Double Flux - RT2012/RE2020';
+    calcVMC();
+}
+function calcVMC(){
+    var sc=parseFloat(document.getElementById('surfCuisine').value)||0;
+    var np=parseInt(document.getElementById('nbPieces').value)||3;
+    var ns=parseInt(document.getElementById('nbSDB').value)||1;
+    var nw=parseInt(document.getElementById('nbWC').value)||1;
+    var nc=parseInt(document.getElementById('nbCell').value)||0;
+    var d=DTU[Math.min(np,7)];
+    var qc=Math.max(d.c,sc*5),qs=ns*15,qw=nw*15,qcl=nc*15;
+    var tot=Math.max(qc+qs+qw+qcl,d.m);
+    document.getElementById('vmc-ext').textContent=Math.round(tot);
+    var h='<div class="result-detail"><span>Cuisine :</span><span>'+Math.round(qc)+' m3/h</span></div>';
+    h+='<div class="result-detail"><span>SDB ('+ns+') :</span><span>'+qs+'</span></div>';
+    h+='<div class="result-detail"><span>WC ('+nw+') :</span><span>'+qw+'</span></div>';
+    if(nc>0)h+='<div class="result-detail"><span>Cellier :</span><span>'+qcl+'</span></div>';
+    h+='<div class="result-detail"><span>Min DTU ('+np+'p) :</span><span>'+d.m+' m3/h</span></div>';
+    document.getElementById('vmc-det').innerHTML=h;
+    if(curVMC==='double'){
+        var ss=parseFloat(document.getElementById('surfSejour').value)||0;
+        var nch=parseInt(document.getElementById('nbCh').value)||2;
+        var re=parseFloat(document.getElementById('rendEch').value)||85;
+        var te=parseFloat(document.getElementById('tExtH').value)||0;
+        var qs2=ss>0?Math.max(ss*3,nch*30+60):tot*0.9;
+        var ts=te+(20-te)*re/100;
+        var ek=tot*0.34*(ts-te)/1000;
+        var df='<div style="margin-top:.8rem;padding:.8rem;background:#e8f5e9;border-radius:8px">';
+        df+='<div class="result-detail"><span>Soufflage :</span><span>'+Math.round(qs2)+' m3/h</span></div>';
+        df+='<div class="result-detail"><span>T souffle :</span><span>'+ts.toFixed(1)+' C</span></div>';
+        df+='<div class="result-detail"><span>Economie :</span><span>'+ek.toFixed(2)+' kW</span></div>';
+        df+='</div>';
+        document.getElementById('vmc-df').innerHTML=df;
+        document.getElementById('vmc-df').style.display='block';
+    } else document.getElementById('vmc-df').style.display='none';
+    document.getElementById('vmc-result').classList.remove('hidden');
+}
+
+// === PSYCHROMETRIE ===
+function calcPsy(){
+    var Ts=parseFloat(document.getElementById('ts').value),Th=parseFloat(document.getElementById('th').value),P=parseFloat(document.getElementById('patm').value);
+    if(!isFinite(Ts)||!isFinite(Th)||!isFinite(P))return;
+    var ps=Math.exp(23.3265-3802.7/(Ts+273.18-46.68)),ph=Math.exp(23.3265-3802.7/(Th+273.18-46.68));
+    var pv=ph-6.66e-4*P*(Ts-Th),HR=pv/ps*100;
+    var x=622*pv/(P-pv),h=1.006*Ts+(2501+1.84*Ts)*x/1000;
+    document.getElementById('hr-val').textContent=HR.toFixed(1);
+    document.getElementById('pvs-val').textContent=ps.toFixed(2)+' hPa';
+    document.getElementById('pv-val').textContent=pv.toFixed(2)+' hPa';
+    document.getElementById('x-val').textContent=x.toFixed(1)+' g/kg';
+    document.getElementById('h-val').textContent=h.toFixed(1)+' kJ/kg';
+    document.getElementById('psy-res').classList.remove('hidden');
+}
+function calcRos(){
+    var T=parseFloat(document.getElementById('t-ros').value),HR=parseFloat(document.getElementById('hr-ros').value);
+    if(!isFinite(T)||!isFinite(HR))return;
+    var a=17.27,b=237.7,al=(a*T)/(b+T)+Math.log(HR/100),Tr=(b*al)/(a-al),ec=T-Tr;
+    var ri,co;
+    if(ec<5){ri='Eleve';co='var(--danger)';}else if(ec<10){ri='Moyen';co='var(--warn)';}else{ri='Faible';co='var(--ok)';}
+    var cf;if(HR>=40&&HR<=60&&T>=19&&T<=23)cf='Optimal';else if(HR>=30&&HR<=70&&T>=18&&T<=25)cf='Acceptable';else cf='Hors zone';
+    document.getElementById('ros-val').textContent=Tr.toFixed(1);
+    document.getElementById('risque-val').innerHTML='<span style="color:'+co+';font-weight:700">'+ri+'</span>';
+    document.getElementById('ecart-val').textContent=ec.toFixed(1)+' C';
+    document.getElementById('tsurf-val').textContent=(Tr+2).toFixed(1)+' C';
+    document.getElementById('confort-val').textContent=cf;
+    document.getElementById('ros-res').classList.remove('hidden');
+}
+function calcCO2(){
+    var V=parseFloat(document.getElementById('vol-co2').value),n=parseFloat(document.getElementById('nb-occ').value);
+    var Q=parseFloat(document.getElementById('deb-vent').value),ac=parseFloat(document.getElementById('activ').value);
+    var du=parseFloat(document.getElementById('duree-co2').value);
+    if(!V||!n||!Q||!ac||!du)return;
+    var S=n*ac,Ce=420,tau=Q/V,Ceq=Ce+S*1e6/Q,Ct=Ce+(Ceq-Ce)*(1-Math.exp(-tau*du));
+    document.getElementById('co2-val').textContent=Math.round(Ct);
+    document.getElementById('co2-dur').textContent=du;
+    document.getElementById('co2-prod').textContent=S.toFixed(3)+' m3/h';
+    document.getElementById('co2-tau').textContent=tau.toFixed(2)+' vol/h';
+    document.getElementById('co2-eq').textContent=Math.round(Ceq)+' ppm';
+    var c;if(Ct<600)c='#27ae60';else if(Ct<800)c='#8bc34a';else if(Ct<1000)c='#ffeb3b';else if(Ct<1500)c='#ff9800';else c='#e74c3c';
+    document.getElementById('co2-val').style.color=c;
+    var lv=document.querySelectorAll('.co2-level');for(var i=0;i<lv.length;i++)lv[i].style.opacity='.3';
+    if(Ct<600)document.querySelector('.co2-excellent').style.opacity='1';
+    else if(Ct<800)document.querySelector('.co2-bon').style.opacity='1';
+    else if(Ct<1000)document.querySelector('.co2-moyen').style.opacity='1';
+    else if(Ct<1500)document.querySelector('.co2-mediocre').style.opacity='1';
+    else document.querySelector('.co2-mauvais').style.opacity='1';
+    document.getElementById('co2-res').classList.remove('hidden');
+}
+
+document.addEventListener('DOMContentLoaded',function(){updUsage();});
+</script>
+<script src="site_config.js"></script>
+<script src="ui_shell.js"></script>
+</body>
+</html>

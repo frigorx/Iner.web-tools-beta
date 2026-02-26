@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>InerWeb Fluide — CO₂ & F-Gas</title>
+<link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="theme_force.css">
+<style>
+.co2-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 1rem; }
+@media(max-width:800px) { .co2-layout { grid-template-columns: 1fr; } }
+
+/* Saisie */
+.co2-input-card { background: white; border-radius: var(--radius); padding: 1.2rem; box-shadow: var(--shadow-sm); border-left: 4px solid var(--orange); }
+.co2-input-card h3 { font-size: .88rem; color: var(--navy); margin-bottom: .8rem; }
+.co2-field { margin-bottom: .8rem; }
+.co2-field label { display: block; font-size: .72rem; font-weight: 600; color: var(--text-muted); margin-bottom: .25rem; }
+.co2-field select, .co2-field input[type=number] {
+    width: 100%; padding: .55rem .8rem; border: 2px solid var(--border);
+    border-radius: 8px; font-family: inherit; font-size: .85rem; transition: border .2s;
+}
+.co2-field select:focus, .co2-field input:focus { border-color: var(--orange); outline: none; }
+.co2-toggle { display: flex; align-items: center; gap: .6rem; padding: .5rem .8rem; background: var(--bg-end); border-radius: 8px; cursor: pointer; font-size: .78rem; }
+.co2-toggle input { width: 18px; height: 18px; accent-color: var(--orange); }
+
+/* Résultats */
+.co2-result { background: white; border-radius: var(--radius); padding: 1.2rem; box-shadow: var(--shadow-sm); }
+.co2-big { text-align: center; padding: 1rem; border-radius: var(--radius); margin-bottom: .8rem; }
+.co2-big .value { font-size: 2rem; font-weight: 800; }
+.co2-big .unit { font-size: .8rem; color: var(--text-muted); }
+.co2-big.green { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+.co2-big.green .value { color: #2e7d32; }
+.co2-big.orange { background: linear-gradient(135deg, #fff3e0, #ffe0b2); }
+.co2-big.orange .value { color: #e65100; }
+.co2-big.red { background: linear-gradient(135deg, #ffebee, #ffcdd2); }
+.co2-big.red .value { color: #c62828; }
+
+.co2-detail { padding: .6rem .8rem; border-radius: 8px; margin-bottom: .5rem; font-size: .78rem; line-height: 1.5; }
+.co2-detail.info { background: #e3f2fd; border-left: 3px solid #1976d2; color: #0d47a1; }
+.co2-detail.warn { background: #fff8e1; border-left: 3px solid var(--orange); color: #6d4c00; }
+.co2-detail.ok { background: #e8f5e9; border-left: 3px solid #4caf50; color: #1b5e20; }
+.co2-detail.danger { background: #fce4ec; border-left: 3px solid #c62828; color: #b71c1c; }
+
+/* Fréquence contrôle */
+.freq-table { width: 100%; border-collapse: collapse; font-size: .75rem; margin-top: .5rem; }
+.freq-table th { background: var(--navy); color: white; padding: .5rem; text-align: left; font-weight: 600; }
+.freq-table td { padding: .4rem .5rem; border-bottom: 1px solid var(--border); }
+.freq-table tr.active { background: rgba(232,145,74,.12); font-weight: 700; }
+.freq-table tr:hover { background: rgba(232,145,74,.05); }
+
+/* CERFA */
+.cerfa-card { background: linear-gradient(135deg, #e8f6f2, #d5f0ec); border-radius: var(--radius); padding: 1rem; margin-top: .8rem; border: 2px solid var(--turquoise); }
+.cerfa-card h4 { color: var(--navy); font-size: .82rem; margin-bottom: .5rem; }
+.cerfa-grid { display: grid; grid-template-columns: auto 1fr; gap: .3rem .8rem; font-size: .78rem; }
+.cerfa-grid .label { color: var(--text-muted); font-weight: 600; }
+.cerfa-grid .val { color: var(--navy); font-weight: 700; }
+
+/* Classification badge */
+.class-badge { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem .6rem; border-radius: 20px; font-size: .7rem; font-weight: 700; }
+.class-badge.a1 { background: #4caf50; color: white; }
+.class-badge.a2l { background: #ff9800; color: white; }
+.class-badge.a3 { background: #f44336; color: white; }
+.class-badge.b2l { background: #ff5722; color: white; }
+
+/* Seuils interactifs */
+.seuil-bar { height: 8px; background: #e0e0e0; border-radius: 4px; margin: .8rem 0 .3rem; position: relative; overflow: visible; }
+.seuil-fill { height: 100%; border-radius: 4px; transition: width .5s; position: relative; }
+.seuil-marker { position: absolute; top: -4px; width: 3px; height: 16px; background: var(--navy); border-radius: 2px; }
+.seuil-labels { display: flex; justify-content: space-between; font-size: .6rem; color: var(--text-muted); }
+</style>
+</head>
+<body>
+<div id="iw-header" data-subtitle="CO₂ & Réglementation F-Gas"></div>
+<nav id="iw-nav"></nav>
+
+<main class="iw-main" style="max-width:1000px; margin:0 auto; padding:1rem;">
+
+<section class="iw-section">
+    <h2 class="iw-section-title">🌍 Équivalent CO₂ & Obligations F-Gas</h2>
+    <p class="iw-section-desc">Calculez l'impact environnemental d'une charge de fluide frigorigène et déterminez vos obligations réglementaires selon le règlement européen F-Gas (UE) 517/2014.</p>
+</section>
+
+<div class="co2-layout">
+
+    <!-- COLONNE GAUCHE : Saisie -->
+    <div>
+        <div class="co2-input-card">
+            <h3>⚙️ Paramètres de l'installation</h3>
+
+            <div class="co2-field">
+                <label>Fluide frigorigène</label>
+                <select id="co2Fluid" onchange="calcCO2()"></select>
+            </div>
+
+            <div class="co2-field">
+                <label>Charge en kg</label>
+                <input type="number" id="co2Charge" value="5" min="0.1" max="5000" step="0.1" oninput="calcCO2()">
+            </div>
+
+            <label class="co2-toggle">
+                <input type="checkbox" id="co2Detector" onchange="calcCO2()">
+                🔍 Détecteur de fuite permanent installé
+            </label>
+
+            <div style="margin-top:.8rem">
+                <div class="co2-field">
+                    <label>Type d'application</label>
+                    <select id="co2Application" onchange="calcCO2()">
+                        <option value="froid_commercial">Froid commercial (vitrine, chambre froide)</option>
+                        <option value="froid_industriel">Froid industriel</option>
+                        <option value="clim_fixe">Climatisation fixe (split, VRV)</option>
+                        <option value="pac">Pompe à chaleur</option>
+                        <option value="transport">Transport frigorifique</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tableau fréquences -->
+        <div class="co2-input-card" style="margin-top:1rem; border-left-color:var(--turquoise);">
+            <h3>📋 Fréquence des contrôles d'étanchéité</h3>
+            <p style="font-size:.72rem;color:var(--text-muted);margin-bottom:.5rem">Selon règlement F-Gas (UE) 517/2014, art. 4</p>
+            <table class="freq-table">
+                <thead>
+                    <tr><th>Équivalent CO₂</th><th>Sans détecteur</th><th>Avec détecteur</th></tr>
+                </thead>
+                <tbody>
+                    <tr id="freq-row-0"><td>&lt; 5 t CO₂eq</td><td colspan="2" style="text-align:center;color:var(--text-muted)">Pas d'obligation</td></tr>
+                    <tr id="freq-row-1"><td>5 — 50 t</td><td>Tous les 12 mois</td><td>Tous les 24 mois</td></tr>
+                    <tr id="freq-row-2"><td>50 — 500 t</td><td>Tous les 6 mois</td><td>Tous les 12 mois</td></tr>
+                    <tr id="freq-row-3"><td>≥ 500 t</td><td>Tous les 3 mois</td><td>Tous les 6 mois</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- COLONNE DROITE : Résultats -->
+    <div>
+        <div class="co2-result">
+            <h3 style="font-size:.88rem;color:var(--navy);margin-bottom:.5rem">🌡️ Résultat</h3>
+
+            <div class="co2-big green" id="co2BigDisplay">
+                <div class="value" id="co2Value">0.00</div>
+                <div class="unit">tonnes équivalent CO₂</div>
+            </div>
+
+            <!-- Barre visuelle -->
+            <div style="font-size:.7rem;color:var(--text-muted);font-weight:600">Position sur l'échelle F-Gas :</div>
+            <div class="seuil-bar">
+                <div class="seuil-fill" id="seuilFill" style="width:0%;background:#4caf50;"></div>
+                <div class="seuil-marker" style="left:calc(5/500*100%)"></div>
+                <div class="seuil-marker" style="left:calc(50/500*100%)"></div>
+                <div class="seuil-marker" style="left:100%"></div>
+            </div>
+            <div class="seuil-labels">
+                <span>0</span><span>5t</span><span>50t</span><span>500t+</span>
+            </div>
+
+            <div id="co2Details"></div>
+
+            <!-- CERFA -->
+            <div class="cerfa-card" id="cerfaCard">
+                <h4>📋 Aide CERFA / Fiche d'Intervention</h4>
+                <div class="cerfa-grid" id="cerfaGrid"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Rappel réglementaire -->
+<section class="iw-section" style="margin-top:1.5rem">
+    <h3 class="iw-section-title">📖 Rappel réglementaire F-Gas</h3>
+    <div class="iw-card" style="font-size:.78rem;line-height:1.7">
+        <p>Le <strong>règlement (UE) 517/2014</strong> vise la réduction des émissions de gaz à effet de serre fluorés. Il impose des obligations aux détenteurs d'équipements contenant des HFC :</p>
+        <p><strong>Contrôles d'étanchéité</strong> obligatoires selon la charge en tonnes équivalent CO₂ (charge × GWP / 1000). La présence d'un détecteur de fuite permanent permet de doubler les intervalles.</p>
+        <p><strong>Tenue d'un registre</strong> obligatoire pour toute installation ≥ 5 t CO₂eq : dates d'intervention, quantités manipulées, résultats des contrôles, identité de l'opérateur certifié.</p>
+        <p><strong>Interdictions progressives</strong> de mise sur le marché d'équipements neufs contenant des fluides à GWP élevé (calendrier d'élimination 2020-2030).</p>
+        <p>Le <strong>CERFA n°15497</strong> (Bordereau de Suivi des Déchets — fluides frigorigènes) documente chaque opération de récupération, recyclage ou destruction de fluide.</p>
+    </div>
+</section>
+
+</main>
+
+<footer id="iw-footer"></footer>
+
+<script src="cerveau_v5.js"></script>
+<script src="site_config.js"></script>
+<script src="ui_shell.js"></script>
+<script>
+(function() {
+    var C = (typeof ManoPubCerveau !== 'undefined') ? ManoPubCerveau : null;
+    if (!C) { console.error('ManoPubCerveau non chargé'); return; }
+    var DB = C.DB;
+    var fluidList = C.listFluids();
+
+    var sel = document.getElementById('co2Fluid');
+    var fluids = [];
+    for (var i = 0; i < fluidList.length; i++) {
+        var code = fluidList[i];
+        var d = DB[code];
+        if (!d || !d.regl) continue;
+        fluids.push({
+            code: code, name: d.nom || code, gwp: d.regl.GWP || 0,
+            classe: d.classe || 'A1', odp: d.regl.ODP || 0,
+            lfl: d.regl.LFL || null, huiles: d.regl.huiles || [],
+            cas: d.CAS || '—', type: d.type || ''
+        });
+    }
+    fluids.sort(function(a,b) { return b.gwp - a.gwp; });
+
+    var groups = [
+        { label: 'GWP ≥ 2500 (phase-down)', min: 2500, max: 99999, color: '#e74c3c' },
+        { label: 'GWP 1500–2500', min: 1500, max: 2499, color: '#ff9800' },
+        { label: 'GWP 750–1500', min: 750, max: 1499, color: '#ffc107' },
+        { label: 'GWP 150–750', min: 150, max: 749, color: '#4caf50' },
+        { label: 'GWP < 150 (faible impact)', min: 0, max: 149, color: '#2196f3' }
+    ];
+
+    groups.forEach(function(g) {
+        var items = fluids.filter(function(f) { return f.gwp >= g.min && f.gwp <= g.max; });
+        if (!items.length) return;
+        var og = document.createElement('optgroup');
+        og.label = g.label;
+        items.forEach(function(f) {
+            var opt = document.createElement('option');
+            opt.value = f.code;
+            opt.textContent = f.code + ' — GWP ' + f.gwp + ' (' + f.classe + ')';
+            og.appendChild(opt);
+        });
+        sel.appendChild(og);
+    });
+
+    if (sel.querySelector('option[value="R410A"]')) sel.value = 'R410A';
+    else if (sel.querySelector('option[value="R134a"]')) sel.value = 'R134a';
+
+    var fluidMap = {};
+    fluids.forEach(function(f) { fluidMap[f.code] = f; });
+
+    window.calcCO2 = function() {
+        var code = sel.value;
+        var f = fluidMap[code];
+        if (!f) return;
+
+        var charge = parseFloat(document.getElementById('co2Charge').value) || 0;
+        var hasDetector = document.getElementById('co2Detector').checked;
+        var tCO2 = (charge * f.gwp) / 1000;
+
+        var bigEl = document.getElementById('co2BigDisplay');
+        document.getElementById('co2Value').textContent = tCO2.toFixed(2);
+        bigEl.className = 'co2-big ' + (tCO2 < 5 ? 'green' : tCO2 < 50 ? 'orange' : 'red');
+
+        var pct = Math.min(tCO2 / 500 * 100, 100);
+        var fill = document.getElementById('seuilFill');
+        fill.style.width = pct + '%';
+        fill.style.background = tCO2 < 5 ? '#4caf50' : tCO2 < 50 ? '#ff9800' : tCO2 < 500 ? '#f44336' : '#b71c1c';
+
+        var freq = '', activeRow = -1;
+        if (tCO2 < 5) { freq = "Pas d'obligation"; activeRow = 0; }
+        else if (tCO2 < 50) { freq = hasDetector ? 'Tous les 24 mois' : 'Tous les 12 mois'; activeRow = 1; }
+        else if (tCO2 < 500) { freq = hasDetector ? 'Tous les 12 mois' : 'Tous les 6 mois'; activeRow = 2; }
+        else { freq = hasDetector ? 'Tous les 6 mois' : 'Tous les 3 mois'; activeRow = 3; }
+
+        for (var r = 0; r <= 3; r++) {
+            var row = document.getElementById('freq-row-' + r);
+            if (row) row.className = (r === activeRow) ? 'active' : '';
+        }
+
+        var details = '';
+        var cb = '<span class="class-badge ' + f.classe.toLowerCase().replace(/ /g,'') + '">' + f.classe + '</span>';
+        details += '<div class="co2-detail info"><strong>' + code + '</strong> (' + f.type + ') ' + cb + '<br>';
+        details += 'GWP : <strong>' + f.gwp + '</strong> · Charge : <strong>' + charge + ' kg</strong> · ODP : ' + f.odp;
+        if (f.lfl) details += ' · LFL : ' + f.lfl + ' kg/m³';
+        details += '</div>';
+
+        if (tCO2 >= 5) {
+            details += '<div class="co2-detail warn">';
+            details += '⏰ <strong>Contrôle étanchéité : ' + freq + '</strong><br>';
+            details += '📋 Registre d\'équipement obligatoire<br>';
+            details += '👨‍🔧 Intervention par opérateur certifié';
+            if (hasDetector) details += '<br>✅ Détecteur permanent : intervalles doublés';
+            details += '</div>';
+        } else {
+            details += '<div class="co2-detail ok">✅ <strong>Sous 5 t CO₂eq</strong> — pas d\'obligation. Contrôle annuel recommandé.</div>';
+        }
+
+        if (f.gwp >= 2500) {
+            details += '<div class="co2-detail danger">🚫 <strong>GWP ≥ 2500</strong> — Phase d\'élimination. Interdit en neuf depuis 2020.</div>';
+        } else if (f.gwp >= 750) {
+            details += '<div class="co2-detail warn">⚠️ <strong>GWP ≥ 750</strong> — Restrictions croissantes équipements neufs.</div>';
+        } else if (f.gwp < 150) {
+            details += '<div class="co2-detail ok">💚 <strong>GWP < 150</strong> — Très faible impact climatique</div>';
+        }
+
+        if (f.classe.indexOf('A2L') >= 0 || f.classe === 'A3' || f.classe.indexOf('B2L') >= 0) {
+            details += '<div class="co2-detail warn">🔥 <strong>Inflammable (' + f.classe + ')</strong> — ';
+            details += f.classe === 'A3' ? 'Hautement inflammable, détecteur HC obligatoire.' : 'Charge max selon EN 378.';
+            details += '</div>';
+        }
+
+        document.getElementById('co2Details').innerHTML = details;
+
+        var cerfa = '';
+        cerfa += '<span class="label">Fluide :</span><span class="val">' + code + ' (' + f.name + ')</span>';
+        cerfa += '<span class="label">N° CAS :</span><span class="val">' + f.cas + '</span>';
+        cerfa += '<span class="label">GWP (AR5) :</span><span class="val">' + f.gwp + '</span>';
+        cerfa += '<span class="label">Charge :</span><span class="val">' + charge + ' kg</span>';
+        cerfa += '<span class="label">Éq. CO₂ :</span><span class="val">' + tCO2.toFixed(3) + ' t</span>';
+        cerfa += '<span class="label">Classe :</span><span class="val">' + f.classe + '</span>';
+        cerfa += '<span class="label">Huiles :</span><span class="val">' + (f.huiles.length ? f.huiles.join(', ') : '—') + '</span>';
+        cerfa += '<span class="label">Contrôle :</span><span class="val">' + freq + '</span>';
+        cerfa += '<span class="label">Détecteur :</span><span class="val">' + (hasDetector ? 'Oui' : 'Non') + '</span>';
+        cerfa += '<span class="label">Registre :</span><span class="val">' + (tCO2 >= 5 ? 'Obligatoire' : 'Non obligatoire') + '</span>';
+        document.getElementById('cerfaGrid').innerHTML = cerfa;
+    };
+
+    calcCO2();
+})();
+</script>
+</body>
+</html>

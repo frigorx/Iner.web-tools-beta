@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InerWeb Fluide — Administration</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+    --navy:#1a2332;--navy-light:#243447;--orange:#e8914a;--orange-light:#f5a623;
+    --turquoise:#36b5a0;--green:#4caf50;--red:#e53935;--purple:#9c27b0;
+    --bg:#f4f1ec;--card:#fffdf8;--border:#e0dcd5;--text:#2c3e50;--muted:#7a8a9a;
+    --radius:12px;--shadow:0 2px 12px rgba(0,0,0,.08);
+}
+body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+.hidden{display:none!important;}
+
+/* ===== LOGIN ===== */
+.login-overlay{position:fixed;inset:0;background:linear-gradient(135deg,#1a2332,#243447 50%,#2a4a3e);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.login-box{background:var(--card);border-radius:16px;padding:2.5rem;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center;}
+.login-box h2{color:var(--navy);font-size:1.2rem;margin-bottom:.3rem;}
+.login-box .sub{color:var(--muted);font-size:.78rem;margin-bottom:1.5rem;}
+.login-input{width:100%;padding:.8rem 1rem;border:2px solid var(--border);border-radius:var(--radius);font-family:inherit;font-size:.9rem;text-align:center;letter-spacing:2px;transition:border .3s;}
+.login-input:focus{outline:none;border-color:var(--orange);}
+.login-btn{width:100%;padding:.75rem;margin-top:1rem;border:none;border-radius:var(--radius);background:var(--orange);color:white;font-family:inherit;font-size:.9rem;font-weight:600;cursor:pointer;transition:all .3s;}
+.login-btn:hover{background:#d07a3a;}
+.login-error{color:var(--red);font-size:.75rem;margin-top:.6rem;min-height:1.2rem;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+.shake{animation:shake .4s;}
+
+/* ===== TOOLBAR ===== */
+.adm-toolbar{position:fixed;top:0;left:0;right:0;z-index:1000;background:var(--navy);color:white;display:flex;align-items:center;gap:.5rem;padding:.5rem 1.5rem;box-shadow:0 2px 10px rgba(0,0,0,.3);}
+.adm-toolbar .title{font-size:.85rem;font-weight:600;margin-right:auto;}.adm-toolbar .title span{color:var(--orange);}
+.tb{padding:.4rem .9rem;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:transparent;color:white;font-family:inherit;font-size:.75rem;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.3rem;}
+.tb:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.4);}
+.tb.primary{background:var(--orange);border-color:var(--orange);}.tb.primary:hover{background:#d07a3a;}
+.tb.danger{border-color:var(--red);color:#ff8a80;}.tb.danger:hover{background:rgba(229,57,53,.15);}
+.undo-n{background:rgba(255,255,255,.15);padding:1px 6px;border-radius:10px;font-size:.65rem;}
+
+/* ===== PREVIEW ===== */
+.adm-main{padding-top:52px;}
+
+/* Zones */
+.zone{position:relative;cursor:pointer;transition:outline .2s,box-shadow .2s;outline:2px dashed transparent;outline-offset:4px;}
+.zone:hover{outline-color:var(--orange);box-shadow:0 0 0 4px rgba(232,145,74,.1);}
+.zone:hover .zbadge{opacity:1;transform:translateY(0);}
+.zbadge{position:absolute;top:-8px;right:8px;z-index:50;background:var(--orange);color:white;font-size:.65rem;font-weight:600;padding:2px 10px;border-radius:0 0 8px 8px;opacity:0;transform:translateY(-4px);transition:all .2s;pointer-events:none;}
+
+/* Header preview */
+.ph{background:linear-gradient(135deg,#1a2332,#243447 60%,#2a4a3e);color:white;padding:1rem 2rem;display:flex;align-items:center;gap:1.5rem;min-height:70px;}
+.ph-logos{display:flex;align-items:center;gap:1rem;}
+.ph-ls{width:90px;height:45px;border:1.5px dashed rgba(255,255,255,.3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.55rem;color:rgba(255,255,255,.5);overflow:hidden;}
+.ph-ls img{max-height:40px;max-width:85px;object-fit:contain;}
+.ph-ls.ok{border-style:solid;border-color:rgba(255,255,255,.15);background:rgba(255,255,255,.08);}
+.ph-c{flex:1;text-align:center;}
+.ph-c .br{display:flex;align-items:center;justify-content:center;gap:.5rem;}
+.ph-c .bn{font-size:1rem;font-weight:700;letter-spacing:1px;}
+.ph-c .bf{background:rgba(54,181,160,.2);border:1px solid rgba(54,181,160,.4);padding:1px 8px;border-radius:4px;font-size:.65rem;color:var(--turquoise);}
+.ph-c .ver{display:inline-block;background:var(--orange);color:white;padding:1px 8px;border-radius:10px;font-size:.6rem;font-weight:700;margin-left:.5rem;}
+.ph-c .st{font-size:.75rem;color:rgba(255,255,255,.7);margin-top:.2rem;}
+.ph-info{background:rgba(54,181,160,.1);border:1px solid rgba(54,181,160,.3);border-radius:8px;padding:.5rem .8rem;text-align:right;font-size:.7rem;line-height:1.6;}
+.ph-info strong{color:var(--orange-light);}
+
+/* Video */
+.pv{max-width:800px;margin:1.5rem auto;padding:0 2rem;}
+.pv-c{background:var(--card);border-radius:var(--radius);padding:1.2rem;border-left:4px solid var(--orange);box-shadow:var(--shadow);}
+.pv-c h3{color:var(--orange);font-size:.9rem;margin-bottom:.8rem;}
+.pv-e{background:var(--navy);border-radius:8px;aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);font-size:.8rem;overflow:hidden;}
+.pv-e iframe{width:100%;height:100%;border:none;border-radius:8px;}
+
+/* Modules */
+.pm{max-width:1000px;margin:1.5rem auto;padding:0 2rem;}
+.pm h2{font-size:.95rem;color:var(--navy);margin-bottom:1rem;}
+.pm-g{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:.8rem;}
+.pm-c{background:var(--card);border-radius:var(--radius);padding:.8rem;border-left:4px solid var(--orange);box-shadow:var(--shadow);text-align:center;min-height:100px;}
+.pm-c .ic{font-size:1.5rem;margin-bottom:.3rem;}
+.pm-c .nm{font-size:.8rem;font-weight:600;color:var(--navy);}
+.pm-c .ds{font-size:.65rem;color:var(--muted);margin-top:.2rem;}
+.pm-add{border:2px dashed var(--border);background:transparent;display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--muted);cursor:pointer;min-height:100px;border-radius:var(--radius);transition:all .2s;}
+.pm-add:hover{border-color:var(--orange);color:var(--orange);}
+
+/* Partenaires */
+.pp{max-width:800px;margin:1.5rem auto;padding:0 2rem;}
+.pp-c{background:var(--card);border-radius:var(--radius);padding:1.2rem;border-left:4px solid var(--turquoise);box-shadow:var(--shadow);}
+.pp-c h3{color:var(--turquoise);font-size:.9rem;margin-bottom:.8rem;}
+.pp-g{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;}
+.pp-s{border:1.5px dashed var(--border);border-radius:8px;min-height:60px;display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--muted);overflow:hidden;}
+.pp-s img{max-height:50px;max-width:100%;object-fit:contain;}
+.pp-s.ok{border-style:solid;border-color:var(--border);background:rgba(0,0,0,.01);}
+
+/* Vitrine */
+.pvit{max-width:800px;margin:1.5rem auto;padding:0 2rem;}
+.pvit-p{background:var(--card);border-radius:var(--radius);padding:1.2rem;border-left:4px solid var(--green);box-shadow:var(--shadow);}
+.pvit-p h3{color:var(--green);font-size:.9rem;margin-bottom:.8rem;}
+.pvit-list{display:grid;gap:.5rem;}
+.pvit-c{background:var(--bg);border-radius:8px;padding:.6rem .8rem;border:1px solid var(--border);font-size:.72rem;}
+.pvit-c .tb-col{display:inline-block;padding:1px 6px;border-radius:6px;font-size:.55rem;font-weight:600;margin-right:.3rem;color:white;}
+.pvit-c .ct{font-weight:600;color:var(--navy);font-size:.75rem;}
+
+/* Footer */
+.pf{background:var(--navy);color:rgba(255,255,255,.7);padding:1rem 2rem;text-align:center;font-size:.65rem;margin-top:2rem;line-height:1.6;}
+
+/* ===== EDIT PANEL ===== */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:2000;opacity:0;transition:opacity .3s;pointer-events:none;}
+.ov.open{opacity:1;pointer-events:auto;}
+.ep{position:fixed;top:0;right:-480px;bottom:0;width:460px;max-width:90vw;background:var(--card);z-index:2001;box-shadow:-4px 0 20px rgba(0,0,0,.15);transition:right .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+.ep.open{right:0;}
+.ep-h{background:var(--navy);color:white;padding:.8rem 1.2rem;display:flex;align-items:center;gap:.5rem;}
+.ep-h h3{font-size:.85rem;flex:1;}
+.ep-x{background:none;border:none;color:white;font-size:1.1rem;cursor:pointer;padding:.3rem;opacity:.7;transition:opacity .2s;}
+.ep-x:hover{opacity:1;}
+.ep-b{flex:1;overflow-y:auto;padding:1.2rem;}
+
+/* Form elements */
+.fg{margin-bottom:1rem;}.fl{font-size:.72rem;font-weight:600;color:var(--navy);margin-bottom:.3rem;display:block;}
+.fh{font-size:.62rem;color:var(--muted);margin-bottom:.3rem;}
+.fi,.ft,.fs{width:100%;padding:.5rem .7rem;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:.8rem;transition:border .2s;background:white;}
+.fi:focus,.ft:focus,.fs:focus{outline:none;border-color:var(--orange);}
+.ft{resize:vertical;min-height:60px;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;}
+.fr3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.5rem;}
+.fc{height:36px;padding:2px;cursor:pointer;}
+.ftog{display:flex;align-items:center;gap:.5rem;padding:.5rem .7rem;background:var(--bg);border-radius:8px;font-size:.75rem;cursor:pointer;}
+.ftog input[type=checkbox]{width:16px;height:16px;accent-color:var(--orange);}
+.fitem{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:.5rem .7rem;margin-bottom:.4rem;position:relative;}
+.fitem-h{display:flex;align-items:center;gap:.5rem;}
+.fitem-d{position:absolute;top:.3rem;right:.5rem;background:none;border:none;color:var(--red);cursor:pointer;font-size:.8rem;opacity:.5;}
+.fitem-d:hover{opacity:1;}
+.fadd{width:100%;padding:.5rem;border:2px dashed var(--border);border-radius:8px;background:none;font-family:inherit;font-size:.75rem;color:var(--muted);cursor:pointer;transition:all .2s;}
+.fadd:hover{border-color:var(--orange);color:var(--orange);}
+
+.ep-foot{padding:1rem 1.2rem;border-top:1px solid var(--border);display:flex;gap:.5rem;justify-content:flex-end;}
+.fbtn{padding:.5rem 1.5rem;border:none;border-radius:8px;font-family:inherit;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;}
+.fbtn.pri{background:var(--orange);color:white;}.fbtn.pri:hover{background:#d07a3a;}
+.fbtn.sec{background:var(--bg);color:var(--text);border:1px solid var(--border);}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--navy);color:white;padding:.6rem 1.5rem;border-radius:var(--radius);font-size:.8rem;z-index:9000;transition:transform .4s cubic-bezier(.4,0,.2,1);box-shadow:0 4px 15px rgba(0,0,0,.3);}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+@media(max-width:700px){
+    .ph{flex-direction:column;text-align:center;gap:.8rem;}.ph-logos{justify-content:center;}
+    .pm-g{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}.pp-g{grid-template-columns:1fr;}
+    .ep{width:100%;max-width:100%;}.fr,.fr3{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+<div class="login-box">
+    <div style="font-size:1.8rem;margin-bottom:.5rem">⚙️</div>
+    <h2>Administration InerWeb</h2>
+    <p class="sub">Code d'accès requis</p>
+    <input type="password" class="login-input" id="loginCode" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Accéder</button>
+    <div class="login-error" id="loginError"></div>
+</div>
+</div>
+
+<!-- TOOLBAR -->
+<div class="adm-toolbar hidden" id="admToolbar">
+    <div class="title">⚙️ <span>Admin</span> InerWeb</div>
+    <button class="tb" onclick="doUndo()" id="undoBtn" disabled>↩️ Annuler <span class="undo-n" id="undoN">0</span></button>
+    <button class="tb" onclick="doSave()" title="Aperçu local (ce navigateur uniquement)">👁 Aperçu local</button>
+    <button class="tb primary" onclick="doPublish()" style="font-size:1rem;padding:0.6rem 1.2rem">🚀 Publier site_config.js</button>
+    <button class="tb" onclick="doReset()" title="Supprimer les modifications locales">🗑 RAZ local</button>
+    <button class="tb danger" onclick="doLogout()">🔓 Quitter</button>
+</div>
+<div class="hidden" id="admBanner" style="background:linear-gradient(135deg,#fef3c7,#fde68a);padding:0.8rem 1.5rem;text-align:center;font-size:0.85rem;color:#92400e;border-bottom:2px solid #e8914a">
+    <strong>ℹ️ Workflow :</strong>
+    Modifiez vos réglages →
+    <strong>👁 Aperçu local</strong> (teste sur CE navigateur) →
+    <strong>🚀 Publier</strong> (télécharge <code>site_config.js</code> à déposer sur votre hébergement pour application définitive)
+</div>
+
+<!-- PREVIEW -->
+<div class="adm-main hidden" id="admMain">
+    <div class="zone" data-z="header" onclick="openEdit('header')"><span class="zbadge">✏️ En-tête & Logos</span><div class="ph" id="zH"></div></div>
+    <div class="zone" data-z="video" onclick="openEdit('video')"><span class="zbadge">✏️ Vidéo</span><div class="pv" id="zV"></div></div>
+    <div class="zone" data-z="modules" onclick="openEdit('modules')"><span class="zbadge">✏️ Modules</span><div class="pm" id="zM"></div></div>
+    <div class="zone" data-z="partenaires" onclick="openEdit('partenaires')"><span class="zbadge">✏️ Partenaires</span><div class="pp" id="zP"></div></div>
+    <div class="zone" data-z="vitrine" onclick="openEdit('vitrine')"><span class="zbadge">✏️ Vitrine latérale</span><div class="pvit" id="zVit"></div></div>
+    <div class="zone" data-z="etablissement" onclick="openEdit('etablissement')"><span class="zbadge">✏️ Établissement</span><div class="pf" id="zF"></div></div>
+</div>
+
+<!-- EDIT OVERLAY + PANEL -->
+<div class="ov" id="ov" onclick="closeEdit()"></div>
+<div class="ep" id="ep">
+    <div class="ep-h"><h3 id="epTitle">Édition</h3><button class="ep-x" onclick="closeEdit()">✕</button></div>
+    <div class="ep-b" id="epBody"></div>
+    <div class="ep-foot">
+        <button class="fbtn sec" onclick="closeEdit()">Annuler</button>
+        <button class="fbtn pri" onclick="applyEdit()">✓ Appliquer</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="site_config.js"></script>
+<script>
+// ===== SECURITY =====
+var DHASH='08d965ff3b7e771a4dd31cc26b49472ac9cfa30d523c05e1f5045d78667f0ab7',_att=0,_lock=0;
+async function sha256(s){var b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('');}
+async function doLogin(){
+    if(Date.now()<_lock)return;
+    var c=document.getElementById('loginCode').value,h=await sha256(c),st=localStorage.getItem('iw_admin_hash')||DHASH;
+    if(h===st){sessionStorage.setItem('iw_admin_auth','1');show();return;}
+    _att++;var box=document.querySelector('.login-box');box.classList.add('shake');setTimeout(function(){box.classList.remove('shake')},500);
+    var e=document.getElementById('loginError');
+    if(_att>=3){_lock=Date.now()+30000;e.innerHTML='<b style="color:var(--red)">⏳ 30s</b>';_att=0;}
+    else e.textContent='Code incorrect ('+_att+'/3)';
+}
+function show(){document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('admToolbar').classList.remove('hidden');document.getElementById('admBanner').classList.remove('hidden');document.getElementById('admMain').classList.remove('hidden');initAdmin();}
+function doLogout(){sessionStorage.removeItem('iw_admin_auth');location.reload();}
+if(sessionStorage.getItem('iw_admin_auth'))window.addEventListener('DOMContentLoaded',show);
+
+// ===== STATE =====
+var S={},UNDO=[],_zone=null;
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function pushU(){UNDO.push(JSON.stringify(S));if(UNDO.length>30)UNDO.shift();updU();}
+function doUndo(){if(!UNDO.length)return;S=JSON.parse(UNDO.pop());renderAll();updU();toast('↩️ Annulé');}
+function updU(){document.getElementById('undoBtn').disabled=!UNDO.length;document.getElementById('undoN').textContent=UNDO.length;}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2500);}
+
+function initAdmin(){
+    var saved=localStorage.getItem('iw_admin_state');
+    if(saved){try{S=JSON.parse(saved)}catch(e){S={}}}
+    if(!S.app){
+        var C=(typeof SITE_CONFIG!=='undefined')?SITE_CONFIG:{};
+        S.app=C.app||{nom:'InerWeb Fluide',version:'5.2',sous_titre:'Suite Pédagogique — Froid & CVC',auteur:'F. Henninot'};
+        S.logos=C.logos||{};S.modules=C.modules||[];S.partenaires=C.partenaires||[];
+        S.show_partenaires=!!(C.partenaires&&C.partenaires.length);
+        S.etablissement=C.etablissement||{};S.formations=C.formations||[];
+        S.vitrine=C.vitrine||{titre:'',cartes:[]};S.legal=C.legal||{};
+    }
+    renderAll();
+}
+function doSave(){localStorage.setItem('iw_admin_state',JSON.stringify(S));toast('👁 Aperçu local activé — rechargez une page pour voir');}
+function doPublish(){doSave();doExport();toast('🚀 site_config.js téléchargé — déposez-le sur votre hébergement');}
+function doReset(){if(!confirm('Supprimer toutes les modifications locales ?\nLe site reviendra à la configuration du fichier site_config.js actuel.'))return;localStorage.removeItem('iw_admin_state');toast('🗑 Modifications locales supprimées');setTimeout(function(){location.reload()},1000);}
+
+// ===== RENDER =====
+function renderAll(){rHeader();rVideo();rModules();rPartners();rVitrine();rFooter();}
+
+function logoSlot(lg,label){
+    if(lg&&lg.src)return'<div class="ph-ls ok"><img src="'+esc(lg.src)+'" alt="'+esc(lg.alt||'')+'" style="max-height:'+(lg.hauteur||42)+'px" onerror="this.outerHTML=\'<span style=color:rgba(255,255,255,.4);font-size:.6rem>⚠️</span>\'"></div>';
+    return'<div class="ph-ls">'+esc(label)+'</div>';
+}
+function rHeader(){
+    var A=S.app||{},L=S.logos||{};
+    document.getElementById('zH').innerHTML=
+        '<div class="ph-logos">'+logoSlot(L.principal,'Logo établissement')+logoSlot(L.secondaire,'Logo partenaire')+'</div>'+
+        '<div class="ph-c"><div class="br"><span style="font-size:.85rem">❄️</span><span class="bn">iner<span style="color:var(--turquoise)">Web</span></span><span class="bf">Fluide</span><span class="ver">v'+esc(A.version||'5.2')+'</span></div><div class="st">'+esc(A.sous_titre||'')+'</div></div>'+
+        '<div class="ph-info"><strong>Auteur:</strong> '+esc(A.auteur||'')+'<br><strong>Licence:</strong> Éducative non commerciale</div>';
+}
+function rVideo(){
+    var u=(S.vitrine||{}).video_url||'';
+    document.getElementById('zV').innerHTML='<div class="pv-c"><h3>🎬 Présentation</h3><div class="pv-e">'+(u?'<iframe src="'+esc(u)+'" allowfullscreen></iframe>':'<div style="text-align:center;padding:2rem"><span style="font-size:1.5rem;display:block;margin-bottom:.5rem">🎬</span>Espace vidéo de présentation</div>')+'</div></div>';
+}
+function rModules(){
+    var M=S.modules||[],h='<h2>🧩 Modules ('+M.length+')</h2><div class="pm-g">';
+    for(var i=0;i<M.length;i++){var m=M[i];h+='<div class="pm-c" style="border-left-color:'+esc(m.couleur||'#e8914a')+'"><div class="ic">'+(m.icone||'🔧')+'</div><div class="nm">'+esc(m.nom||'Module')+'</div><div class="ds">'+esc(m.desc||'')+'</div></div>';}
+    h+='<div class="pm-add">+ Ajouter</div></div>';
+    document.getElementById('zM').innerHTML=h;
+}
+function rPartners(){
+    var P=S.partenaires||[],n=Math.max(P.length,4),h='<div class="pp-c"><h3>🤝 Partenaires</h3><div class="pp-g">';
+    for(var i=0;i<n;i++){
+        if(i<P.length&&P[i].logo)h+='<div class="pp-s ok"><img src="'+esc(P[i].logo)+'" alt="'+esc(P[i].nom||'')+'" onerror="this.outerHTML=\'Logo partenaire\'"></div>';
+        else if(i<P.length&&P[i].nom)h+='<div class="pp-s">'+esc(P[i].nom)+'</div>';
+        else h+='<div class="pp-s">Logo partenaire</div>';
+    }
+    h+='</div></div>';document.getElementById('zP').innerHTML=h;
+}
+function rVitrine(){
+    var V=S.vitrine||{},C=V.cartes||[],tc={texte:'#1a2332',lien:'#36b5a0',taxe:'#e8914a',stages:'#9c27b0',dons:'#4caf50',image:'#e91e63',video:'#e53935',contact:'#1a2332',html:'#78909c'};
+    var h='<div class="pvit-p"><h3>🎓 Vitrine — '+esc(V.titre||'')+'</h3><div class="pvit-list">';
+    if(!C.length)h+='<div style="text-align:center;padding:1rem;color:var(--muted);font-size:.75rem">Aucune carte</div>';
+    for(var i=0;i<C.length;i++){var c=C[i],col=tc[c.type]||'#78909c',off=c.active===false?' (off)':'';h+='<div class="pvit-c"><span class="tb-col" style="background:'+col+'">'+esc(c.type)+'</span><span class="ct">'+esc(c.titre||'')+off+'</span></div>';}
+    h+='</div></div>';document.getElementById('zVit').innerHTML=h;
+}
+function rFooter(){
+    var E=S.etablissement||{},A=S.app||{},F=S.formations||[];
+    var ft=F.map(function(f){return f.niveau+' '+f.nom}).join(' • ');
+    document.getElementById('zF').innerHTML='<strong>'+esc(E.type||'Lycée Professionnel Privé')+' '+esc(E.nom||'')+'</strong>'+(E.ville?' — '+esc(E.ville):'')+'<br>'+(ft?'Formations : '+esc(ft)+'<br>':'')+'© '+(A.annee||2026)+' '+esc(A.auteur||'')+' — Tous droits réservés';
+}
+
+// ===== EDIT =====
+function openEdit(z){
+    _zone=z;pushU();
+    var titles={header:'🖼️ En-tête & Logos',video:'🎬 Vidéo',modules:'🧩 Modules',partenaires:'🤝 Partenaires',vitrine:'🎓 Vitrine',etablissement:'🏫 Établissement'};
+    document.getElementById('epTitle').textContent=titles[z]||'Édition';
+    document.getElementById('epBody').innerHTML=buildForm(z);
+    document.getElementById('ov').classList.add('open');
+    document.getElementById('ep').classList.add('open');
+    document.querySelectorAll('.zone').forEach(function(el){el.style.outline='';});
+    var zEl=document.querySelector('[data-z="'+z+'"]');if(zEl)zEl.style.outline='2px solid var(--orange)';
+}
+function closeEdit(){document.getElementById('ov').classList.remove('open');document.getElementById('ep').classList.remove('open');document.querySelectorAll('.zone').forEach(function(el){el.style.outline='';});_zone=null;}
+function applyEdit(){collectForm(_zone);renderAll();closeEdit();toast('✓ Appliqué');}
+
+function buildForm(z){
+    switch(z){
+        case 'header':return fHeader();case 'video':return fVideo();case 'modules':return fModules();
+        case 'partenaires':return fPartners();case 'vitrine':return fVitrine();case 'etablissement':return fEtab();
+        default:return'';
+    }
+}
+function collectForm(z){
+    switch(z){
+        case 'header':cHeader();break;case 'video':cVideo();break;case 'modules':cModules();break;
+        case 'partenaires':cPartners();break;case 'vitrine':cVitrine();break;case 'etablissement':cEtab();break;
+    }
+}
+
+// ----- HEADER -----
+function fHeader(){
+    var A=S.app||{},L=S.logos||{},lp=L.principal||{},ls=L.secondaire||{},li=L.inerweb_edu||{};
+    return'<div class="fg"><div class="fl">📱 Application</div>'+
+        '<div class="fr"><div><label class="fl">Version</label><input class="fi" id="e-ver" value="'+esc(A.version||'5.2')+'"></div>'+
+        '<div><label class="fl">Auteur</label><input class="fi" id="e-aut" value="'+esc(A.auteur||'')+'"></div></div>'+
+        '<label class="fl" style="margin-top:.5rem">Sous-titre</label><input class="fi" id="e-sub" value="'+esc(A.sous_titre||'')+'"></div>'+
+        '<div class="fg"><div class="fl">🏫 Logo établissement</div><div class="fh">Fichier image (ex: logo_lycee_raynaud.png) ou URL</div>'+
+        '<div class="fr"><div><input class="fi" id="e-l1s" value="'+esc(lp.src||'')+'" placeholder="logo.png"></div><div><input class="fi" id="e-l1a" value="'+esc(lp.alt||'')+'" placeholder="Texte alt"></div></div>'+
+        '<div class="fr" style="margin-top:.3rem"><div><label class="fl">Hauteur px</label><input class="fi" id="e-l1h" type="number" value="'+(lp.hauteur||45)+'"></div><div><label class="fl">Lien</label><input class="fi" id="e-l1l" value="'+esc(lp.lien||'')+'"></div></div></div>'+
+        '<div class="fg"><div class="fl">🤝 Logo partenaire</div>'+
+        '<div class="fr"><div><input class="fi" id="e-l2s" value="'+esc(ls.src||'')+'" placeholder="logo.png"></div><div><input class="fi" id="e-l2a" value="'+esc(ls.alt||'')+'"></div></div>'+
+        '<div class="fr" style="margin-top:.3rem"><div><input class="fi" id="e-l2h" type="number" value="'+(ls.hauteur||42)+'"></div><div><input class="fi" id="e-l2l" value="'+esc(ls.lien||'')+'"></div></div></div>'+
+        '<div class="fg"><div class="fl">🎓 Logo InerWeb EDU</div>'+
+        '<div class="fr"><div><input class="fi" id="e-l3s" value="'+esc(li.src||'')+'" placeholder="logo_inerweb_edu.png"></div><div><input class="fi" id="e-l3h" type="number" value="'+(li.hauteur||42)+'"></div></div></div>';
+}
+function cHeader(){
+    S.app=S.app||{};S.app.version=$('e-ver');S.app.auteur=$('e-aut');S.app.sous_titre=$('e-sub');
+    S.logos={
+        principal:{src:$('e-l1s'),alt:$('e-l1a'),hauteur:+$('e-l1h')||45,lien:$('e-l1l')},
+        secondaire:{src:$('e-l2s'),alt:$('e-l2a'),hauteur:+$('e-l2h')||42,lien:$('e-l2l')},
+        inerweb_edu:{src:$('e-l3s'),alt:'InerWeb EDU',hauteur:+$('e-l3h')||42,lien:''}
+    };
+}
+
+// ----- VIDEO -----
+function fVideo(){var u=(S.vitrine||{}).video_url||'';return'<div class="fg"><div class="fl">URL YouTube embed</div><div class="fh">Format: https://www.youtube.com/embed/XXXXX — Vide = désactivé</div><input class="fi" id="e-vid" value="'+esc(u)+'"></div>';}
+function cVideo(){S.vitrine=S.vitrine||{};S.vitrine.video_url=$('e-vid');}
+
+// ----- MODULES -----
+function fModules(){
+    var M=S.modules||[],h='<div class="fh" style="margin-bottom:.8rem">Chaque module = tuile index + lien nav. Créez un .html, ajoutez-le ici.</div><div id="e-mlist">';
+    for(var i=0;i<M.length;i++)h+=mItem(M[i],i);
+    return h+'</div><button class="fadd" onclick="addMod()">+ Ajouter un module</button>';
+}
+function mItem(m,i){
+    return'<div class="fitem" data-mi="'+i+'"><button class="fitem-d" onclick="this.closest(\'.fitem\').remove()">🗑</button>'+
+        '<div class="fitem-h"><input class="fi" style="width:45px;text-align:center;font-size:1.1rem;padding:.3rem" data-f="icone" value="'+(m.icone||'🔧')+'"><input class="fi" style="flex:1;font-weight:600" data-f="nom" value="'+esc(m.nom||'')+'" placeholder="Nom"></div>'+
+        '<div class="fr" style="margin-top:.3rem"><div><label class="fl">Fichier HTML</label><input class="fi" data-f="href" value="'+esc(m.href||'')+'"></div><div><label class="fl">ID</label><input class="fi" data-f="id" value="'+esc(m.id||'')+'"></div></div>'+
+        '<div class="fr" style="margin-top:.3rem"><div><label class="fl">Description</label><input class="fi" data-f="desc" value="'+esc(m.desc||'')+'"></div><div><label class="fl">Couleur</label><input class="fi fc" type="color" data-f="couleur" value="'+(m.couleur||'#e8914a')+'"></div></div></div>';
+}
+function addMod(){var l=document.getElementById('e-mlist'),d=document.createElement('div');d.innerHTML=mItem({icone:'🔧'},l.children.length);l.appendChild(d.firstElementChild);l.lastElementChild.scrollIntoView({behavior:'smooth',block:'center'});}
+function cModules(){S.modules=[];document.querySelectorAll('#e-mlist .fitem').forEach(function(el){var m={};el.querySelectorAll('[data-f]').forEach(function(f){m[f.dataset.f]=f.value});if(m.nom)S.modules.push(m);});}
+
+// ----- PARTENAIRES -----
+function fPartners(){
+    var P=S.partenaires||[],h='<label class="ftog"><input type="checkbox" id="e-pshow" '+(S.show_partenaires!==false?'checked':'')+'> Afficher la section</label><div id="e-plist" style="margin-top:.8rem">';
+    for(var i=0;i<P.length;i++)h+=pItem(P[i],i);
+    return h+'</div><button class="fadd" onclick="addPart()">+ Ajouter</button>';
+}
+function pItem(p,i){
+    return'<div class="fitem" data-pi="'+i+'"><button class="fitem-d" onclick="this.closest(\'.fitem\').remove()">🗑</button>'+
+        '<div class="fr"><div><label class="fl">Nom</label><input class="fi" data-f="nom" value="'+esc(p.nom||'')+'"></div><div><label class="fl">Logo</label><input class="fi" data-f="logo" value="'+esc(p.logo||'')+'"></div></div>'+
+        '<div><label class="fl">Lien</label><input class="fi" data-f="url" value="'+esc(p.url||'')+'"></div></div>';
+}
+function addPart(){var l=document.getElementById('e-plist'),d=document.createElement('div');d.innerHTML=pItem({},l.children.length);l.appendChild(d.firstElementChild);}
+function cPartners(){S.show_partenaires=document.getElementById('e-pshow').checked;S.partenaires=[];document.querySelectorAll('#e-plist .fitem').forEach(function(el){var p={};el.querySelectorAll('[data-f]').forEach(function(f){p[f.dataset.f]=f.value});if(p.nom||p.logo)S.partenaires.push(p);});}
+
+// ----- VITRINE -----
+function fVitrine(){
+    var V=S.vitrine||{},C=V.cartes||[],h='<div class="fg"><div class="fl">Titre du panneau</div><input class="fi" id="e-vtit" value="'+esc(V.titre||'')+'"></div>';
+    h+='<div class="fl">Cartes</div><div id="e-clist">';
+    for(var i=0;i<C.length;i++)h+=cItem(C[i],i);
+    h+='</div><div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.5rem">';
+    ['texte','lien','taxe','stages','dons','contact','image','video','html'].forEach(function(t){
+        h+='<button class="fadd" style="width:auto;padding:.3rem .6rem;font-size:.7rem" onclick="addCarte(\''+t+'\')">+ '+t+'</button>';
+    });
+    return h+'</div>';
+}
+function cItem(c,i){
+    var tc={texte:'#1a2332',lien:'#36b5a0',taxe:'#e8914a',stages:'#9c27b0',dons:'#4caf50',image:'#e91e63',video:'#e53935',contact:'#1a2332',html:'#78909c'},col=tc[c.type]||'#78909c';
+    var h='<div class="fitem" data-ci="'+i+'" data-ct="'+esc(c.type)+'"><button class="fitem-d" onclick="this.closest(\'.fitem\').remove()">🗑</button>'+
+        '<div class="fitem-h"><span style="background:'+col+';color:white;padding:1px 6px;border-radius:6px;font-size:.6rem;font-weight:600">'+esc(c.type)+'</span><input class="fi" style="flex:1;font-weight:600;font-size:.8rem" data-f="titre" value="'+esc(c.titre||'')+'"></div>';
+    if(c.type==='taxe'||c.type==='stages'||c.type==='dons')h+='<label class="ftog" style="margin:.3rem 0"><input type="checkbox" data-f="active" '+(c.active!==false?'checked':'')+'> Activer</label>';
+    switch(c.type){
+        case 'texte':h+='<textarea class="ft" data-f="contenu">'+esc(c.contenu||'')+'</textarea><div class="fr"><div><label class="fl">Lien</label><input class="fi" data-f="lien" value="'+esc(c.lien||'')+'"></div><div><label class="fl">Bouton</label><input class="fi" data-f="bouton" value="'+esc(c.bouton||'')+'"></div></div>';break;
+        case 'lien':h+='<div class="fr"><div><label class="fl">URL</label><input class="fi" data-f="url" value="'+esc(c.url||'')+'"></div><div><label class="fl">Bouton</label><input class="fi" data-f="bouton" value="'+esc(c.bouton||'')+'"></div></div><textarea class="ft" data-f="contenu" placeholder="Description">'+esc(c.contenu||'')+'</textarea>';break;
+        case 'taxe':h+='<textarea class="ft" data-f="contenu">'+esc(c.contenu||'')+'</textarea><div class="fr"><div><label class="fl">Code UAI</label><input class="fi" data-f="code_uai" value="'+esc(c.code_uai||'')+'"></div><div><label class="fl">Plateforme</label><input class="fi" data-f="plateforme" value="'+esc(c.plateforme||'SOLTéA')+'"></div></div><div class="fr"><div><label class="fl">Email</label><input class="fi" data-f="contact_email" value="'+esc(c.contact_email||'')+'"></div><div><label class="fl">Bouton</label><input class="fi" data-f="bouton" value="'+esc(c.bouton||'')+'"></div></div>';break;
+        case 'stages':h+='<textarea class="ft" data-f="contenu">'+esc(c.contenu||'')+'</textarea><div class="fr"><div><label class="fl">Périodes</label><input class="fi" data-f="periodes" value="'+esc(c.periodes||'')+'"></div><div><label class="fl">Email</label><input class="fi" data-f="contact_email" value="'+esc(c.contact_email||'')+'"></div></div>';break;
+        case 'dons':h+='<label class="fl">Types (virgule)</label><input class="fi" data-f="types" value="'+esc((c.types||[]).join(', '))+'"><textarea class="ft" data-f="contenu">'+esc(c.contenu||'')+'</textarea><div class="fr"><div><label class="fl">Email</label><input class="fi" data-f="contact_email" value="'+esc(c.contact_email||'')+'"></div><div><label class="fl">Bouton</label><input class="fi" data-f="bouton" value="'+esc(c.bouton||'')+'"></div></div>';break;
+        case 'image':h+='<div class="fr"><div><label class="fl">Image</label><input class="fi" data-f="src" value="'+esc(c.src||'')+'"></div><div><label class="fl">Lien</label><input class="fi" data-f="lien" value="'+esc(c.lien||'')+'"></div></div>';break;
+        case 'video':h+='<label class="fl">URL embed</label><input class="fi" data-f="url" value="'+esc(c.url||'')+'">';break;
+        case 'contact':h+='<textarea class="ft" data-f="contenu">'+esc(c.contenu||'')+'</textarea><div class="fr"><div><label class="fl">Email</label><input class="fi" data-f="email" value="'+esc(c.email||'')+'"></div><div><label class="fl">Tél</label><input class="fi" data-f="tel" value="'+esc(c.tel||'')+'"></div></div>';break;
+        case 'html':h+='<textarea class="ft" data-f="contenu" style="min-height:80px;font-family:monospace;font-size:.72rem">'+esc(c.contenu||'')+'</textarea>';break;
+    }
+    return h+'</div>';
+}
+function addCarte(type){var l=document.getElementById('e-clist'),c={type:type,titre:'',contenu:''};if(type==='taxe'||type==='stages'||type==='dons')c.active=true;if(type==='dons')c.types=[];var d=document.createElement('div');d.innerHTML=cItem(c,l.children.length);l.appendChild(d.firstElementChild);l.lastElementChild.scrollIntoView({behavior:'smooth',block:'center'});}
+function cVitrine(){
+    S.vitrine=S.vitrine||{};S.vitrine.titre=$('e-vtit');S.vitrine.cartes=[];
+    document.querySelectorAll('#e-clist .fitem').forEach(function(el){
+        var c={type:el.dataset.ct};el.querySelectorAll('[data-f]').forEach(function(f){if(f.type==='checkbox')c[f.dataset.f]=f.checked;else c[f.dataset.f]=f.value;});
+        if(c.type==='dons'&&typeof c.types==='string')c.types=c.types.split(',').map(function(s){return s.trim()}).filter(Boolean);
+        S.vitrine.cartes.push(c);
+    });
+}
+
+// ----- ETABLISSEMENT -----
+function fEtab(){
+    var E=S.etablissement||{},F=S.formations||[],h='<div class="fg"><div class="fl">🏫 Informations</div>'+
+        '<div class="fr"><div><label class="fl">Type</label><input class="fi" id="e-et" value="'+esc(E.type||'')+'"></div><div><label class="fl">Nom</label><input class="fi" id="e-en" value="'+esc(E.nom||'')+'"></div></div>'+
+        '<div class="fr"><div><label class="fl">Ville</label><input class="fi" id="e-ev" value="'+esc(E.ville||'')+'"></div><div><label class="fl">Tél</label><input class="fi" id="e-etel" value="'+esc(E.telephone||'')+'"></div></div>'+
+        '<label class="fl">Adresse</label><input class="fi" id="e-ea" value="'+esc(E.adresse||'')+'">'+
+        '<div class="fr" style="margin-top:.3rem"><div><label class="fl">Email</label><input class="fi" id="e-ee" value="'+esc(E.email||'')+'"></div><div><label class="fl">Site</label><input class="fi" id="e-ew" value="'+esc(E.site_web||'')+'"></div></div>'+
+        '<label class="fl">Code UAI</label><input class="fi" id="e-eu" value="'+esc(E.code_uai||'')+'"></div>';
+    h+='<div class="fg"><div class="fl">🎓 Formations</div><div id="e-flist">';
+    for(var i=0;i<F.length;i++)h+='<div class="fitem"><button class="fitem-d" onclick="this.closest(\'.fitem\').remove()">🗑</button><div class="fr3"><div><label class="fl">Niveau</label><input class="fi" data-f="niveau" value="'+esc(F[i].niveau||'')+'"></div><div><label class="fl">Nom</label><input class="fi" data-f="nom" value="'+esc(F[i].nom||'')+'"></div><div><label class="fl">Durée</label><input class="fi" data-f="duree" value="'+esc(F[i].duree||'')+'"></div></div></div>';
+    h+='</div><button class="fadd" onclick="addForm()">+ Formation</button></div>';
+    h+='<div class="fg"><div class="fl">🔐 Changer le code admin</div><div class="fr"><div><input class="fi" type="password" id="e-pw1" placeholder="Nouveau code"></div><div><input class="fi" type="password" id="e-pw2" placeholder="Confirmer"></div></div><button class="fadd" style="margin-top:.4rem" onclick="chPwd()">Mettre à jour</button></div>';
+    return h;
+}
+function addForm(){var l=document.getElementById('e-flist'),d=document.createElement('div');d.innerHTML='<div class="fitem"><button class="fitem-d" onclick="this.closest(\'.fitem\').remove()">🗑</button><div class="fr3"><div><label class="fl">Niveau</label><input class="fi" data-f="niveau"></div><div><label class="fl">Nom</label><input class="fi" data-f="nom"></div><div><label class="fl">Durée</label><input class="fi" data-f="duree"></div></div></div>';l.appendChild(d.firstElementChild);}
+function cEtab(){
+    S.etablissement={type:$('e-et'),nom:$('e-en'),ville:$('e-ev'),telephone:$('e-etel'),adresse:$('e-ea'),email:$('e-ee'),site_web:$('e-ew'),code_uai:$('e-eu')};
+    S.formations=[];document.querySelectorAll('#e-flist .fitem').forEach(function(el){var f={};el.querySelectorAll('[data-f]').forEach(function(inp){f[inp.dataset.f]=inp.value});if(f.nom)S.formations.push(f);});
+}
+async function chPwd(){var a=$('e-pw1'),b=$('e-pw2');if(!a||a.length<4){toast('⚠️ Min 4 car.');return;}if(a!==b){toast('⚠️ Non identiques');return;}localStorage.setItem('iw_admin_hash',await sha256(a));document.getElementById('e-pw1').value='';document.getElementById('e-pw2').value='';toast('🔐 Code mis à jour');}
+
+// ===== EXPORT =====
+function doExport(){
+    var cfg=buildCfg(),js='var SITE_CONFIG = '+JSON.stringify(cfg,null,4).replace(/"(\w+)":/g,'$1:')+';\n';
+    js=js.replace(/\\\\u/g,'\\u');
+    var b=new Blob([js],{type:'application/javascript'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='site_config.js';a.click();URL.revokeObjectURL(a.href);toast('📦 site_config.js téléchargé');
+}
+function buildCfg(){
+    var C=(typeof SITE_CONFIG!=='undefined')?JSON.parse(JSON.stringify(SITE_CONFIG)):{};
+    C.app=S.app||C.app;C.logos=S.logos||C.logos;C.modules=S.modules||C.modules;
+    C.partenaires=S.partenaires||C.partenaires;C.etablissement=S.etablissement||C.etablissement;
+    C.formations=S.formations||C.formations;C.vitrine=S.vitrine||C.vitrine;C.legal=S.legal||C.legal;
+    if(S.bandeau_actions)C.bandeau_actions=S.bandeau_actions;return C;
+}
+
+function $(id){return document.getElementById(id).value;}
+</script>
+</body>
+</html>

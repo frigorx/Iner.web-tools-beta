@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pincement échangeur — Approche</title>
+  <link rel="stylesheet" href="../theme.css" />
+  <script src="../site_config.js"></script>
+  <script src="../ui_shell.js" defer></script>
+  <script src="tools_common.js" defer></script>
+<link rel="stylesheet" href="../theme_force.css">
+</head>
+<body>
+  <div id="iw-header" data-subtitle="Outils atelier — Pincement échangeur (approach)"></div>
+  <nav id="iw-nav"></nav>
+
+  <main class="iw-container">
+    <div class="iw-card">
+      <div class="iw-card-title">🧊 Pincement d’échangeur (approche)</div>
+
+      <div class="iw-alert iw-alert-info" style="margin-top:0.6rem;">
+        Le pincement = écart mini entre <strong>température de saturation</strong> (T°K ou T°O) et <strong>température de sortie</strong> du fluide secondaire.
+      </div>
+
+      <div class="iw-grid-3" style="margin-top:0.8rem;">
+        <div>
+          <label class="iw-calc-label">Échangeur</label>
+          <select id="type" class="iw-select">
+            <option value="cond">Condenseur</option>
+            <option value="evap">Évaporateur</option>
+          </select>
+        </div>
+        <div>
+          <label class="iw-calc-label">Secondaire</label>
+          <select id="sec" class="iw-select">
+            <option value="air">Air</option>
+            <option value="eau">Eau</option>
+          </select>
+        </div>
+        <div>
+          <label class="iw-calc-label">T sat (°C)</label>
+          <input id="tsat" class="iw-input" inputmode="decimal" placeholder="T°K ou T°O" />
+        </div>
+      </div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div>
+          <label class="iw-calc-label">T entrée secondaire (°C) (optionnel)</label>
+          <input id="tin" class="iw-input" inputmode="decimal" placeholder="utile pour ΔT" />
+        </div>
+        <div>
+          <label class="iw-calc-label">T sortie secondaire (°C)</label>
+          <input id="tout" class="iw-input" inputmode="decimal" placeholder="point le plus proche" />
+        </div>
+      </div>
+
+      <div class="iw-grid-3" style="margin-top:0.9rem;">
+        <div class="iw-calc good">
+          <div class="iw-calc-label">Pincement</div>
+          <div class="iw-calc-value" id="out_pinch">—</div>
+        </div>
+        <div class="iw-calc">
+          <div class="iw-calc-label">ΔT secondaire (entrée→sortie)</div>
+          <div class="iw-calc-value" id="out_dT">—</div>
+        </div>
+        <div class="iw-calc" id="statusBox">
+          <div class="iw-calc-label">Interprétation</div>
+          <div class="iw-calc-value" id="out_status">—</div>
+        </div>
+      </div>
+
+      <div class="iw-alert iw-alert-warn" style="margin-top:0.8rem;">
+        Ordres de grandeur : <strong>Évapo air</strong> ~ 3–8 K • <strong>Condo air</strong> ~ 5–15 K. Selon machine, débits, conditions.
+      </div>
+
+      <div class="iw-card" style="margin-top:0.9rem;">
+        <div class="iw-card-title">🛠️ Pistes rapides</div>
+        <div id="out_tips" style="color:var(--text);"></div>
+      </div>
+
+      <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.8rem;">
+        <a class="iw-btn" href="index.html">⬅️ Retour outils</a>
+        <button class="iw-btn iw-btn-primary" id="copy">Copier résultats</button>
+      </div>
+    </div>
+  </main>
+
+  <footer id="iw-footer"></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const {parseNumber, fmt, copyText, setText, setHTML} = window.iwTools;
+
+  const typeEl = document.getElementById('type');
+  const secEl = document.getElementById('sec');
+  const tsatEl = document.getElementById('tsat');
+  const tinEl = document.getElementById('tin');
+  const toutEl = document.getElementById('tout');
+  const statusBox = document.getElementById('statusBox');
+
+  function classify(type, pinch){
+    if(!Number.isFinite(pinch)) return {label:'—', cls:''};
+
+    if(type === 'cond'){
+      if(pinch < 3) return {label:'Très faible (vérifier mesures)', cls:'warn'};
+      if(pinch <= 15) return {label:'Normal', cls:'good'};
+      if(pinch <= 20) return {label:'Élevé (à surveiller)', cls:'warn'};
+      return {label:'Très élevé (suspect)', cls:'danger'};
+    }
+
+    // evap
+    if(pinch < 2) return {label:'Très faible (vérifier mesures)', cls:'warn'};
+    if(pinch <= 8) return {label:'Normal', cls:'good'};
+    if(pinch <= 12) return {label:'Élevé (à surveiller)', cls:'warn'};
+    return {label:'Très élevé (suspect)', cls:'danger'};
+  }
+
+  function tips(type, sec, pinch){
+    if(!Number.isFinite(pinch)) return '<div class="iw-alert iw-alert-info">Renseignez T sat et T sortie secondaire.</div>';
+
+    const isCond = (type === 'cond');
+    const secLabel = (sec === 'air') ? 'air' : 'eau';
+
+    if(isCond){
+      if(pinch > 20){
+        return `<ul style="margin-left:1.2rem;">
+          <li>Échange condenseur dégradé : débit ${secLabel} insuffisant, condenseur encrassé, recirculation d’air, ventilateur/pompe.</li>
+          <li>Vérifiez : ailettes, filtres, obstacles, vitesse ventilateur, sens de rotation, état batterie.</li>
+          <li>Si T°K est haute et pinch haut : c’est cohérent (problème d’échange).</li>
+        </ul>`;
+      }
+      if(pinch > 15){
+        return `<ul style="margin-left:1.2rem;">
+          <li>Pincement élevé : à surveiller. Première piste : débit ${secLabel} / encrassement.</li>
+          <li>Contrôlez la mesure de T sortie (sonde mal placée = faux pinch).</li>
+        </ul>`;
+      }
+      if(pinch < 3){
+        return `<ul style="margin-left:1.2rem;">
+          <li>Pincement très faible : souvent une <strong>erreur de mesure</strong> (T sortie mesurée trop loin / mélange d’air).</li>
+          <li>Sinon : échange très efficace (rare) ou charge faible.</li>
+        </ul>`;
+      }
+      return `<div class="iw-alert iw-alert-success">Rien d’anormal visible côté échange. Si problème : regardez plutôt charge, détente, conditions extérieures.</div>`;
+    } else {
+      if(pinch > 12){
+        return `<ul style="margin-left:1.2rem;">
+          <li>Échange évaporateur dégradé : débit ${secLabel} insuffisant, batterie sale/givrée, ventilateur, filtre.</li>
+          <li>Vérifiez : givrage, encrassement, débit, bypass d’air, état ailettes.</li>
+          <li>Si T°O très basse + pinch haut : typique d’un mauvais échange.</li>
+        </ul>`;
+      }
+      if(pinch > 8){
+        return `<ul style="margin-left:1.2rem;">
+          <li>Pincement élevé : suspect débit ${secLabel} faible ou échangeur partiellement obstrué.</li>
+          <li>Contrôlez la mesure de T sortie (au bon endroit).</li>
+        </ul>`;
+      }
+      if(pinch < 2){
+        return `<ul style="margin-left:1.2rem;">
+          <li>Pincement très faible : souvent une <strong>mesure mal placée</strong> ou un capteur en contact inadéquat.</li>
+          <li>Sinon : débit ${secLabel} fort + échange correct.</li>
+        </ul>`;
+      }
+      return `<div class="iw-alert iw-alert-success">Échange cohérent. Si manque de froid : regardez plutôt charge, réglage détendeur, contraintes thermiques.</div>`;
+    }
+  }
+
+  function compute(){
+    const type = typeEl.value;
+    const sec = secEl.value;
+    const tsat = parseNumber(tsatEl.value);
+    const tin = parseNumber(tinEl.value);
+    const tout = parseNumber(toutEl.value);
+
+    let pinch = NaN;
+    if(Number.isFinite(tsat) && Number.isFinite(tout)){
+      pinch = (type === 'cond') ? (tsat - tout) : (tout - tsat);
+    }
+
+    const dT = (Number.isFinite(tin) && Number.isFinite(tout)) ? (tin - tout) : NaN;
+
+    setText('out_pinch', Number.isFinite(pinch) ? `${fmt(pinch,2)} K` : '—');
+    setText('out_dT', Number.isFinite(dT) ? `${fmt(dT,2)} °C` : '—');
+
+    const c = classify(type, pinch);
+    setText('out_status', c.label);
+
+    // style box
+    statusBox.classList.remove('good','warn','danger');
+    if(c.cls) statusBox.classList.add(c.cls);
+
+    setHTML('out_tips', tips(type, sec, pinch));
+
+    return {type, sec, tsat, tin, tout, pinch, dT, status:c.label};
+  }
+
+  [typeEl, secEl, tsatEl, tinEl, toutEl].forEach(el => el.addEventListener('input', compute));
+  typeEl.addEventListener('change', compute);
+  secEl.addEventListener('change', compute);
+
+  document.getElementById('copy').addEventListener('click', async function(){
+    const r = compute();
+    const labelTsat = (r.type==='cond') ? 'T°K' : 'T°O';
+    const text = `Pincement échangeur\n- Type: ${r.type==='cond'?'Condenseur':'Évaporateur'}\n- ${labelTsat}: ${Number.isFinite(r.tsat)?fmt(r.tsat,2)+' °C':'—'}\n- T sortie secondaire: ${Number.isFinite(r.tout)?fmt(r.tout,2)+' °C':'—'}\n- Pincement: ${Number.isFinite(r.pinch)?fmt(r.pinch,2)+' K':'—'}\n- Interprétation: ${r.status}`;
+    await copyText(text);
+    this.textContent='✅ Copié';
+    setTimeout(()=> this.textContent='Copier résultats', 900);
+  });
+
+  compute();
+});
+</script>
+</body>
+</html>

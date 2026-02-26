@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Débit d’eau — puissance / ΔT</title>
+  <link rel="stylesheet" href="../theme.css" />
+  <script src="../site_config.js"></script>
+  <script src="../ui_shell.js" defer></script>
+  <script src="tools_common.js" defer></script>
+<link rel="stylesheet" href="../theme_force.css">
+</head>
+<body>
+  <div id="iw-header" data-subtitle="Outils atelier — Débit d’eau (PAC / échangeur)"></div>
+  <nav id="iw-nav"></nav>
+
+  <main class="iw-container">
+    <div class="iw-card">
+      <div class="iw-card-title">💧 Débit d’eau ↔ Puissance ↔ ΔT</div>
+
+      <div class="iw-alert iw-alert-info" style="margin-top:0.6rem;">
+        Formule : <strong>P(kW) = 1,16 × V̇(m³/h) × ΔT(°C)</strong>. Renseignez 2 valeurs → la 3ᵉ est calculée.
+      </div>
+
+      <div class="iw-grid-3" style="margin-top:0.8rem;">
+        <div>
+          <label class="iw-calc-label">Puissance P (kW)</label>
+          <input id="p" class="iw-input" inputmode="decimal" placeholder="ex : 12" />
+        </div>
+        <div>
+          <label class="iw-calc-label">Débit V̇ (m³/h)</label>
+          <input id="q" class="iw-input" inputmode="decimal" placeholder="ex : 2,1" />
+        </div>
+        <div>
+          <label class="iw-calc-label">ΔT eau (°C)</label>
+          <input id="dt" class="iw-input" inputmode="decimal" placeholder="ex : 5" />
+        </div>
+      </div>
+
+      <div class="iw-grid-3" style="margin-top:0.9rem;">
+        <div class="iw-calc good"><div class="iw-calc-label">P (kW)</div><div class="iw-calc-value" id="out_p">—</div></div>
+        <div class="iw-calc good"><div class="iw-calc-label">V̇ (m³/h)</div><div class="iw-calc-value" id="out_q">—</div></div>
+        <div class="iw-calc good"><div class="iw-calc-label">ΔT (°C)</div><div class="iw-calc-value" id="out_dt">—</div></div>
+      </div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div class="iw-calc"><div class="iw-calc-label">Débit en L/min</div><div class="iw-calc-value" id="out_lmin">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">Débit en L/s</div><div class="iw-calc-value" id="out_ls">—</div></div>
+      </div>
+
+      <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.8rem;">
+        <a class="iw-btn" href="index.html">⬅️ Retour outils</a>
+        <button class="iw-btn" id="clear">Effacer</button>
+        <button class="iw-btn iw-btn-primary" id="copy">Copier résultats</button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer id="iw-footer"></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const {parseNumber, fmt, copyText, setText} = window.iwTools;
+  const K = 1.16;
+
+  const pEl = document.getElementById('p');
+  const qEl = document.getElementById('q');
+  const dtEl = document.getElementById('dt');
+
+  function compute(){
+    const p = parseNumber(pEl.value);
+    const q = parseNumber(qEl.value);
+    const dt = parseNumber(dtEl.value);
+
+    let P = p, Q = q, DT = dt;
+
+    const haveP = Number.isFinite(P);
+    const haveQ = Number.isFinite(Q);
+    const haveDT = Number.isFinite(DT);
+
+    // Calcul du manquant si 2 présents
+    if(!haveP && haveQ && haveDT) P = K * Q * DT;
+    if(!haveQ && haveP && haveDT && DT !== 0) Q = P / (K * DT);
+    if(!haveDT && haveP && haveQ && Q !== 0) DT = P / (K * Q);
+
+    const lmin = Number.isFinite(Q) ? Q * 1000 / 60 : NaN; // m3/h -> L/min
+    const ls = Number.isFinite(Q) ? Q * 1000 / 3600 : NaN;
+
+    setText('out_p', Number.isFinite(P) ? fmt(P,2) : '—');
+    setText('out_q', Number.isFinite(Q) ? fmt(Q,3) : '—');
+    setText('out_dt', Number.isFinite(DT) ? fmt(DT,2) : '—');
+
+    setText('out_lmin', Number.isFinite(lmin) ? fmt(lmin,1) + ' L/min' : '—');
+    setText('out_ls', Number.isFinite(ls) ? fmt(ls,2) + ' L/s' : '—');
+
+    return {P,Q,DT,lmin,ls};
+  }
+
+  [pEl,qEl,dtEl].forEach(el=> el.addEventListener('input', compute));
+
+  document.getElementById('clear').addEventListener('click', function(){
+    pEl.value=''; qEl.value=''; dtEl.value='';
+    compute();
+  });
+
+  document.getElementById('copy').addEventListener('click', async function(){
+    const r = compute();
+    const text = `Eau (PAC/échangeur)\n- P: ${Number.isFinite(r.P)?fmt(r.P,2)+' kW':'—'}\n- V̇: ${Number.isFinite(r.Q)?fmt(r.Q,3)+' m³/h':'—'}\n- ΔT: ${Number.isFinite(r.DT)?fmt(r.DT,2)+' °C':'—'}\n- Débit: ${Number.isFinite(r.lmin)?fmt(r.lmin,1)+' L/min':'—'}`;
+    await copyText(text);
+    this.textContent='✅ Copié';
+    setTimeout(()=> this.textContent='Copier résultats', 900);
+  });
+
+  compute();
+});
+</script>
+</body>
+</html>

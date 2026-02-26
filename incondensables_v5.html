@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InerWeb Incondensables v5.1 - Test Incondensables Circuit</title>
+    
+    <style>
+        :root { --accent: #e8914a; --text: #0f2d52; --muted: #6c757d; --gradient-orange: linear-gradient(135deg, #e8914a 0%, #f3b07a 50%, #f3b07a 100%); --shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(180deg, #faf7f2 0%, #f0ebe3 100%); min-height: 100vh; color: var(--text); }
+        
+        .main-header { background: var(--gradient-orange); color: white; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        .logo-card { background: white; border-radius: 12px; padding: 8px; cursor: pointer; }
+        .logo-card img { height: 40px; }
+        .header-center { flex: 1; text-align: center; }
+        .header-center h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 2px; }
+        .version-badge { background: #27ae60; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
+        
+        
+        
+        
+        
+        .main-content { max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 20px; padding: 2rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+        .card-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.9rem; }
+        .form-group select, .form-group input { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; }
+        .form-group select:focus, .form-group input:focus { border-color: var(--accent); outline: none; }
+        
+        .btn-primary { width: 100%; padding: 12px; background: linear-gradient(135deg, #c0392b, #e74c3c); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+        .btn-primary:hover { transform: scale(1.02); }
+        
+        .result-box { margin-top: 1.5rem; padding: 1.5rem; border-radius: 12px; }
+        .result-ok { background: #d1fae5; border-left: 4px solid #27ae60; }
+        .result-warning { background: #fef3c7; border-left: 4px solid #e8914a; }
+        .result-danger { background: #fee2e2; border-left: 4px solid #e74c3c; }
+        
+        .info-box { background: #e3f2fd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; font-size: 0.9rem; color: #0f2d52; }
+        .procedure-list { list-style: decimal; padding-left: 1.5rem; }
+        .procedure-list li { margin-bottom: 0.5rem; }
+        
+        footer { background: var(--gradient-orange); color: white; padding: 1.5rem; text-align: center; margin-top: 3rem; }
+    </style>
+    <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="theme_force.css">
+</head>
+<body>
+    <div id="iw-header"></div>
+    <nav id="iw-nav"></nav>
+
+
+
+
+
+<main class="main-content">
+    
+    <div class="card">
+        <h2 class="card-title">&#129514; Test Incondensables à l'Arrêt</h2>
+        
+        <div class="info-box">
+            <strong>&#128203; Procédure :</strong>
+            <ol class="procedure-list">
+                <li>Arrêter l'installation et laisser stabiliser 10-15 min</li>
+                <li>Mesurer la température d'air au condenseur (T<sub>air</sub>)</li>
+                <li>Lire la HP stabilisée sur le manomètre</li>
+                <li>Comparer avec la pression théorique à T<sub>air</sub></li>
+            </ol>
+        </div>
+        
+        <div class="form-group">
+            <label>🧪 Fluide frigorigène</label>
+            <select id="fluid">
+                <optgroup label="HFC courants">
+                    <option value="R134a">R134a</option>
+                    <option value="R404A">R404A</option>
+                    <option value="R407C">R407C</option>
+                    <option value="R410A">R410A</option>
+                    <option value="R507A">R507A</option>
+                </optgroup>
+                <optgroup label="HFO / Bas GWP">
+                    <option value="R1234yf">R1234yf</option>
+                    <option value="R1234ze">R1234ze(E)</option>
+                    <option value="R454B">R454B</option>
+                    <option value="R32">R32</option>
+                    <option value="R448A">R448A</option>
+                    <option value="R449A">R449A</option>
+                </optgroup>
+                <optgroup label="Naturels">
+                    <option value="R290">R290 (Propane)</option>
+                    <option value="R600a">R600a (Isobutane)</option>
+                    <option value="R717">R717 (Ammoniac)</option>
+                    <option value="R744">R744 (CO₂)</option>
+                </optgroup>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>📊 HP mesurée (bar relatif)</label>
+            <input type="number" id="hp" step="0.1" placeholder="Ex: 12.5" inputmode="decimal">
+        </div>
+        
+        <div class="form-group">
+            <label>&#127777;ï¸ Température air au condenseur (°C)</label>
+            <input type="number" id="tair" step="0.1" placeholder="Ex: 32" inputmode="decimal">
+        </div>
+        
+        <button class="btn-primary" onclick="testIncondensables()">🔍 ANALYSER</button>
+        
+        <div id="result"></div>
+    </div>
+    
+    <div class="card">
+        <h2 class="card-title">▶„¹ï¸ Principe du Test</h2>
+        <p style="margin-bottom:1rem;">À l'arrêt et après stabilisation, la pression HP doit correspondre à la <strong>pression de saturation</strong> du fluide à la température ambiante du condenseur.</p>
+        <p style="margin-bottom:1rem;">Si la HP mesurée est <strong>significativement supérieure</strong> à la pression théorique, cela indique la présence d'air ou de gaz incondensables dans le circuit.</p>
+        <p><strong>Tolérance normale :</strong> Î”T ▶‰¤ 5K ou Î”P ▶‰¤ 0.5 bar (erreur de mesure)</p>
+    </div>
+    
+</main>
+
+<footer>
+    <p>Application pédagogique gratuite • F. Henninot • LPP Jacques Raynaud • Campus Equatio</p>
+</footer>
+
+<script>
+// ========== THERMOCORE MINI - Base de données fluides ==========
+const FLUIDS = {
+    // Coefficients Antoine: log10(P_bar) = A - B/(C+T_celsius)
+    // Ou coefficients polynomiaux pour certains fluides
+    // Coefficients Antoine VÉRIFIÉS — source: cerveau_v5.js (InerWeb Fluide)
+    // Formule: log10(P_bar_abs) = A - B/(C + T_celsius)
+    "R134a": { A: 4.30457, B: 935.397, C: 243.72, Tc: 101.06, Pc: 40.593 },
+    "R404A": { A: 3.42644, B: 479.93, C: 188.021, Tc: 72.12, Pc: 37.29 },
+    "R407C": { A: 3.47188, B: 495.682, C: 187.245, Tc: 86.05, Pc: 46.25 },
+    "R410A": { A: 4.52466, B: 939.988, C: 259.502, Tc: 71.34, Pc: 49.01 },
+    "R507A": { A: 3.47191, B: 496.773, C: 191.511, Tc: 70.6, Pc: 37.05 },
+    "R1234yf": { A: 4.06338, B: 798.896, C: 219.842, Tc: 94.7, Pc: 33.82 },
+    "R1234ze": { A: 4.32742, B: 946.211, C: 231.591, Tc: 109.4, Pc: 36.36 },
+    "R454B": { A: 3.83275, B: 607.165, C: 210.397, Tc: 78.1, Pc: 50.4 },
+    "R32": { A: 3.73131, B: 535.929, C: 196.744, Tc: 78.11, Pc: 57.82 },
+    "R448A": { A: 3.39209, B: 479.944, C: 187.845, Tc: 83.7, Pc: 44.6 },
+    "R449A": { A: 3.374, B: 477.762, C: 187.625, Tc: 81.5, Pc: 43.4 },
+    "R290": { A: 3.9808, B: 813.121, C: 246.053, Tc: 96.74, Pc: 42.51 },
+    "R600a": { A: 4.3258, B: 1132.108, C: 272.03, Tc: 134.66, Pc: 36.29 },
+    "R717": { A: 4.61754, B: 976.409, C: 245.041, Tc: 132.25, Pc: 113.33 },
+    "R744": { A: 4.64033, B: 830.099, C: 268.13, Tc: 31.0, Pc: 73.77 }
+};
+
+// Calcul pression de saturation (bar absolu) à partir de la température
+function Psat(fluid, T_celsius) {
+    const f = FLUIDS[fluid];
+    if (!f) return null;
+    
+    // Équation d'Antoine
+    const logP = f.A - f.B / (f.C + T_celsius);
+    return Math.pow(10, logP);
+}
+
+// Calcul température de saturation (°C) à partir de la pression
+function Tsat(fluid, P_bar_abs) {
+    const f = FLUIDS[fluid];
+    if (!f || P_bar_abs <= 0) return null;
+    
+    // Inversion Antoine: T = B/(A - log10(P)) - C
+    const logP = Math.log10(P_bar_abs);
+    return f.B / (f.A - logP) - f.C;
+}
+
+// Test incondensables
+function testIncondensables() {
+    const fluid = document.getElementById('fluid').value;
+    const hp_rel = parseFloat(document.getElementById('hp').value);
+    const tair = parseFloat(document.getElementById('tair').value);
+    const resultDiv = document.getElementById('result');
+    
+    if (!fluid || isNaN(hp_rel) || isNaN(tair)) {
+        resultDiv.innerHTML = '<div class="result-box result-warning">▶š ï¸ Veuillez remplir tous les champs</div>';
+        return;
+    }
+    
+    // Convertir HP relative en absolue
+    const hp_abs = hp_rel + 1.013;
+    
+    // Calculer la pression théorique à Tair
+    const P_theo_abs = Psat(fluid, tair);
+    const P_theo_rel = P_theo_abs - 1.013;
+    
+    // Calculer la température de saturation à HP mesurée
+    const T_sat_hp = Tsat(fluid, hp_abs);
+    
+    // Écarts
+    const deltaP = hp_rel - P_theo_rel;
+    const deltaT = T_sat_hp - tair;
+    
+    // Diagnostic
+    let verdict, cssClass, details;
+    
+    if (Math.abs(deltaT) <= 2 && Math.abs(deltaP) <= 0.5) {
+        verdict = "&#10004; PAS D'INCONDENSABLES";
+        cssClass = "result-ok";
+        details = "Circuit propre, écart dans les tolérances de mesure.";
+    } else if (Math.abs(deltaT) <= 5 && Math.abs(deltaP) <= 1) {
+        verdict = "&#10004; CIRCUIT OK";
+        cssClass = "result-ok";
+        details = "Écart acceptable (± erreur de mesure manomètre/thermomètre).";
+    } else if (deltaT > 5 && deltaP > 1) {
+        verdict = "🔴 PRÉSENCE D'INCONDENSABLES PROBABLE";
+        cssClass = "result-danger";
+        details = "HP trop élevée par rapport à la température ambiante. Air ou azote présent. <strong>Purge recommandée.</strong>";
+    } else if (deltaT < -5) {
+        verdict = "▶š ï¸ HP ANORMALEMENT BASSE";
+        cssClass = "result-warning";
+        details = "Vérifier : charge insuffisante, fuite, problème d'échange thermique.";
+    } else {
+        verdict = "▶š ï¸ SUSPICION LÉGÈRE";
+        cssClass = "result-warning";
+        details = "Écart notable mais non critique. Surveiller.";
+    }
+    
+    resultDiv.innerHTML = `
+        <div class="result-box ${cssClass}">
+            <h3 style="margin-bottom:1rem;">${verdict}</h3>
+            
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem;">
+                <div style="background:white;padding:0.8rem;border-radius:8px;">
+                    <div style="color:#6b7280;font-size:0.8rem;">T°sat(HP mesurée)</div>
+                    <div style="font-size:1.3rem;font-weight:700;color:#1e40af;">${T_sat_hp.toFixed(1)}°C</div>
+                </div>
+                <div style="background:white;padding:0.8rem;border-radius:8px;">
+                    <div style="color:#6b7280;font-size:0.8rem;">T° air condenseur</div>
+                    <div style="font-size:1.3rem;font-weight:700;color:#0891b2;">${tair.toFixed(1)}°C</div>
+                </div>
+            </div>
+            
+            <div style="background:white;padding:0.8rem;border-radius:8px;margin-bottom:1rem;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem;">
+                    <span>Écart température Î”T :</span>
+                    <strong style="color:${Math.abs(deltaT) > 5 ? '#c0392b' : '#1a8a4a'};">${deltaT > 0 ? '+' : ''}${deltaT.toFixed(1)} K</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span>Écart pression Î”P :</span>
+                    <strong style="color:${Math.abs(deltaP) > 1 ? '#c0392b' : '#1a8a4a'};">${deltaP > 0 ? '+' : ''}${deltaP.toFixed(2)} bar</strong>
+                </div>
+                <div style="font-size:0.8rem;color:#9ca3af;margin-top:0.5rem;">
+                    P théorique à ${tair}°C = ${P_theo_rel.toFixed(2)} bar (rel)
+                </div>
+            </div>
+            
+            <p>${details}</p>
+        </div>
+    `;
+}
+</script>
+
+    <div id="iw-footer"></div>
+    <script src="site_config.js"></script>
+    <script src="ui_shell.js"></script>
+</body>
+</html>

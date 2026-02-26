@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pression — Convertisseur</title>
+  <link rel="stylesheet" href="../theme.css" />
+  <script src="../site_config.js"></script>
+  <script src="../ui_shell.js" defer></script>
+  <script src="tools_common.js" defer></script>
+<link rel="stylesheet" href="../theme_force.css">
+</head>
+<body>
+  <div id="iw-header" data-subtitle="Outils atelier — Pression"></div>
+  <nav id="iw-nav"></nav>
+
+  <main class="iw-container">
+    <div class="iw-card">
+      <div class="iw-card-title">📌 Convertisseur de pression</div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div>
+          <label class="iw-calc-label">Valeur</label>
+          <input id="val" class="iw-input" inputmode="decimal" placeholder="ex : 28" />
+        </div>
+        <div>
+          <label class="iw-calc-label">Unité</label>
+          <select id="unit" class="iw-select">
+            <option value="bar">bar</option>
+            <option value="psi">psi</option>
+            <option value="MPa">MPa</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="iw-grid-2" style="margin-top:0.8rem;">
+        <div class="iw-calc"><div class="iw-calc-label">bar</div><div class="iw-calc-value" id="out_bar">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">psi</div><div class="iw-calc-value" id="out_psi">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">MPa</div><div class="iw-calc-value" id="out_MPa">—</div></div>
+        <div class="iw-calc"><div class="iw-calc-label">kPa</div><div class="iw-calc-value" id="out_kPa">—</div></div>
+      </div>
+
+      <div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.8rem;">
+        <a class="iw-btn" href="index.html">⬅️ Retour outils</a>
+        <button class="iw-btn iw-btn-primary" id="copy">Copier résultats</button>
+      </div>
+    </div>
+  </main>
+
+  <footer id="iw-footer"></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const {parseNumber, fmt, copyText, setText} = window.iwTools;
+
+  const PSI_PER_BAR = 14.5037738;
+
+  const valEl = document.getElementById('val');
+  const unitEl = document.getElementById('unit');
+
+  function compute(){
+    const v = parseNumber(valEl.value);
+    const u = unitEl.value;
+
+    let bar = NaN;
+    if(Number.isFinite(v)){
+      if(u === 'bar') bar = v;
+      if(u === 'psi') bar = v / PSI_PER_BAR;
+      if(u === 'MPa') bar = v * 10;
+    }
+
+    const psi = Number.isFinite(bar) ? bar * PSI_PER_BAR : NaN;
+    const mpa = Number.isFinite(bar) ? bar / 10 : NaN;
+    const kpa = Number.isFinite(bar) ? bar * 100 : NaN;
+
+    setText('out_bar', fmt(bar, 3));
+    setText('out_psi', fmt(psi, 2));
+    setText('out_MPa', fmt(mpa, 4));
+    setText('out_kPa', fmt(kpa, 0));
+
+    return {bar, psi, mpa, kpa};
+  }
+
+  valEl.addEventListener('input', compute);
+  unitEl.addEventListener('change', compute);
+
+  document.getElementById('copy').addEventListener('click', async function(){
+    const r = compute();
+    const text = `Pression\n- bar: ${fmt(r.bar,3)}\n- psi: ${fmt(r.psi,2)}\n- MPa: ${fmt(r.mpa,4)}\n- kPa: ${fmt(r.kpa,0)}`;
+    await copyText(text);
+    this.textContent = '✅ Copié';
+    setTimeout(()=> this.textContent='Copier résultats', 900);
+  });
+
+  compute();
+});
+</script>
+</body>
+</html>

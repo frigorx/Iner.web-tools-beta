@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InerWeb Identification v5.1 - Identification Fluide Frigorigène</title>
+    
+    <style>
+        :root { --accent: #e8914a; --text: #0f2d52; --muted: #6c757d; --gradient-orange: linear-gradient(135deg, #e8914a 0%, #f3b07a 50%, #f3b07a 100%); --shadow: 0 8px 24px rgba(0,0,0,0.12); }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Poppins', sans-serif; background: linear-gradient(180deg, #faf7f2 0%, #f0ebe3 100%); min-height: 100vh; color: var(--text); }
+        
+        .main-header { background: var(--gradient-orange); color: white; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+        .header-left { display: flex; align-items: center; gap: 1rem; }
+        .logo-card { background: white; border-radius: 12px; padding: 8px; cursor: pointer; }
+        .logo-card img { height: 40px; }
+        .header-center { flex: 1; text-align: center; }
+        .header-center h1 { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; letter-spacing: 2px; }
+        .version-badge { background: #27ae60; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; }
+        
+        
+        
+        
+        
+        .main-content { max-width: 900px; margin: 2rem auto; padding: 0 1rem; }
+        .card { background: white; border-radius: 20px; padding: 2rem; box-shadow: var(--shadow); margin-bottom: 1.5rem; }
+        .card-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.3rem; font-size: 0.9rem; }
+        .form-group input { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1rem; }
+        .form-group input:focus { border-color: var(--accent); outline: none; }
+        
+        .radio-group { display: flex; gap: 1.5rem; margin-bottom: 1rem; }
+        .radio-group label { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+        
+        .btn-primary { width: 100%; padding: 12px; background: linear-gradient(135deg, #8e44ad, #9b59b6); color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+        .btn-primary:hover { transform: scale(1.02); }
+        
+        .results-grid { display: grid; gap: 1rem; margin-top: 1.5rem; }
+        .result-card { padding: 1rem; border-radius: 12px; border-left: 4px solid; display: flex; justify-content: space-between; align-items: center; }
+        .result-card.match-high { background: #d1fae5; border-color: #27ae60; }
+        .result-card.match-medium { background: #fef3c7; border-color: #e8914a; }
+        .result-card.match-low { background: #f3f4f6; border-color: #9ca3af; }
+        
+        .match-score { font-size: 1.5rem; font-weight: 800; }
+        .match-high .match-score { color: #1a8a4a; }
+        .match-medium .match-score { color: #d97706; }
+        .match-low .match-score { color: #6b7280; }
+        
+        .info-box { background: #e3f2fd; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; font-size: 0.9rem; color: #0f2d52; }
+        
+        footer { background: var(--gradient-orange); color: white; padding: 1.5rem; text-align: center; margin-top: 3rem; }
+    </style>
+    <link rel="stylesheet" href="theme.css">
+<link rel="stylesheet" href="theme_force.css">
+</head>
+<body>
+    <div id="iw-header"></div>
+    <nav id="iw-nav"></nav>
+
+
+
+
+
+<main class="main-content">
+    
+    <div class="card">
+        <h2 class="card-title">🔬 Identifier un Fluide Inconnu</h2>
+        
+        <div class="info-box">
+            <strong>💡 Principe :</strong> Chaque fluide frigorigène a une courbe P/T unique. 
+            En mesurant simultanément la pression et la température de saturation, 
+            on peut identifier le fluide par comparaison avec les courbes de référence.
+        </div>
+        
+        <div class="form-group">
+            <label>📊 Pression mesurée (bar)</label>
+            <input type="number" id="pressure" step="0.1" placeholder="Ex: 8.5" inputmode="decimal">
+        </div>
+        
+        <div class="radio-group">
+            <label><input type="radio" name="ptype" value="relative" checked> Pression relative (manomètre)</label>
+            <label><input type="radio" name="ptype" value="absolute"> Pression absolue</label>
+        </div>
+        
+        <div class="form-group">
+            <label>&#127777;ï¸ Température mesurée (°C)</label>
+            <input type="number" id="temperature" step="0.1" placeholder="Ex: 25.0" inputmode="decimal">
+        </div>
+        
+        <button class="btn-primary" onclick="identifyFluid()">🔍 IDENTIFIER LE FLUIDE</button>
+        
+        <div id="results"></div>
+    </div>
+    
+    <div class="card">
+        <h2 class="card-title">▶„¹ï¸ Conseils de Mesure</h2>
+        <ul style="padding-left:1.5rem;line-height:1.8;">
+            <li>Effectuer la mesure sur un circuit <strong>stabilisé</strong> (compresseur arrêté 10+ min)</li>
+            <li>Utiliser un <strong>thermomètre de contact</strong> sur la tubulure (pas un infrarouge)</li>
+            <li>La précision dépend de la qualité des instruments de mesure</li>
+            <li>En cas de doute, répéter la mesure ou utiliser un analyseur de fluide</li>
+        </ul>
+    </div>
+    
+</main>
+
+<footer>
+    <p>Application pédagogique gratuite • F. Henninot • LPP Jacques Raynaud • Campus Equatio</p>
+</footer>
+
+<script>
+// ========== THERMOCORE MINI - Base de données 23 fluides ==========
+const FLUIDS = {
+    "R134a": { A: 4.30457, B: 935.397, C: 243.72, name: "R134a", type: "HFC", gwp: 1430 },
+    "R404A": { A: 3.42644, B: 479.93, C: 188.021, name: "R404A", type: "HFC", gwp: 3922 },
+    "R407C": { A: 3.47188, B: 495.682, C: 187.245, name: "R407C", type: "HFC", gwp: 1774 },
+    "R410A": { A: 4.52466, B: 939.988, C: 259.502, name: "R410A", type: "HFC", gwp: 2088 },
+    "R507A": { A: 3.47191, B: 496.773, C: 191.511, name: "R507A", type: "HFC", gwp: 3985 },
+    "R22": { A: 4.2641, B: 897.239, C: 251.53, name: "R22", type: "HCFC", gwp: 1810 },
+    "R1234yf": { A: 4.06338, B: 798.896, C: 219.842, name: "R1234yf", type: "HFO", gwp: 4 },
+    "R1234ze": { A: 3.985, B: 965.0, C: 233.8, name: "R1234ze(E)", type: "HFO", gwp: 7 },
+    "R454B": { A: 3.83275, B: 607.165, C: 210.397, name: "R454B", type: "HFO", gwp: 466 },
+    "R32": { A: 3.73131, B: 535.929, C: 196.744, name: "R32", type: "HFC", gwp: 675 },
+    "R448A": { A: 3.39209, B: 479.944, C: 187.845, name: "R448A", type: "HFO", gwp: 1387 },
+    "R449A": { A: 3.374, B: 477.762, C: 187.625, name: "R449A", type: "HFO", gwp: 1397 },
+    "R452A": { A: 3.40097, B: 482.638, C: 190.325, name: "R452A", type: "HFO", gwp: 2140 },
+    "R513A": { A: 4.02433, B: 813.051, C: 226.773, name: "R513A", type: "HFO", gwp: 631 },
+    "R290": { A: 3.9808, B: 813.121, C: 246.053, name: "R290 (Propane)", type: "HC", gwp: 3 },
+    "R600a": { A: 4.3258, B: 1132.108, C: 272.03, name: "R600a (Isobutane)", type: "HC", gwp: 3 },
+    "R717": { A: 4.61754, B: 976.409, C: 245.041, name: "R717 (Ammoniac)", type: "Naturel", gwp: 0 },
+    "R744": { A: 4.64033, B: 830.099, C: 268.13, name: "R744 (CO₂)", type: "Naturel", gwp: 1 },
+    "R407A": { A: 3.44313, B: 498.164, C: 191.379, name: "R407A", type: "HFC", gwp: 2107 },
+    "R407F": { A: 3.66732, B: 570.568, C: 203.939, name: "R407F", type: "HFC", gwp: 1825 },
+    "R422D": { A: 4.090, B: 1010.0, C: 237.5, name: "R422D", type: "HFC", gwp: 2729 },
+    "R438A": { A: 4.085, B: 1008.0, C: 237.0, name: "R438A", type: "HFC", gwp: 2265 },
+    "R123": { A: 3.850, B: 920.0, C: 225.0, name: "R123", type: "HCFC", gwp: 77 }
+};
+
+// Calcul pression de saturation (bar absolu)
+function Psat(fluid, T_celsius) {
+    const f = FLUIDS[fluid];
+    if (!f) return null;
+    const logP = f.A - f.B / (f.C + T_celsius);
+    return Math.pow(10, logP);
+}
+
+// Calcul température de saturation (°C)
+function Tsat(fluid, P_bar_abs) {
+    const f = FLUIDS[fluid];
+    if (!f || P_bar_abs <= 0) return null;
+    const logP = Math.log10(P_bar_abs);
+    return f.B / (f.A - logP) - f.C;
+}
+
+// Identification du fluide
+function identifyFluid() {
+    const pressure = parseFloat(document.getElementById('pressure').value);
+    const temperature = parseFloat(document.getElementById('temperature').value);
+    const ptype = document.querySelector('input[name="ptype"]:checked').value;
+    const resultsDiv = document.getElementById('results');
+    
+    if (isNaN(pressure) || isNaN(temperature)) {
+        resultsDiv.innerHTML = '<div style="padding:1rem;background:#fef3c7;border-radius:8px;margin-top:1rem;">▶š ï¸ Veuillez remplir tous les champs</div>';
+        return;
+    }
+    
+    // Convertir en pression absolue si nécessaire
+    const P_abs = ptype === 'relative' ? pressure + 1.013 : pressure;
+    
+    // Calculer le score de correspondance pour chaque fluide
+    const results = [];
+    
+    for (const [key, fluid] of Object.entries(FLUIDS)) {
+        // Calculer la température théorique Ã  cette pression
+        const T_theo = Tsat(key, P_abs);
+        if (T_theo === null) continue;
+        
+        // Écart en température
+        const deltaT = Math.abs(temperature - T_theo);
+        
+        // Score de correspondance (100% si écart = 0, diminue avec l'écart)
+        // Tolérance de 5K = 50% de score
+        const score = Math.max(0, 100 - deltaT * 10);
+        
+        results.push({
+            name: fluid.name,
+            type: fluid.type,
+            gwp: fluid.gwp,
+            T_theo: T_theo,
+            deltaT: deltaT,
+            score: score
+        });
+    }
+    
+    // Trier par score décroissant
+    results.sort((a, b) => b.score - a.score);
+    
+    // Filtrer : ne garder que score > 0, max 8 résultats
+    const candidates = results.filter(r => r.score > 0).slice(0, 8);
+    
+    let html = '<div class="results-grid">';
+    html += `<h3 style="margin:1rem 0 0.5rem;">Résultats (${pressure} bar ${ptype === 'relative' ? 'rel' : 'abs'} @ ${temperature}°C)</h3>`;
+    
+    if (candidates.length === 0) {
+        html += `<div style="padding:1.5rem;background:#fee2e2;border-radius:12px;text-align:center;">
+            <strong>Aucun fluide ne correspond</strong> à ces mesures.<br>
+            Vérifiez vos instruments ou utilisez un analyseur de fluide.
+        </div>`;
+    } else {
+        for (const r of candidates) {
+            let matchClass = 'match-low';
+            if (r.score >= 80) matchClass = 'match-high';
+            else if (r.score >= 50) matchClass = 'match-medium';
+            html += `<div class="result-card ${matchClass}">
+                <div><strong style="font-size:1.1rem;">${r.name}</strong>
+                <div style="font-size:0.85rem;color:#6b7280;">${r.type} • GWP: ${r.gwp}</div>
+                <div style="font-size:0.8rem;color:#9ca3af;">T° théo: ${r.T_theo.toFixed(1)}°C • ΔT: ${r.deltaT.toFixed(1)}K</div></div>
+                <div class="match-score">${r.score.toFixed(0)}%</div></div>`;
+        }
+        if (candidates[0].score < 80) {
+            html += `<div style="padding:1rem;background:#fef3c7;border-radius:12px;margin-top:1rem;font-size:0.9rem;">
+                ⚠️ <strong>Attention :</strong> Correspondance faible. Vérifiez vos mesures ou utilisez un analyseur.</div>`;
+        }
+        html += `<div style="padding:0.6rem;background:#f0f9ff;border-radius:8px;margin-top:0.8rem;font-size:0.75rem;color:#475569;text-align:center;">
+            Score indicatif basé sur l'écart T° mesurée / T° théorique (Antoine). Pour confirmation : analyseur de réfrigérant.</div>`;
+    }
+    html += '</div>';
+    resultsDiv.innerHTML = html;
+}
+</script>
+
+    <div id="iw-footer"></div>
+    <script src="site_config.js"></script>
+    <script src="ui_shell.js"></script>
+</body>
+</html>

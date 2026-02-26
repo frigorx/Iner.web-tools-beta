@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>InerWeb Fluide v5.2 — Diagnostic & Dépannage</title>
+    <meta name="description" content="Diagnostic et dépannage frigorifique - Flux unique symptôme/mesures/actions - InerWeb Fluide">
+    <meta name="author" content="F. Henninot — Formateur Froid &amp; CVC">
+    <link rel="stylesheet" href="theme.css">
+<style>
+.container { max-width: 960px; margin: 0 auto; padding: 1rem; }
+
+/* ========== PROGRESS BAR ========== */
+.progress-bar {
+    display: flex; gap: 2px; margin-bottom: 1.5rem;
+    background: white; border-radius: 14px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+.progress-step {
+    flex: 1; padding: .6rem .4rem; text-align: center;
+    font-weight: 700; font-size: .75rem; color: #9ca3af;
+    background: #f5f5f5; transition: all .3s; cursor: default;
+}
+.progress-step.active { background: var(--orange, #e8914a); color: white; }
+.progress-step.done { background: var(--ok, #27ae60); color: white; }
+.progress-step .step-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(255,255,255,.25); font-size: .7rem; margin-right: .3rem;
+}
+@media (max-width: 600px) {
+    .progress-step { font-size: .65rem; padding: .5rem .2rem; }
+    .progress-step .step-label { display: none; }
+}
+
+/* ========== CARDS ========== */
+.card {
+    background: white; border-radius: 16px; padding: 1.2rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,.08); margin-bottom: 1.2rem;
+    border: 2px solid transparent; transition: all .3s;
+}
+.card.locked { opacity: .4; pointer-events: none; filter: grayscale(.5); }
+.card.highlight { border-color: var(--orange, #e8914a); }
+.card-title {
+    font-weight: 800; font-size: 1.05rem; color: var(--navy, #0f2d52);
+    margin-bottom: .8rem; display: flex; align-items: center; gap: .5rem;
+}
+.card-title .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--orange, #e8914a); color: white;
+    font-size: .85rem; font-weight: 800; flex-shrink: 0;
+}
+
+/* ========== CONFIG ========== */
+.config-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.config-grid label { font-weight: 600; font-size: .82rem; display: block; margin-bottom: .25rem; color: var(--navy, #0f2d52); }
+.config-grid select, .config-grid input[type="number"] {
+    width: 100%; padding: .5rem .6rem; border: 2px solid #e0e0e0;
+    border-radius: 10px; font-size: .88rem; background: white;
+}
+.config-grid select:focus, .config-grid input:focus {
+    border-color: var(--orange, #e8914a); outline: none;
+    box-shadow: 0 0 0 3px rgba(232,145,74,.15);
+}
+.config-grid small { font-size: .72rem; color: #6b7280; margin-top: .2rem; display: block; }
+@media (max-width: 700px) { .config-grid { grid-template-columns: 1fr; } }
+
+/* ========== SYMPTOM GRID ========== */
+.symptom-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: .7rem; }
+.symptom-card {
+    padding: .8rem .6rem; border-radius: 12px; text-align: center;
+    cursor: pointer; border: 2px solid #e5e7eb; background: #fafafa;
+    transition: all .25s; user-select: none;
+}
+.symptom-card:hover { border-color: var(--orange, #e8914a); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+.symptom-card.selected {
+    border-color: var(--orange, #e8914a); background: linear-gradient(135deg, #fff7ed, #ffedd5);
+    box-shadow: 0 4px 16px rgba(232,145,74,.25);
+}
+.symptom-icon { font-size: 1.8rem; margin-bottom: .3rem; }
+.symptom-name { font-weight: 700; font-size: .78rem; color: var(--navy, #0f2d52); line-height: 1.2; }
+
+/* ========== FOLLOWUP ========== */
+.followup-section { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px dashed #e5e7eb; }
+.followup-section.active { display: block; }
+.followup-q {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: .6rem .8rem; background: #f9fafb; border-radius: 10px; margin-bottom: .5rem; font-size: .88rem;
+}
+.followup-q span { flex: 1; }
+.btn-group { display: flex; gap: .3rem; flex-shrink: 0; }
+.btn-yn {
+    padding: .35rem .8rem; border-radius: 8px; border: 2px solid #d1d5db;
+    background: white; cursor: pointer; font-weight: 700; font-size: .82rem; transition: all .2s;
+}
+.btn-yn:hover { border-color: #9ca3af; }
+.btn-yn.yes.active { background: var(--ok, #27ae60); color: white; border-color: var(--ok, #27ae60); }
+.btn-yn.no.active { background: var(--danger, #e74c3c); color: white; border-color: var(--danger, #e74c3c); }
+
+/* ========== MEASUREMENTS ========== */
+.measures-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+.measure-field label { font-weight: 600; font-size: .82rem; display: flex; align-items: center; gap: .4rem; margin-bottom: .25rem; }
+.measure-field .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.dot.blue { background: #2aafaf; } .dot.red { background: #e74c3c; }
+.dot.orange { background: #e8914a; } .dot.cyan { background: #06b6d4; }
+.input-unit { display: flex; align-items: center; gap: .4rem; }
+.input-unit input {
+    flex: 1; padding: .45rem .6rem; border: 2px solid #e0e0e0;
+    border-radius: 10px; font-size: .88rem; min-width: 0;
+}
+.input-unit input:focus { border-color: var(--orange, #e8914a); outline: none; }
+.input-unit .unit { font-weight: 700; font-size: .8rem; color: #6b7280; min-width: 28px; }
+@media (max-width: 600px) { .measures-grid { grid-template-columns: 1fr; } }
+
+/* ========== CALC BOXES ========== */
+.calc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: .6rem; margin-top: 1rem; }
+.calc-box {
+    padding: .6rem; border-radius: 10px; text-align: center;
+    border: 2px solid #e5e7eb; background: #f9fafb; transition: all .3s;
+}
+.calc-box .calc-label { font-size: .72rem; font-weight: 600; color: #6b7280; }
+.calc-box .calc-val { font-size: 1.15rem; font-weight: 800; color: var(--navy, #0f2d52); margin-top: .15rem; }
+.calc-box .calc-eval { font-size: .7rem; font-weight: 700; margin-top: .15rem; }
+.calc-box.ok { border-color: var(--ok, #27ae60); background: #ecfdf5; }
+.calc-box.ok .calc-eval { color: var(--ok, #27ae60); }
+.calc-box.warn { border-color: var(--warn, #e8914a); background: #fffbeb; }
+.calc-box.warn .calc-eval { color: var(--warn, #e8914a); }
+.calc-box.danger { border-color: var(--danger, #e74c3c); background: #fef2f2; }
+.calc-box.danger .calc-eval { color: var(--danger, #e74c3c); }
+
+/* ========== MISC ========== */
+.hint-box { padding: .7rem .9rem; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 0 10px 10px 0; font-size: .85rem; color: #1e40af; margin-bottom: 1rem; }
+.inco-section { margin-top: .5rem; padding: .8rem; background: #fef2f2; border-radius: 10px; border: 1px solid #fecaca; }
+.safety-alert { padding: .8rem 1rem; border-radius: 12px; margin-bottom: 1rem; border: 2px solid; font-size: .88rem; font-weight: 600; }
+.safety-alert.a2l { background: #fef3c7; border-color: #e8914a; color: #92400e; }
+.safety-alert.a3 { background: #fee2e2; border-color: #e74c3c; color: #991b1b; }
+.safety-alert.b2l { background: #fce4ec; border-color: #e91e63; color: #880e4f; }
+
+/* ========== RESULT ========== */
+.result-section { display: none; }
+.result-section.active { display: block; }
+.cause-card { padding: 1rem; border-radius: 12px; margin-bottom: .8rem; border-left: 5px solid; }
+.cause-card.high { border-color: var(--danger, #e74c3c); background: #fef2f2; }
+.cause-card.medium { border-color: var(--warn, #e8914a); background: #fffbeb; }
+.cause-card.low { border-color: #3b82f6; background: #eff6ff; }
+.cause-header { display: flex; align-items: center; gap: .5rem; font-weight: 800; font-size: .95rem; margin-bottom: .5rem; }
+.cause-confidence {
+    display: inline-flex; padding: .15rem .5rem; border-radius: 999px;
+    font-size: .7rem; font-weight: 700; color: white; flex-shrink: 0;
+}
+.cause-card.high .cause-confidence { background: var(--danger, #e74c3c); }
+.cause-card.medium .cause-confidence { background: var(--warn, #e8914a); }
+.cause-card.low .cause-confidence { background: #3b82f6; }
+.action-list { list-style: none; padding: 0; margin: 0; counter-reset: act; }
+.action-list li { padding: .4rem 0 .4rem 2rem; font-size: .85rem; position: relative; border-bottom: 1px dashed #e5e7eb; counter-increment: act; }
+.action-list li:last-child { border: none; }
+.action-list li::before {
+    content: counter(act); position: absolute; left: 0; top: .4rem;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--orange, #e8914a); color: white; text-align: center;
+    font-size: .7rem; line-height: 20px; font-weight: 700;
+}
+
+.btn-analyze {
+    display: block; width: 100%; padding: .9rem; margin-top: 1rem;
+    background: linear-gradient(135deg, #e8914a, #d47a35); color: white;
+    border: none; border-radius: 12px; font-weight: 800; font-size: 1rem;
+    cursor: pointer; transition: all .3s;
+}
+.btn-analyze:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(232,145,74,.35); }
+.btn-analyze:disabled { opacity: .4; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-reset {
+    display: inline-flex; align-items: center; gap: .4rem;
+    padding: .5rem 1rem; background: white; border: 2px solid #d1d5db;
+    border-radius: 10px; font-weight: 600; font-size: .82rem;
+    cursor: pointer; color: #6b7280;
+}
+.btn-reset:hover { border-color: var(--danger, #e74c3c); color: var(--danger, #e74c3c); }
+</style>
+</head>
+<body>
+
+<div id="iw-header" data-subtitle="Diagnostic & Dépannage"></div>
+<nav id="iw-nav"></nav>
+
+<div class="container">
+
+    <div class="progress-bar" id="progressBar">
+        <div class="progress-step active" id="prog-1"><span class="step-num">1</span><span class="step-label">Config</span></div>
+        <div class="progress-step" id="prog-2"><span class="step-num">2</span><span class="step-label">Symptôme</span></div>
+        <div class="progress-step" id="prog-3"><span class="step-num">3</span><span class="step-label">Mesures</span></div>
+        <div class="progress-step" id="prog-4"><span class="step-num">4</span><span class="step-label">Diagnostic</span></div>
+    </div>
+
+    <!-- ÉTAPE 1 : CONFIG -->
+    <section class="card highlight" id="step1">
+        <div class="card-title"><span class="num">1</span> Configuration de l'installation</div>
+        <div class="config-grid">
+            <div>
+                <label for="fluide">Fluide frigorigène</label>
+                <select id="fluide" onchange="onFluidChange()"><option value="">-- Choisir le fluide --</option></select>
+                <small id="fluid-info"></small>
+            </div>
+            <div>
+                <label for="typeInstall">Type d'installation</label>
+                <select id="typeInstall" onchange="onConfigChange()">
+                    <option value="">-- Choisir --</option>
+                    <option value="clim">Climatisation / PAC</option>
+                    <option value="froid_pos">Froid positif (+2 à +8°C)</option>
+                    <option value="froid_neg">Froid négatif (-18°C et moins)</option>
+                    <option value="geg">Groupe d'eau glacée</option>
+                </select>
+            </div>
+            <div>
+                <label for="altitude">Altitude (m)</label>
+                <input type="number" id="altitude" value="0" step="50" min="0" max="5000" inputmode="decimal" onchange="onConfigChange()">
+                <small>Corrige P<sub>atm</sub> (0m = 1.013 bar)</small>
+            </div>
+        </div>
+    </section>
+
+    <!-- ÉTAPE 2 : SYMPTÔME -->
+    <section class="card" id="step2">
+        <div class="card-title"><span class="num">2</span> Quel est le symptôme observé ?</div>
+        <p style="margin-bottom:.8rem;color:#6b7280;font-size:.85rem;">Sélectionnez le symptôme <strong>principal</strong>. Des questions terrain affineront le pré-diagnostic.</p>
+        <div class="symptom-grid" id="symptomGrid"></div>
+        <div class="followup-section" id="followupSection">
+            <div class="card-title" style="font-size:.92rem;">🔎 Vérifications terrain rapides</div>
+            <div id="followupQuestions"></div>
+        </div>
+    </section>
+
+    <!-- ÉTAPE 3 : MESURES -->
+    <section class="card locked" id="step3">
+        <div class="card-title"><span class="num">3</span> Mesures au manomètre et températures</div>
+        <div class="hint-box" id="measureHint">ℹ️ Sélectionnez d'abord un fluide et un symptôme pour débloquer les mesures.</div>
+        <div class="measures-grid">
+            <div class="measure-field"><label><span class="dot blue"></span> Pression BP (mano bleu)</label><div class="input-unit"><input type="number" id="pBP" step="0.1" placeholder="--" oninput="onMeasureChange()" inputmode="decimal"><span class="unit">bar</span></div></div>
+            <div class="measure-field"><label><span class="dot red"></span> Pression HP (mano rouge)</label><div class="input-unit"><input type="number" id="pHP" step="0.1" placeholder="--" oninput="onMeasureChange()" inputmode="decimal"><span class="unit">bar</span></div></div>
+            <div class="measure-field"><label><span class="dot cyan"></span> T° aspiration compresseur</label><div class="input-unit"><input type="number" id="tAsp" step="0.1" placeholder="--" oninput="onMeasureChange()" inputmode="decimal"><span class="unit">°C</span></div></div>
+            <div class="measure-field"><label><span class="dot orange"></span> T° sortie condenseur (liquide)</label><div class="input-unit"><input type="number" id="tLiq" step="0.1" placeholder="--" oninput="onMeasureChange()" inputmode="decimal"><span class="unit">°C</span></div></div>
+            <div class="measure-field"><label><span class="dot orange"></span> T° extérieure (air condenseur)</label><div class="input-unit"><input type="number" id="tExt" step="0.1" placeholder="--" oninput="onMeasureChange()" inputmode="decimal"><span class="unit">°C</span></div></div>
+            <div class="measure-field"><label><span class="dot cyan"></span> T° local / chambre froide</label><div class="input-unit"><input type="number" id="tLocal" step="0.1" placeholder="--" oninput="onMeasureChange()" inputmode="decimal"><span class="unit">°C</span></div></div>
+        </div>
+        <div style="margin-top:.8rem;padding:.6rem;background:#f0fdf4;border-radius:8px;font-size:.8rem;color:#166534;">
+            <strong>Rappels :</strong> Surchauffe (SR) = T°asp − T°sat BP &nbsp;•&nbsp; Sous-refroidissement (SC) = T°sat HP − T°liq &nbsp;•&nbsp; ΔT condenseur = T°sat HP − T°ext
+        </div>
+        <div class="calc-grid" id="calcGrid">
+            <div class="calc-box" id="boxTevap"><div class="calc-label">T° évap</div><div class="calc-val" id="vTevap">--</div><div class="calc-eval" id="eTevap"></div></div>
+            <div class="calc-box" id="boxTcond"><div class="calc-label">T° cond</div><div class="calc-val" id="vTcond">--</div><div class="calc-eval" id="eTcond"></div></div>
+            <div class="calc-box" id="boxSR"><div class="calc-label">Surchauffe</div><div class="calc-val" id="vSR">--</div><div class="calc-eval" id="eSR"></div></div>
+            <div class="calc-box" id="boxSC"><div class="calc-label">Sous-refroid.</div><div class="calc-val" id="vSC">--</div><div class="calc-eval" id="eSC"></div></div>
+            <div class="calc-box" id="boxDT"><div class="calc-label">ΔT condenseur</div><div class="calc-val" id="vDT">--</div><div class="calc-eval" id="eDT"></div></div>
+            <div class="calc-box" id="boxRC"><div class="calc-label">Taux compres.</div><div class="calc-val" id="vRC">--</div><div class="calc-eval" id="eRC"></div></div>
+        </div>
+        <div class="inco-section" id="incoSection" style="display:none;">
+            <div style="font-weight:700;margin-bottom:.5rem;">🧪 Test incondensables à l'arrêt</div>
+            <p style="font-size:.82rem;margin-bottom:.5rem;">Installation arrêtée ≥15 min. Comparer HP mesurée avec Psat(T°air condenseur).</p>
+            <div style="display:flex;gap:.8rem;align-items:center;">
+                <div class="input-unit" style="flex:1;"><input type="number" id="incoHP" step="0.1" placeholder="HP arrêt" oninput="testInco()" inputmode="decimal"><span class="unit">bar</span></div>
+                <div class="input-unit" style="flex:1;"><input type="number" id="incoT" step="0.1" placeholder="T° air" oninput="testInco()" inputmode="decimal"><span class="unit">°C</span></div>
+            </div>
+            <div id="incoResult" style="margin-top:.5rem;font-weight:700;font-size:.88rem;"></div>
+        </div>
+        <button class="btn-analyze" id="btnDiag" onclick="lancerDiagnostic()" disabled>🔍 LANCER LE DIAGNOSTIC CROISÉ</button>
+    </section>
+
+    <!-- ÉTAPE 4 : RÉSULTAT -->
+    <section class="card result-section" id="step4">
+        <div class="card-title"><span class="num">4</span> Diagnostic — Causes probables & Actions</div>
+        <div id="safetyAlert"></div>
+        <div id="measureSummary" style="margin-bottom:1rem;"></div>
+        <div id="causesList"></div>
+        <div style="text-align:center;margin-top:1.5rem;">
+            <button class="btn-reset" onclick="resetAll()">🔄 Nouveau diagnostic</button>
+        </div>
+    </section>
+</div>
+
+<footer id="iw-footer"></footer>
+
+<script src="cerveau_v5.js"></script>
+<script>
+// ==================================================================
+// DIAGNOSTIC & DÉPANNAGE UNIFIÉ v5.2
+// Flux : Config → Symptôme → Mesures guidées → Diagnostic croisé
+// Auteur : F. Henninot — InerWeb Fluide
+// ==================================================================
+
+var C = null;
+var currentSymptom = null;
+var followupAnswers = {};
+
+var PLAGES = {
+    clim:      { t_evap: [0, 15],    t_cond: [35, 55], sr: [5, 8],  sc: [4, 8],  dt_cond: [10, 20], rc: [2, 5] },
+    froid_pos: { t_evap: [-15, -5],  t_cond: [30, 50], sr: [5, 10], sc: [4, 8],  dt_cond: [10, 18], rc: [3, 7] },
+    froid_neg: { t_evap: [-45, -25], t_cond: [30, 55], sr: [6, 12], sc: [4, 10], dt_cond: [10, 20], rc: [5, 12] },
+    geg:       { t_evap: [-2, 8],    t_cond: [30, 50], sr: [4, 8],  sc: [4, 8],  dt_cond: [8, 15],  rc: [2, 5] }
+};
+
+// 12 SYMPTÔMES — chaque cause a une cond(terrain, mesures)
+var SYMPTOMS = {
+    no_cold: { icon: '\u2744\uFE0F', title: 'Pas de froid', desc: 'Aucun refroidissement',
+        hint: 'V\u00e9rifier alimentation et compresseur avant de brancher les manos.',
+        questions: [
+            { id: 'comp_on', q: 'Le compresseur tourne-t-il ?' },
+            { id: 'alim_ok', q: 'Alimentation \u00e9lectrique pr\u00e9sente ?' },
+            { id: 'mano_ok', q: 'Les manos indiquent des pressions ?' },
+            { id: 'vent_evap', q: 'Ventilateur \u00e9vaporateur OK ?' }
+        ],
+        causes: [
+            { level:'high', title:'Compresseur \u00e0 l\u2019arr\u00eat \u2014 s\u00e9curit\u00e9 d\u00e9clench\u00e9e',
+              cond:function(a,m){return a.comp_on===false;},
+              actions:['V\u00e9rifier alimentation (\u00e9lectrique, phases)','Contr\u00f4ler s\u00e9curit\u00e9s (HP, BP, huile, thermique)','Tester relais / contacteur de puissance','V\u00e9rifier thermostat / r\u00e9gulateur'] },
+            { level:'high', title:'Manque total de fluide (fuite importante)',
+              cond:function(a,m){return a.comp_on===true && a.mano_ok===false;},
+              actions:['Contr\u00f4ler pressions BP et HP','Recherche de fuite (d\u00e9tecteur, UV)','R\u00e9parer la fuite avant recharge','Tirage au vide puis recharge selon plaque'] },
+            { level:'high', title:'Probl\u00e8me \u00e9lectrique alimentation',
+              cond:function(a,m){return a.alim_ok===false;},
+              actions:['V\u00e9rifier disjoncteur / fusibles','Contr\u00f4ler tension aux bornes','V\u00e9rifier c\u00e2blage et connexions'] },
+            { level:'medium', title:'D\u00e9tendeur bloqu\u00e9 ferm\u00e9',
+              cond:function(a,m){return a.comp_on===true && a.mano_ok===true && m.sr_eval==='high';},
+              actions:['Surchauffe tr\u00e8s \u00e9lev\u00e9e = d\u00e9tendeur ferm\u00e9','Contr\u00f4ler bulbe et capillaire','Tester en r\u00e9chauffant le bulbe','Remplacer si n\u00e9cessaire'] },
+            { level:'medium', title:'\u00c9vaporateur obstru\u00e9 ou givr\u00e9',
+              cond:function(a,m){return a.vent_evap===false;},
+              actions:['V\u00e9rifier circulation d\u2019air','Contr\u00f4ler cycle de d\u00e9givrage','Nettoyer l\u2019\u00e9vaporateur'] },
+            { level:'low', title:'\u00c9lectrovanne ligne liquide ferm\u00e9e', cond:null,
+              actions:['V\u00e9rifier commande \u00e9lectrovanne','Tester la bobine (continuit\u00e9)','V\u00e9rifier r\u00e9gulateur / automate'] }
+        ]
+    },
+    insufficient_cold: { icon: '\uD83C\uDF21\uFE0F', title: 'Froid insuffisant', desc: 'T\u00b0 trop haute, lent',
+        hint: 'Relever SR et SC : manque de charge vs condensation d\u00e9grad\u00e9e.',
+        questions: [
+            { id: 'charge_ok', q: 'Voyant liquide plein (sans bulles) ?' },
+            { id: 'cond_clean', q: 'Condenseur propre et d\u00e9gag\u00e9 ?' },
+            { id: 'evap_clean', q: '\u00c9vaporateur propre (pas de givre excessif) ?' },
+            { id: 'door_ok', q: 'Local bien isol\u00e9 et ferm\u00e9 ?' }
+        ],
+        causes: [
+            { level:'high', title:'Charge insuffisante', cond:function(a,m){return a.charge_ok===false||(m.sr_eval==='high'&&m.sc_eval==='low');},
+              actions:['Contr\u00f4ler SR (\u00e9lev\u00e9e) et SC (basse)','Rechercher fuite','Compl\u00e9ter la charge apr\u00e8s r\u00e9paration'] },
+            { level:'high', title:'Condenseur encrass\u00e9', cond:function(a,m){return a.cond_clean===false||m.dt_eval==='high';},
+              actions:['Nettoyage complet du condenseur','V\u00e9rifier ventilateur (sens, vitesse)','Contr\u00f4ler \u0394T air entr\u00e9e/sortie'] },
+            { level:'medium', title:'\u00c9vaporateur givr\u00e9 / encrass\u00e9', cond:function(a,m){return a.evap_clean===false;},
+              actions:['Forcer un d\u00e9givrage','V\u00e9rifier timer / sonde d\u00e9givrage','Nettoyer l\u2019\u00e9vaporateur'] },
+            { level:'medium', title:'Probl\u00e8me d\u2019isolation / surcharge thermique', cond:function(a,m){return a.door_ok===false;},
+              actions:['V\u00e9rifier joints de porte','Contr\u00f4ler isolation','R\u00e9duire apports thermiques'] },
+            { level:'low', title:'D\u00e9tendeur mal r\u00e9gl\u00e9', cond:null,
+              actions:['Mesurer surchauffe','Ajuster le d\u00e9tendeur','V\u00e9rifier dimensionnement'] }
+        ]
+    },
+    compressor_short_cycle: { icon: '\uD83D\uDD04', title: 'Court-cycle', desc: 'Marche/arr\u00eat fr\u00e9quents',
+        hint: 'Identifier si HP ou BP coupe. Les mesures confirmeront.',
+        questions: [
+            { id: 'sec_hp', q: 'S\u00e9curit\u00e9 HP d\u00e9clenche ?' },
+            { id: 'sec_bp', q: 'S\u00e9curit\u00e9 BP d\u00e9clenche ?' },
+            { id: 'diff_ok', q: 'Diff\u00e9rentiel thermostat correct (>2K) ?' }
+        ],
+        causes: [
+            { level:'high', title:'S\u00e9curit\u00e9 HP qui d\u00e9clenche', cond:function(a,m){return a.sec_hp===true||m.hp_eval==='high';},
+              actions:['V\u00e9rifier HP (condenseur encrass\u00e9 ?)','Contr\u00f4ler ventilo condenseur','V\u00e9rifier incondensables','Contr\u00f4ler charge (surcharge ?)'] },
+            { level:'high', title:'S\u00e9curit\u00e9 BP qui d\u00e9clenche', cond:function(a,m){return a.sec_bp===true||m.bp_eval==='low';},
+              actions:['V\u00e9rifier charge fluide (manque ?)','Contr\u00f4ler d\u00e9tendeur (ferm\u00e9/bouch\u00e9)','V\u00e9rifier \u00e9vaporateur (givre, ventilo)'] },
+            { level:'medium', title:'Thermostat / r\u00e9gulateur d\u00e9fectueux', cond:function(a,m){return a.diff_ok===false;},
+              actions:['Contr\u00f4ler diff\u00e9rentiel (trop faible)','V\u00e9rifier sonde de temp\u00e9rature','Remplacer r\u00e9gulateur si n\u00e9cessaire'] },
+            { level:'low', title:'D\u00e9faut pressostat', cond:null,
+              actions:['V\u00e9rifier r\u00e9glage pressostat HP/BP','Contr\u00f4ler diff\u00e9rentiel de coupure','Remplacer si d\u00e9fectueux'] }
+        ]
+    },
+    compressor_not_start: { icon: '\u26A1', title: 'Compresseur HS', desc: 'Ne d\u00e9marre pas',
+        hint: 'V\u00e9rifier \u00e9lectrique (tension, s\u00e9curit\u00e9s) avant le frigorifique.',
+        questions: [
+            { id: 'tension_ok', q: 'Tension d\u2019alimentation correcte ?' },
+            { id: 'bruit_elec', q: 'Bourdonnement \u00e9lectrique audible ?' },
+            { id: 'sec_active', q: 'Une s\u00e9curit\u00e9 est en d\u00e9faut ?' }
+        ],
+        causes: [
+            { level:'high', title:'Probl\u00e8me \u00e9lectrique d\u2019alimentation', cond:function(a,m){return a.tension_ok===false;},
+              actions:['V\u00e9rifier tension aux bornes (tri: 3 phases ?)','Contr\u00f4ler fusibles / disjoncteurs','Tester contacteur de puissance'] },
+            { level:'high', title:'S\u00e9curit\u00e9 enclench\u00e9e', cond:function(a,m){return a.sec_active===true;},
+              actions:['Identifier la s\u00e9curit\u00e9 (HP, BP, huile, thermique)','Traiter la CAUSE avant de r\u00e9armer','Ne JAMAIS shunter une s\u00e9curit\u00e9'] },
+            { level:'medium', title:'Compresseur bloqu\u00e9 m\u00e9caniquement', cond:function(a,m){return a.bruit_elec===true;},
+              actions:['Tester r\u00e9sistance enroulements (m\u00e9gohm\u00e8tre)','V\u00e9rifier condensateur d\u00e9marrage (mono)','Compresseur gripp\u00e9 = remplacement'] },
+            { level:'low', title:'D\u00e9faut automate / r\u00e9gulation', cond:null,
+              actions:['V\u00e9rifier programme automate','Contr\u00f4ler entr\u00e9es/sorties','V\u00e9rifier horloge / planning'] }
+        ]
+    },
+    hp_too_high: { icon: '\uD83D\uDCC8', title: 'HP trop haute', desc: 'Condensation excessive',
+        hint: 'Mesurer \u0394T condenseur et SC. Test incondensables si HP anormale.',
+        showInco: true,
+        questions: [
+            { id: 'cond_ok', q: 'Condenseur propre et d\u00e9gag\u00e9 ?' },
+            { id: 'fan_cond', q: 'Ventilateur condenseur OK ?' },
+            { id: 'sc_high', q: 'Sous-refroidissement \u00e9lev\u00e9 (>12K) ?' }
+        ],
+        causes: [
+            { level:'high', title:'Condenseur encrass\u00e9 ou obstru\u00e9', cond:function(a,m){return a.cond_ok===false||m.dt_eval==='high';},
+              actions:['Nettoyage complet (eau, air comprim\u00e9)','V\u00e9rifier flux d\u2019air','Contr\u00f4ler ailettes'] },
+            { level:'high', title:'Ventilateur condenseur d\u00e9faillant', cond:function(a,m){return a.fan_cond===false;},
+              actions:['V\u00e9rifier alimentation moteur','Contr\u00f4ler sens de rotation','V\u00e9rifier vitesse (variateur ?)'] },
+            { level:'high', title:'Incondensables (air dans le circuit)', cond:function(a,m){return(a.cond_ok===true&&a.fan_cond===true)||m.inco_positive===true;},
+              actions:['Test incondensables \u00e0 l\u2019arr\u00eat','Si confirm\u00e9 : r\u00e9cup\u00e9rer le fluide','Tirage au vide pouss\u00e9 (<500 \u00b5m)','Recharger'] },
+            { level:'medium', title:'Surcharge de fluide', cond:function(a,m){return a.sc_high===true||m.sc_eval==='high';},
+              actions:['SC tr\u00e8s \u00e9lev\u00e9 = surcharge probable','Retirer l\u2019exc\u00e9dent','Viser SC = 4-8 K'] },
+            { level:'low', title:'Temp\u00e9rature ambiante trop \u00e9lev\u00e9e', cond:null,
+              actions:['V\u00e9rifier ventilation local technique','Protection solaire','V\u00e9rifier dimensionnement'] }
+        ]
+    },
+    bp_too_low: { icon: '\uD83D\uDCC9', title: 'BP trop basse', desc: '\u00c9vaporation trop faible',
+        hint: 'SR \u00e9lev\u00e9e + bulles = manque charge. SR \u00e9lev\u00e9e + voyant plein = d\u00e9tendeur.',
+        questions: [
+            { id: 'charge_low', q: 'Bulles au voyant liquide ?' },
+            { id: 'sr_high', q: 'Surchauffe \u00e9lev\u00e9e (>12K) ?' },
+            { id: 'evap_frost', q: '\u00c9vaporateur givr\u00e9 ?' }
+        ],
+        causes: [
+            { level:'high', title:'Manque de fluide', cond:function(a,m){return a.charge_low===true||(m.sr_eval==='high'&&m.sc_eval==='low');},
+              actions:['Recherche de fuite','R\u00e9parer avant de recharger','Recharger selon plaque signal\u00e9tique'] },
+            { level:'high', title:'D\u00e9tendeur obstru\u00e9 ou ferm\u00e9', cond:function(a,m){return a.sr_high===true||m.sr_eval==='high';},
+              actions:['SR tr\u00e8s \u00e9lev\u00e9e = d\u00e9tendeur ferm\u00e9','Contr\u00f4ler filtre entr\u00e9e d\u00e9tendeur','Tester en r\u00e9chauffant le bulbe','Remplacer si n\u00e9cessaire'] },
+            { level:'medium', title:'\u00c9vaporateur givr\u00e9 (\u00e9change r\u00e9duit)', cond:function(a,m){return a.evap_frost===true;},
+              actions:['V\u00e9rifier cycle de d\u00e9givrage','Forcer un d\u00e9givrage','V\u00e9rifier sonde et timer'] },
+            { level:'low', title:'Restriction ligne liquide', cond:null,
+              actions:['V\u00e9rifier filtre d\u00e9shydrateur (\u0394T)','Contr\u00f4ler \u00e9lectrovanne','Rechercher restriction'] }
+        ]
+    },
+    frost_suction: { icon: '\uD83E\uDDCA', title: 'Givre aspiration', desc: 'Givrage compresseur',
+        hint: '\u26a0\ufe0f URGENCE si SR < 4K : coup de liquide \u2192 destruction compresseur.',
+        questions: [
+            { id: 'sr_low', q: 'Surchauffe faible (<4K) ?' },
+            { id: 'charge_excess', q: 'Sous-refroidissement \u00e9lev\u00e9 ?' },
+            { id: 'txv_ok', q: 'D\u00e9tendeur fonctionne normalement ?' }
+        ],
+        causes: [
+            { level:'high', title:'\u26a0\ufe0f DANGER \u2014 Coup de liquide', cond:function(a,m){return a.sr_low===true||m.sr_eval==='low';},
+              actions:['URGENCE : risque destruction compresseur','Fermer l\u00e9g\u00e8rement le d\u00e9tendeur','V\u00e9rifier charge (surcharge ?)','D\u00e9tendeur bloqu\u00e9 ouvert : remplacer'] },
+            { level:'medium', title:'D\u00e9tendeur trop ouvert / mal r\u00e9gl\u00e9', cond:function(a,m){return a.txv_ok===false;},
+              actions:['R\u00e9gler d\u00e9tendeur (visser = fermer)','V\u00e9rifier position du bulbe','V\u00e9rifier type de charge du bulbe'] },
+            { level:'medium', title:'Surcharge de fluide', cond:function(a,m){return a.charge_excess===true||m.sc_eval==='high';},
+              actions:['SC >12K = surcharge probable','Retirer exc\u00e9dent progressivement','Contr\u00f4ler SR apr\u00e8s correction'] },
+            { level:'low', title:'Filtre d\u00e9shydrateur satur\u00e9', cond:null,
+              actions:['Mesurer \u0394T aux bornes du filtre','Si \u0394T > 2K : remplacer','V\u00e9rifier humidit\u00e9 (indicateur)'] }
+        ]
+    },
+    noise: { icon: '\uD83D\uDD0A', title: 'Bruit anormal', desc: 'Claquements, sifflements',
+        hint: 'Localiser la source. Compresseur + SR basse \u2192 coup de liquide = URGENCE.',
+        questions: [
+            { id: 'noise_comp', q: 'Bruit vient du compresseur ?' },
+            { id: 'noise_txv', q: 'Sifflement au d\u00e9tendeur ?' },
+            { id: 'sr_very_low', q: 'Surchauffe tr\u00e8s faible (<3K) ?' }
+        ],
+        causes: [
+            { level:'high', title:'Coup de liquide au compresseur', cond:function(a,m){return(a.noise_comp===true&&a.sr_very_low===true)||(a.noise_comp===true&&m.sr_eval==='low');},
+              actions:['URGENCE : arr\u00eater si possible','Mesurer surchauffe','R\u00e9gler d\u00e9tendeur ou r\u00e9duire charge','V\u00e9rifier retour d\u2019huile'] },
+            { level:'medium', title:'Vibrations m\u00e9caniques', cond:function(a,m){return a.noise_comp===true&&a.sr_very_low!==true;},
+              actions:['V\u00e9rifier silent-blocs','Contr\u00f4ler fixations tuyauteries','\u00c9quilibrage ventilateurs'] },
+            { level:'medium', title:'D\u00e9tendeur bruyant', cond:function(a,m){return a.noise_txv===true;},
+              actions:['V\u00e9rifier \u0394P (HP\u2212BP)','Dimensionnement d\u00e9tendeur','V\u00e9rifier flash-gas'] },
+            { level:'low', title:'Roulement ventilateur', cond:null,
+              actions:['Localiser le bruit','Isoler composants','Remplacer'] }
+        ]
+    },
+    leak_detected: { icon: '\uD83D\uDCA7', title: 'Fuite d\u00e9tect\u00e9e', desc: 'Traces huile, d\u00e9tection +',
+        hint: 'Obligation F-Gas : consigner, r\u00e9parer, contr\u00f4ler.',
+        questions: [
+            { id: 'leak_visible', q: 'Fuite localis\u00e9e pr\u00e9cis\u00e9ment ?' },
+            { id: 'system_running', q: 'Installation fonctionne encore ?' },
+            { id: 'charge_remaining', q: 'Reste du fluide dans le circuit ?' }
+        ],
+        causes: [
+            { level:'high', title:'Fuite active identifi\u00e9e', cond:function(a,m){return a.leak_visible===true;},
+              actions:['R\u00e9cup\u00e9rer fluide (obligation F-Gas)','R\u00e9parer la fuite','\u00c9preuve \u00e9tanch\u00e9it\u00e9 (azote + traceur)','Tirage au vide puis recharge'] },
+            { level:'high', title:'Fuite non localis\u00e9e', cond:function(a,m){return a.leak_visible===false;},
+              actions:['Pression azote + traceur','D\u00e9tection syst\u00e9matique (raccords, brasures)','Mousse savonneuse','D\u00e9tection UV si huile fluorescente'] },
+            { level:'medium', title:'Circuit vide \u2014 fuite importante', cond:function(a,m){return a.charge_remaining===false;},
+              actions:['Ne PAS recharger avant r\u00e9paration','Localiser par pression azote','R\u00e9parer + \u00e9preuve + vide + recharge'] }
+        ]
+    },
+    excessive_consumption: { icon: '\u26A1', title: 'Surconsommation', desc: 'Facture anormale',
+        hint: 'Mesurer HP et intensit\u00e9. HP haute = condensation d\u00e9grad\u00e9e.',
+        questions: [
+            { id: 'hp_high', q: 'HP anormalement haute ?' },
+            { id: 'run_time', q: 'Compresseur tourne en continu ?' },
+            { id: 'amperage_ok', q: 'Intensit\u00e9 dans la norme ?' }
+        ],
+        causes: [
+            { level:'high', title:'HP \u00e9lev\u00e9e (condensation d\u00e9grad\u00e9e)', cond:function(a,m){return a.hp_high===true||m.hp_eval==='high';},
+              actions:['Nettoyer condenseur','V\u00e9rifier ventilo condenseur','Charge (surcharge ?)','Incondensables'] },
+            { level:'medium', title:'Fonctionnement continu', cond:function(a,m){return a.run_time===true;},
+              actions:['V\u00e9rifier thermostat / r\u00e9gulateur','Isolation du local','Puissance frigo vs besoin'] },
+            { level:'medium', title:'Surintensit\u00e9 compresseur', cond:function(a,m){return a.amperage_ok===false;},
+              actions:['V\u00e9rifier tension alimentation','Enroulements (m\u00e9gohm\u00e8tre)','Conditions de fonctionnement'] },
+            { level:'low', title:'R\u00e9sistances d\u00e9givrage', cond:null,
+              actions:['V\u00e9rifier r\u00e9sistances','Timer d\u00e9givrage','Chauffage permanent ?'] }
+        ]
+    },
+    abnormal_smell: { icon: '\uD83D\uDCA8', title: 'Odeur anormale', desc: 'Chimique, br\u00fbl\u00e9e',
+        hint: '\uD83D\uDD34 Si NH3 ou HC : \u00c9VACUER et VENTILER avant intervention.',
+        questions: [
+            { id: 'smell_burnt', q: 'Odeur de br\u00fbl\u00e9 (\u00e9lectrique) ?' },
+            { id: 'smell_chemical', q: 'Odeur chimique (ammoniac, solvant) ?' },
+            { id: 'comp_hot', q: 'Compresseur anormalement chaud ?' }
+        ],
+        causes: [
+            { level:'high', title:'Surchauffe moteur compresseur', cond:function(a,m){return a.smell_burnt===true&&a.comp_hot===true;},
+              actions:['ARR\u00caTER imm\u00e9diatement','Laisser refroidir','V\u00e9rifier enroulements','Claquage = remplacement + nettoyage'] },
+            { level:'high', title:'Fuite fluide (NH3, HC)', cond:function(a,m){return a.smell_chemical===true;},
+              actions:['\u00c9VACUER (NH3=toxique, HC=inflammable)','Ventiler le local','Couper alimentation','Localiser et r\u00e9parer'] },
+            { level:'medium', title:'Surchauffe \u00e9lectrique c\u00e2blage', cond:function(a,m){return a.smell_burnt===true&&a.comp_hot===false;},
+              actions:['Couper alimentation','V\u00e9rifier connexions','Rechercher traces de br\u00fblure'] }
+        ]
+    },
+    vibrations: { icon: '\uD83D\uDCA5', title: 'Vibrations', desc: 'Vibrations excessives',
+        hint: 'Localiser : compresseur, tuyauteries ou ventilateurs.',
+        questions: [
+            { id: 'vib_comp', q: 'Vibrations du compresseur ?' },
+            { id: 'vib_tubing', q: 'Tuyauteries vibrent ?' },
+            { id: 'vib_fans', q: 'Ventilateurs \u00e9quilibr\u00e9s ?' }
+        ],
+        causes: [
+            { level:'high', title:'Silent-blocs us\u00e9s', cond:function(a,m){return a.vib_comp===true;},
+              actions:['V\u00e9rifier silent-blocs','Remplacer si us\u00e9s','Niveau huile compresseur'] },
+            { level:'medium', title:'Tuyauteries mal fix\u00e9es', cond:function(a,m){return a.vib_tubing===true;},
+              actions:['Colliers anti-vibrations','Lyres de dilatation','Fixer tubes vibrants'] },
+            { level:'medium', title:'Ventilateurs d\u00e9s\u00e9quilibr\u00e9s', cond:function(a,m){return a.vib_fans===true;},
+              actions:['H\u00e9lices (encrassement, d\u00e9formation)','Roulements','Remplacer si n\u00e9cessaire'] }
+        ]
+    }
+};
+
+// ==================================================================
+function init() {
+    C = (typeof ManoPubCerveau !== 'undefined') ? ManoPubCerveau : null;
+    initFluids();
+    renderSymptoms();
+}
+function initFluids() {
+    var sel = document.getElementById('fluide');
+    if (!C) { sel.innerHTML = '<option value="">\u26a0 Cerveau non charg\u00e9</option>'; return; }
+    var codes = C.listFluids();
+    if (!codes || codes.length === 0) { sel.innerHTML = '<option value="">\u26a0 Aucun fluide</option>'; return; }
+    var DB = C.DB, groups = {};
+    for (var i = 0; i < codes.length; i++) {
+        var code = codes[i], f = DB[code]; if (!f) continue;
+        var cat = f.type || 'Autre';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push({ code: code, classe: f.classe || '', gwp: (f.regl && f.regl.GWP) || 0 });
+    }
+    var order = ['HFC','HFO','HC','Naturel','HCFC','CFC','Autre'];
+    var html = '<option value="">-- Choisir le fluide --</option>';
+    for (var o = 0; o < order.length; o++) {
+        var cat = order[o]; if (!groups[cat] || !groups[cat].length) continue;
+        html += '<optgroup label="' + cat + '">';
+        groups[cat].sort(function(a,b){return a.code.localeCompare(b.code);});
+        for (var j = 0; j < groups[cat].length; j++) {
+            var fl = groups[cat][j], lbl = fl.code;
+            if (fl.classe) lbl += ' [' + fl.classe + ']';
+            if (fl.gwp) lbl += ' GWP=' + fl.gwp;
+            html += '<option value="' + fl.code + '">' + lbl + '</option>';
+        }
+        html += '</optgroup>';
+    }
+    sel.innerHTML = html;
+    console.log('\u2705 ' + codes.length + ' fluides charg\u00e9s');
+}
+
+// ==================================================================
+function renderSymptoms() {
+    var g = document.getElementById('symptomGrid'), html = '';
+    for (var k in SYMPTOMS) {
+        var s = SYMPTOMS[k];
+        html += '<div class="symptom-card" onclick="selectSymptom(\'' + k + '\',this)">';
+        html += '<div class="symptom-icon">' + s.icon + '</div>';
+        html += '<div class="symptom-name">' + s.title + '</div></div>';
+    }
+    g.innerHTML = html;
+}
+function selectSymptom(key, el) {
+    var cards = document.querySelectorAll('.symptom-card');
+    for (var i = 0; i < cards.length; i++) cards[i].classList.remove('selected');
+    el.classList.add('selected');
+    currentSymptom = key; followupAnswers = {};
+    var symptom = SYMPTOMS[key];
+    var fDiv = document.getElementById('followupQuestions'), html = '';
+    for (var q = 0; q < symptom.questions.length; q++) {
+        var quest = symptom.questions[q];
+        html += '<div class="followup-q"><span>' + quest.q + '</span>';
+        html += '<div class="btn-group">';
+        html += '<button class="btn-yn yes" onclick="setAnswer(this,\'' + quest.id + '\',true)">Oui</button>';
+        html += '<button class="btn-yn no" onclick="setAnswer(this,\'' + quest.id + '\',false)">Non</button>';
+        html += '</div></div>';
+    }
+    fDiv.innerHTML = html;
+    document.getElementById('followupSection').classList.add('active');
+    document.getElementById('step3').classList.remove('locked');
+    document.getElementById('step3').classList.add('highlight');
+    document.getElementById('measureHint').innerHTML = '\uD83D\uDCA1 <strong>' + symptom.icon + ' ' + symptom.title + '</strong> \u2014 ' + symptom.hint;
+    document.getElementById('incoSection').style.display = symptom.showInco ? 'block' : 'none';
+    setProgress(2);
+    setTimeout(function(){ document.getElementById('step3').scrollIntoView({behavior:'smooth',block:'start'}); }, 300);
+}
+function setAnswer(btn, id, val) {
+    followupAnswers[id] = val;
+    var btns = btn.parentElement.querySelectorAll('.btn-yn');
+    for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+    btn.classList.add('active');
+    checkCanDiagnose();
+}
+
+// ==================================================================
+function onFluidChange() {
+    var code = document.getElementById('fluide').value;
+    var info = document.getElementById('fluid-info');
+    if (!code || !C) { info.textContent = ''; onConfigChange(); return; }
+    var f = C.getFluid(code);
+    if (!f) { info.textContent = ''; onConfigChange(); return; }
+    var p = [];
+    if (f.classe) p.push('Classe ' + f.classe);
+    if (f.regl && f.regl.GWP !== undefined) p.push('GWP ' + f.regl.GWP);
+    if (f.type) p.push(f.type);
+    info.textContent = p.join(' \u2022 ');
+    onConfigChange();
+}
+function onConfigChange() { onMeasureChange(); checkCanDiagnose(); }
+
+// ==================================================================
+function getVal(id) { var v = parseFloat(document.getElementById(id).value); return isNaN(v) ? null : v; }
+function getEval(val, range) { if (val===null||!range) return 'unknown'; if (val<range[0]) return 'low'; if (val>range[1]) return 'high'; return 'ok'; }
+
+function onMeasureChange() {
+    var code = document.getElementById('fluide').value;
+    var type = document.getElementById('typeInstall').value;
+    var alt = getVal('altitude') || 0;
+    var pBP = getVal('pBP'), pHP = getVal('pHP');
+    var tAsp = getVal('tAsp'), tLiq = getVal('tLiq'), tExt = getVal('tExt');
+    var plage = type ? PLAGES[type] : null;
+    var Patm = C ? C.P_atm_ISA(alt) : 1.01325;
+    var tEvap = null, tCond = null;
+    if (code && C && pBP !== null) tEvap = C.calcTemperature(pBP + Patm, C.getFluid(code));
+    if (code && C && pHP !== null) tCond = C.calcTemperature(pHP + Patm, C.getFluid(code));
+    var sr = (tAsp!==null && tEvap!==null) ? (tAsp - tEvap) : null;
+    var sc = (tCond!==null && tLiq!==null) ? (tCond - tLiq) : null;
+    var dt = (tCond!==null && tExt!==null) ? (tCond - tExt) : null;
+    var rc = (pBP!==null && pHP!==null && pBP>0) ? ((pHP+Patm)/(pBP+Patm)) : null;
+    showCalc('Tevap','boxTevap',tEvap,'\u00b0C',plage?plage.t_evap:null);
+    showCalc('Tcond','boxTcond',tCond,'\u00b0C',plage?plage.t_cond:null);
+    showCalc('SR','boxSR',sr,'K',plage?plage.sr:null);
+    showCalc('SC','boxSC',sc,'K',plage?plage.sc:null);
+    showCalc('DT','boxDT',dt,'K',plage?plage.dt_cond:null);
+    showCalc('RC','boxRC',rc,'',plage?plage.rc:null);
+    checkCanDiagnose();
+    if (pBP!==null||pHP!==null) setProgress(3);
+}
+function showCalc(id, boxId, val, unit, range) {
+    var vEl = document.getElementById('v'+id), eEl = document.getElementById('e'+id);
+    var box = document.getElementById(boxId);
+    box.className = 'calc-box';
+    if (val===null) { vEl.textContent='--'; eEl.textContent=''; return; }
+    vEl.textContent = val.toFixed(1) + (unit ? ' '+unit : '');
+    if (!range) { eEl.textContent=''; return; }
+    if (val < range[0]) { box.classList.add('danger'); eEl.textContent='\u25bc Bas'; }
+    else if (val > range[1]) { box.classList.add('warn'); eEl.textContent='\u25b2 Haut'; }
+    else { box.classList.add('ok'); eEl.textContent='\u2713 Normal'; }
+}
+
+// ==================================================================
+function testInco() {
+    var code = document.getElementById('fluide').value;
+    var hp = getVal('incoHP'), t = getVal('incoT');
+    var res = document.getElementById('incoResult');
+    if (!code||!C||hp===null||t===null) { res.innerHTML=''; return; }
+    var Patm = C.P_atm_ISA(getVal('altitude')||0);
+    var pTheo = C.calcPression(t, C.getFluid(code));
+    if (!pTheo) { res.innerHTML=''; return; }
+    var pRel = pTheo - Patm, ecart = hp - pRel;
+    var html = 'P<sub>th\u00e9o</sub> \u00e0 '+t.toFixed(1)+'\u00b0C = <strong>'+pRel.toFixed(2)+' bar</strong> \u2014 \u00c9cart: <strong>'+ecart.toFixed(2)+' bar</strong> \u2192 ';
+    if (ecart>1) html+='<span style="color:#e74c3c">\u26a1 Incondensables probables</span>';
+    else if (ecart>0.5) html+='<span style="color:#e8914a">\u26a0 Suspect</span>';
+    else html+='<span style="color:#27ae60">\u2713 OK</span>';
+    res.innerHTML = html;
+}
+
+// ==================================================================
+function checkCanDiagnose() {
+    document.getElementById('btnDiag').disabled = !(document.getElementById('fluide').value && currentSymptom);
+}
+
+// ==================================================================
+function lancerDiagnostic() {
+    if (!currentSymptom) return;
+    var symptom = SYMPTOMS[currentSymptom];
+    var code = document.getElementById('fluide').value;
+    var type = document.getElementById('typeInstall').value;
+    var plage = type ? PLAGES[type] : null;
+    var Patm = C ? C.P_atm_ISA(getVal('altitude')||0) : 1.01325;
+    var pBP=getVal('pBP'),pHP=getVal('pHP'),tAsp=getVal('tAsp'),tLiq=getVal('tLiq'),tExt=getVal('tExt');
+    var tEvap=null,tCond=null;
+    if(code&&C&&pBP!==null)tEvap=C.calcTemperature(pBP+Patm,C.getFluid(code));
+    if(code&&C&&pHP!==null)tCond=C.calcTemperature(pHP+Patm,C.getFluid(code));
+    var sr=(tAsp!==null&&tEvap!==null)?(tAsp-tEvap):null;
+    var sc=(tCond!==null&&tLiq!==null)?(tCond-tLiq):null;
+    var dt=(tCond!==null&&tExt!==null)?(tCond-tExt):null;
+    var m={sr:sr,sc:sc,dt:dt,tEvap:tEvap,tCond:tCond,
+        sr_eval:plage?getEval(sr,plage.sr):'unknown',
+        sc_eval:plage?getEval(sc,plage.sc):'unknown',
+        dt_eval:plage?getEval(dt,plage.dt_cond):'unknown',
+        bp_eval:plage?getEval(tEvap,plage.t_evap):'unknown',
+        hp_eval:plage?getEval(tCond,plage.t_cond):'unknown',
+        inco_positive:false};
+    var incoTxt=document.getElementById('incoResult').textContent;
+    if(incoTxt&&incoTxt.indexOf('probables')>=0)m.inco_positive=true;
+    var scored=[];
+    for(var i=0;i<symptom.causes.length;i++){
+        var c=symptom.causes[i];
+        var base=c.level==='high'?6:(c.level==='medium'?3:1);
+        var bonus=0;
+        if(c.cond){try{if(c.cond(followupAnswers,m))bonus=6;}catch(e){}}
+        scored.push({cause:c,score:base+bonus,matched:bonus>0});
+    }
+    scored.sort(function(a,b){return b.score-a.score;});
+    renderResults(symptom,scored,code,m);
+}
+
+function renderResults(symptom, scored, code, m) {
+    // Safety
+    var safeHtml='';
+    if(code&&C){var f=C.getFluid(code);if(f&&f.classe){
+        if(f.classe==='A2L')safeHtml='<div class="safety-alert a2l">\u26a0\ufe0f <strong>'+code+' \u2014 A2L</strong> : l\u00e9g\u00e8rement inflammable. D\u00e9tecteur obligatoire.</div>';
+        else if(f.classe==='A3')safeHtml='<div class="safety-alert a3">\uD83D\uDD34 <strong>'+code+' \u2014 A3</strong> : INFLAMMABLE. Proc\u00e9dures s\u00e9curit\u00e9 strictes.</div>';
+        else if(f.classe==='B2L')safeHtml='<div class="safety-alert b2l">\uD83D\uDD34 <strong>'+code+' \u2014 B2L</strong> : TOXIQUE et inflammable. EPI obligatoires.</div>';
+    }}
+    document.getElementById('safetyAlert').innerHTML=safeHtml;
+    // Summary
+    var sum='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:.5rem;padding:.6rem;background:#f9fafb;border-radius:10px;font-size:.82rem;text-align:center;">';
+    if(m.sr!==null)sum+='<div><strong>SR</strong><br>'+m.sr.toFixed(1)+' K</div>';
+    if(m.sc!==null)sum+='<div><strong>SC</strong><br>'+m.sc.toFixed(1)+' K</div>';
+    if(m.dt!==null)sum+='<div><strong>\u0394T</strong><br>'+m.dt.toFixed(1)+' K</div>';
+    if(m.tEvap!==null)sum+='<div><strong>T\u00b0\u00e9vap</strong><br>'+m.tEvap.toFixed(1)+'\u00b0C</div>';
+    if(m.tCond!==null)sum+='<div><strong>T\u00b0cond</strong><br>'+m.tCond.toFixed(1)+'\u00b0C</div>';
+    sum+='</div>';
+    document.getElementById('measureSummary').innerHTML=sum;
+    // Causes
+    var html='<div style="margin-bottom:.5rem;font-weight:700;font-size:.92rem;">'+symptom.icon+' '+symptom.title+' \u2014 '+scored.length+' causes analys\u00e9es</div>';
+    for(var i=0;i<scored.length;i++){
+        var it=scored[i],c=it.cause;
+        html+='<div class="cause-card '+c.level+'">';
+        html+='<div class="cause-header"><span class="cause-confidence">'+(it.matched?'Probable':'Possible')+'</span> '+c.title+'</div>';
+        html+='<ol class="action-list">';
+        for(var a=0;a<c.actions.length;a++)html+='<li>'+c.actions[a]+'</li>';
+        html+='</ol></div>';
+    }
+    document.getElementById('causesList').innerHTML=html;
+    document.getElementById('step4').classList.add('active');
+    setProgress(4);
+    setTimeout(function(){document.getElementById('step4').scrollIntoView({behavior:'smooth',block:'start'});},200);
+}
+
+// ==================================================================
+function setProgress(step) {
+    for(var i=1;i<=4;i++){
+        var el=document.getElementById('prog-'+i);
+        el.className='progress-step';
+        if(i<step)el.classList.add('done');
+        if(i===step)el.classList.add('active');
+    }
+}
+
+function resetAll() {
+    currentSymptom=null; followupAnswers={};
+    var cards=document.querySelectorAll('.symptom-card');
+    for(var i=0;i<cards.length;i++)cards[i].classList.remove('selected');
+    document.getElementById('followupSection').classList.remove('active');
+    document.getElementById('step3').classList.add('locked');
+    document.getElementById('step3').classList.remove('highlight');
+    ['pBP','pHP','tAsp','tLiq','tExt','tLocal','incoHP','incoT'].forEach(function(id){
+        var el=document.getElementById(id);if(el)el.value='';
+    });
+    ['Tevap','Tcond','SR','SC','DT','RC'].forEach(function(id){
+        document.getElementById('v'+id).textContent='--';
+        document.getElementById('e'+id).textContent='';
+        document.getElementById('box'+id).className='calc-box';
+    });
+    document.getElementById('incoSection').style.display='none';
+    document.getElementById('incoResult').innerHTML='';
+    document.getElementById('step4').classList.remove('active');
+    document.getElementById('btnDiag').disabled=true;
+    document.getElementById('measureHint').innerHTML='\u2139\ufe0f S\u00e9lectionnez d\u2019abord un fluide et un sympt\u00f4me.';
+    setProgress(1);
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+<script src="site_config.js"></script>
+<script src="ui_shell.js"></script>
+</body>
+</html>
