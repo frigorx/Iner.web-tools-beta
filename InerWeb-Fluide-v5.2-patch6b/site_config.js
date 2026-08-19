@@ -79,7 +79,7 @@ var SITE_CONFIG = {
     //   contact → titre + email + téléphone + texte
     vitrine: {
         // Titre du panneau vitrine
-        titre: "\ud83c\udf93 LPP Jacques Raynaud",
+        titre: "\ud83c\udf93 InerWeb Fluide",
 
         // URL vidéo de présentation (index uniquement)
         video_url: "",
@@ -122,13 +122,6 @@ var SITE_CONFIG = {
                 contact_email: "",
                 bouton: "Proposer un don"
             },
-            {
-                type: "lien",
-                titre: "\ud83c\udf10 Site Equatio",
-                url: "https://equatio.org",
-                bouton: "Visiter \u2192",
-                icone: ""
-            }
             // ---- EXEMPLES D'AUTRES CARTES ----
             // { type: "lien", titre: "📋 Parcoursup", url: "https://parcoursup.fr", bouton: "Candidater →" },
             // { type: "image", titre: "📸 Nos ateliers", src: "photo_atelier.jpg", lien: "" },
