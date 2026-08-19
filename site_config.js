@@ -142,7 +142,6 @@ var SITE_CONFIG = {
     bandeau_actions: [
         // Exemples (décommenter/modifier selon besoins) :
         // { label: "Mentions légales", icone: "\ud83d\udccb", action: "modal:legalModal" },
-        // { label: "Devenir partenaire", icone: "\ud83e\udd1d", action: "modal:partnerModal" },
         // { label: "Taxe d'apprentissage", icone: "\ud83d\udcb0", action: "modal:taxeModal", highlight: true }
     ],
 
