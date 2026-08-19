@@ -98,8 +98,10 @@
                 (sub ? '<p class="iw-subtitle">' + sub + '</p>' : '') +
             '</div>' +
             '<div class="iw-header-right">' +
-                '<strong>Auteur:</strong> ' + esc(AUTEUR) + '<br>' +
-                '<strong>Licence:</strong> \u00C9ducative non commerciale' +
+                /* Signature visible : la marque, jamais le nom (19/08).
+                   L'auteur reste aux mentions l\u00E9gales et \u00E0 la meta author ;
+                   la mention de licence exacte est pos\u00E9e par marque.js. */
+                '<strong>inerweb.fr</strong>' +
             '</div>';
     }
 
@@ -168,14 +170,24 @@
         if (!el) return;
 
         el.className = 'iw-footer';
+        /* La marque et la mention de droits ne s'\u00e9crivent plus ici :
+           marque.js, servi par le site principal, les pose pour tous les
+           satellites \u2014 une source, z\u00e9ro divergence (20/08/2026).
+           Ne restent que les liens l\u00e9gaux, propres \u00e0 ce site. */
         el.innerHTML =
-            '<div>\u00A9 ' + ANNEE + ' ' + esc(APP_NAME) + ' v' + esc(VERSION) +
-            ' \u2014 ' + esc(AUTEUR) + ' \u2022 Licence \u00e9ducative non commerciale</div>' +
             '<div class="iw-footer-legal">' +
                 '<a href="' + esc(resolveHref(LEG.mentions || 'mentions_legales.html')) + '">Mentions l\u00e9gales</a> \u2022 ' +
                 '<a href="' + esc(resolveHref(LEG.confidentialite || 'confidentialite.html')) + '">Confidentialit\u00e9</a> \u2022 ' +
                 '<a href="' + esc(resolveHref(LEG.conditions || 'conditions.html')) + '">Conditions</a>' +
             '</div>';
+
+        if (!document.querySelector('script[src*="marque.js"]')) {
+            var m = document.createElement('script');
+            m.src = 'https://inerweb.fr/moteur/marque.js';
+            m.setAttribute('data-cartouche', '\u00c9du');
+            m.setAttribute('data-licence', 'cc-by-nc-nd');
+            document.body.appendChild(m);
+        }
     }
 
     // ========== ZOOM ==========
