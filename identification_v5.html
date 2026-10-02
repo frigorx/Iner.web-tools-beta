@@ -110,6 +110,7 @@
     <p>Application pédagogique gratuite • inerWeb · inerweb.fr</p>
 </footer>
 
+<script src="cerveau_v5.js"></script>
 <script>
 // ========== THERMOCORE MINI - Base de données 23 fluides ==========
 const FLUIDS = {
@@ -140,6 +141,9 @@ const FLUIDS = {
 
 // Calcul pression de saturation (bar absolu)
 function Psat(fluid, T_celsius) {
+    // Tables CoolProp de cerveau_v5.js d'abord (02/10/2026) ; Antoine seulement hors table.
+    const pt = window.ManoPubCerveau ? ManoPubCerveau.tablePsat(fluid, T_celsius) : NaN;
+    if (isFinite(pt)) return pt;
     const f = FLUIDS[fluid];
     if (!f) return null;
     const logP = f.A - f.B / (f.C + T_celsius);
@@ -148,6 +152,8 @@ function Psat(fluid, T_celsius) {
 
 // Calcul température de saturation (°C)
 function Tsat(fluid, P_bar_abs) {
+    const tt = window.ManoPubCerveau ? ManoPubCerveau.tableTsat(fluid, P_bar_abs) : NaN;
+    if (isFinite(tt)) return tt;
     const f = FLUIDS[fluid];
     if (!f || P_bar_abs <= 0) return null;
     const logP = Math.log10(P_bar_abs);

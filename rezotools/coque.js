@@ -17,7 +17,11 @@
     ["air-power.html", "Puissance sur l’air"],
     ["airflow-grid.html", "Débit d’une grille"],
     ["water-flow.html", "Débit d’eau"],
-    ["cop.html", "COP et coût"]
+    ["cop.html", "COP et coût"],
+    ["reglette.html", "Réglette P/T"],
+    ["diagnostic.html", "Diagnostic"],
+    ["incondensables.html", "Incondensables"],
+    ["identification.html", "Identifier un fluide"]
   ];
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
   var ici = (location.pathname.split("/").pop() || "").toLowerCase();

@@ -637,8 +637,8 @@ function onMeasureChange() {
     var plage = type ? PLAGES[type] : null;
     var Patm = C ? C.P_atm_ISA(alt) : 1.01325;
     var tEvap = null, tCond = null;
-    if (code && C && pBP !== null) tEvap = C.calcTemperature(pBP + Patm, C.getFluid(code));
-    if (code && C && pHP !== null) tCond = C.calcTemperature(pHP + Patm, C.getFluid(code));
+    if (code && C && pBP !== null) tEvap = C.calcGlide(pBP + Patm, C.getFluid(code)).T_rosee;
+    if (code && C && pHP !== null) tCond = C.calcGlide(pHP + Patm, C.getFluid(code)).T_bulle;
     var sr = (tAsp!==null && tEvap!==null) ? (tAsp - tEvap) : null;
     var sc = (tCond!==null && tLiq!==null) ? (tCond - tLiq) : null;
     var dt = (tCond!==null && tExt!==null) ? (tCond - tExt) : null;
@@ -696,8 +696,8 @@ function lancerDiagnostic() {
     var Patm = C ? C.P_atm_ISA(getVal('altitude')||0) : 1.01325;
     var pBP=getVal('pBP'),pHP=getVal('pHP'),tAsp=getVal('tAsp'),tLiq=getVal('tLiq'),tExt=getVal('tExt');
     var tEvap=null,tCond=null;
-    if(code&&C&&pBP!==null)tEvap=C.calcTemperature(pBP+Patm,C.getFluid(code));
-    if(code&&C&&pHP!==null)tCond=C.calcTemperature(pHP+Patm,C.getFluid(code));
+    if(code&&C&&pBP!==null)tEvap=C.calcGlide(pBP+Patm,C.getFluid(code)).T_rosee;
+    if(code&&C&&pHP!==null)tCond=C.calcGlide(pHP+Patm,C.getFluid(code)).T_bulle;
     var sr=(tAsp!==null&&tEvap!==null)?(tAsp-tEvap):null;
     var sc=(tCond!==null&&tLiq!==null)?(tCond-tLiq):null;
     var dt=(tCond!==null&&tExt!==null)?(tCond-tExt):null;

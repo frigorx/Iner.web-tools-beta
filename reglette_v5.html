@@ -2443,6 +2443,7 @@
 // FIN INERWEB FLUIDE CERVEAU v5.1 — 35 fluides — © 2026 F. Henninot — InerWeb Fluide
 
 </script>
+<script src="cerveau_v5.js"></script>
 <script>
 "use strict";
 // ==================================================
@@ -2548,18 +2549,10 @@ function interpolate(table, inKey, outKey, val) {
 
 function T2P(key, t) {
     const f = FLUIDS[key]; if (!f) return { ok: false };
-    // Essayer cerveau_v5 (Antoine, plus precis)
-    if (window.ManoPubCerveau) {
-        try {
-            var cf = ManoPubCerveau.getFluid(key);
-            if (cf) {
-                var plage = cf.thermo.antoine_plage;
-                if (t >= plage[0] && t <= plage[1]) {
-                    var pAbs = ManoPubCerveau.calcPression(t, cf);
-                    if (isFinite(pAbs)) return { ok: true, pAbs: pAbs, pDisplay: toDisplay(pAbs) };
-                }
-            }
-        } catch(e) {}
+    // Tables CoolProp de cerveau_v5.js (02/10/2026) : pression de bulle. Hors table : pas de valeur.
+    if (window.ManoPubCerveau && ManoPubCerveau.tablePlage(key)) {
+        var pAbs = ManoPubCerveau.tablePsat(key, t);
+        return isFinite(pAbs) ? { ok: true, pAbs: pAbs, pDisplay: toDisplay(pAbs) } : { ok: false };
     }
     // Fallback: interpolation table
     const tbl = f.table;
@@ -2573,18 +2566,11 @@ function P2T(key, pDisp) {
     const pAbs = toAbs(pDisp);
     if (f.isCO2 && pAbs > 73.8) return { ok: false, error: 'Transcritique' };
     const g = f.glide || 0;
-    // Essayer cerveau_v5 (Antoine, plus precis)
-    if (window.ManoPubCerveau) {
-        try {
-            var cf = ManoPubCerveau.getFluid(key);
-            if (cf) {
-                var temp = ManoPubCerveau.calcTemperature(pAbs, cf);
-                if (isFinite(temp)) {
-                    var cg = cf.thermo.glide || 0;
-                    return { ok: true, temp: temp, tBubble: temp - cg/2, tDew: temp + cg/2, glide: cg };
-                }
-            }
-        } catch(e) {}
+    // Tables CoolProp de cerveau_v5.js (02/10/2026) : bulle et rosée lues, glissement réel.
+    if (window.ManoPubCerveau && ManoPubCerveau.tablePlage(key)) {
+        var tb = ManoPubCerveau.tableTsat(key, pAbs), tr = ManoPubCerveau.tableTsat(key, pAbs, true);
+        if (!isFinite(tb) || !isFinite(tr)) return { ok: false, error: 'Hors plage' };
+        return { ok: true, temp: (tb + tr) / 2, tBubble: tb, tDew: tr, glide: tr - tb };
     }
     // Fallback: interpolation table
     const tbl = f.table;
