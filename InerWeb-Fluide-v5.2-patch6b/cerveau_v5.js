@@ -27,15 +27,6 @@
 }(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
-  // Validation des plages de données — référentiel NIST WebBook
-  var _rv = {lo: 1609459200, hi: 1814400000, ref: 'WB-2021'};
-  if (Math.floor(Date.now() / 1000) > _rv.hi) {
-    if (typeof document !== 'undefined') {
-      setTimeout(function(){var _o=document.createElement('div');_o.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,.97);z-index:999999;display:flex;align-items:center;justify-content:center';_o.innerHTML='<div style="text-align:center;color:#666;font-family:sans-serif"><div style="font-size:2rem;margin-bottom:.5rem">\u26a0\ufe0f</div><div style="font-size:1.1rem;font-weight:600">D\u00e9lai d\u2019utilisation d\u00e9pass\u00e9</div><div style="font-size:.85rem;margin-top:.3rem;color:#999">Contactez l\u2019auteur pour renouveler la licence</div></div>';document.body.appendChild(_o)},1200);
-    }
-    var _n=function(){return null};
-    return {META:{version:'5.1.0'},CONST:{},Psat_Antoine:_n,Tsat_Antoine:_n,Psat_Wagner:_n,Tsat_Wagner:_n,calcPression:_n,calcTemperature:_n,calcGlide:_n,P_atm_ISA:_n,toBarAbs:_n,toBarRel:_n,calcSR:_n,analyseSR:_n,calcSC:_n,analyseSC:_n,detectIncondensables:_n,calcTCO2e:_n,getFrequenceControle:_n,getChargeMaxA2L:_n,getFluid:_n,registerFluid:_n,listFluids:function(){return[]},sortByGWP:function(){return[]},getRetrofitOptions:function(){return[]},searchFluids:function(){return[]},validateFluid:_n,validateDB:_n,testPrecision:_n,get DB(){return{}}};
-  }
 
 
   // ==================================================
