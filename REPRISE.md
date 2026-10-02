@@ -1,5 +1,20 @@
 # REPRISE — Iner.web-tools-beta
 
+## ⭐ État au 02/10/2026 — RézoTools (chantier « Chat 3 », FINITIONS-INERWEB)
+
+- **Moteur `cerveau_v5.js`** : verrou de date (01/07/2027) retiré ; saturation lue dans des **tables CoolProp**
+  (bulle + rosée, 57 fluides) générées par `python outils/tables-coolprop.py` — ne jamais éditer le bloc
+  `TABLES-COOLPROP` à la main. Antoine était faux de 7 à 31 % (R32, R404A, R407C, R1234yf, R600a).
+  Contrôle : < 0,05 % contre CoolProp ; R-449A à < 1 % de la fiche Chemours. R514A absent de CoolProp (équation).
+- **Diagnostic** : rosée pour la surchauffe, bulle pour le sous-refroidissement. Réglette v5, identification,
+  incondensables passent par les tables.
+- **Livraison sur inerweb.fr** : `node outils/livrer-rezotools.mjs` → `C:/git/pilote-fluides/rezotools/calculettes/`
+  (13 calculettes, coque `rezotools/coque.js`, marque.js du site). En ligne : https://inerweb.fr/rezotools/
+- **Reste** : `co2_fgas_v5` cite le règlement 517/2014 (abrogé par le 2024/573) → relecture sur source primaire
+  avant toute livraison ; manomètres, charge A2L, aéraulique pas encore livrés. Le plan du site et le quartier
+  (atelier `C:/git/quartier-technique`) pointent encore vers 7 pages GitHub Pages de ce dépôt : **ne pas le passer
+  en privé** avant d'avoir livré ces pages et redirigé ces liens.
+
 > ⚠️ **Fiche amorcée automatiquement le 30/08/2026.** Ce dépôt n'avait aucun point
 > d'entrée : une session neuve ne pouvait pas savoir où il en était. Tout ce qui suit
 > est **lu dans le dépôt**, rien n'est deviné. **À compléter par F. Henninot** :
