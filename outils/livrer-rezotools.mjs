@@ -12,7 +12,7 @@ const ICI = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CIBLE = "C:/git/pilote-fluides/rezotools/calculettes";
 
 // [source, sortie, titre propre ou null]
-const PAGES = ["pressure", "temp", "power", "pouce-mm", "pincement", "air-power", "airflow-grid", "water-flow", "cop"]
+const PAGES = ["pressure", "temp", "power", "pouce-mm", "pincement", "air-power", "airflow-grid", "water-flow", "cop", "chapeau"]
   .map((p) => ["tools/" + p + ".html", p + ".html", null])
   .concat([
     ["reglette_v5.html", "reglette.html", "Réglette pression-température"],

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Chapeau de gendarme — tous les tubes</title>
+  <link rel="stylesheet" href="../theme.css" />
+  <script src="../site_config.js"></script>
+  <script src="../ui_shell.js" defer></script>
+  <script src="tools_common.js" defer></script>
+<link rel="stylesheet" href="../theme_force.css">
+<style>
+  .ch-etape { font-weight:700; color:var(--navy); margin:1.1rem 0 .4rem; font-size:1.05rem; }
+  .ch-famille { margin:.45rem 0; }
+  .ch-famille > span { display:block; font-size:.95rem; color:var(--navy-mid); margin-bottom:.25rem; }
+  .ch-puces { display:flex; flex-wrap:wrap; gap:6px; }
+  .ch-puce { border:2px solid var(--navy-mid); background:#fff; color:var(--navy); border-radius:999px; padding:.3rem .85rem;
+    font:inherit; font-weight:600; cursor:pointer; min-height:44px; }
+  .ch-puce[aria-pressed="true"] { background:var(--navy); color:#fff; }
+  .ch-puce:focus-visible { outline:3px solid var(--orange); outline-offset:2px; }
+  .ch-note { font-size:.95rem; color:#425466; margin:.35rem 0 0; }
+  .ch-traits { font-size:1.3rem; font-weight:800; color:var(--navy); line-height:1.5; }
+  .ch-fig { margin-top:.8rem; }
+  .ch-fig svg { width:100%; height:auto; display:block; background:#fff; border:1px solid #d8e0ea; border-radius:8px; }
+  .ch-fig p { margin:.3rem 0 0; font-size:.95rem; color:#425466; }
+  .ch-table { width:100%; border-collapse:collapse; margin-top:.6rem; }
+  .ch-table th, .ch-table td { border:1px solid #c9d3df; padding:.45rem .5rem; text-align:center; }
+  .ch-table th { background:var(--navy); color:#fff; }
+  .ch-table tr.ch-ici td { background:var(--orange-warm); font-weight:700; }
+  .ch-impr { display:none; }
+  @media print {
+    #iw-header, #iw-nav, #iw-footer, .ch-saisie, .ch-boutons { display:none !important; }
+    .ch-impr { display:block; font-size:16pt; font-weight:700; margin:0 0 4mm; }
+    body, .iw-card, .ch-table, .ch-table th, .ch-table td, .ch-note, .ch-fig p, .iw-calc-label, .iw-calc-value { font-size:14pt !important; }
+    .ch-traits { font-size:16pt !important; }
+    .iw-card { break-inside:avoid; }
+  }
+</style>
+</head>
+<body>
+  <div id="iw-header" data-subtitle="Outils atelier — Chapeau de gendarme"></div>
+  <nav id="iw-nav"></nav>
+
+  <main class="iw-container">
+    <div class="iw-card ch-saisie">
+      <div class="iw-card-title">🎩 Chapeau de gendarme — tous les tubes</div>
+      <div class="iw-alert iw-alert-info" style="margin-top:.6rem;">
+        Le tube passe par-dessus un obstacle et redescend sur sa ligne : coudes à 45°, 90°, 45°.
+        Choisissez le tube, le rayon de votre cintreuse et l’obstacle : la calculette donne la hauteur et les traits à faire
+        (méthode « trait au 0 » de la station CuivRézo 4.1).
+      </div>
+
+      <div class="ch-etape">1 · Le tube</div>
+      <div id="tubes"></div>
+      <div class="ch-famille">
+        <label class="iw-calc-label" for="autre">Autre diamètre extérieur (mm)</label>
+        <input id="autre" class="iw-input" inputmode="decimal" placeholder="ex : 25" style="max-width:12rem;" />
+      </div>
+
+      <div class="ch-etape">2 · Le rayon de cintrage, à l’axe du tube</div>
+      <input id="rayon" class="iw-input" inputmode="decimal" aria-label="Rayon de cintrage à l’axe du tube, en mm" placeholder="en mm" style="max-width:12rem;" />
+      <p class="ch-note" id="noteRayon"></p>
+
+      <div class="ch-etape">3 · L’obstacle</div>
+      <div class="ch-puces" role="group" aria-label="Ce que je connais">
+        <button type="button" class="ch-puce" id="modeD" aria-pressed="true">Je mesure d</button>
+        <button type="button" class="ch-puce" id="modeH" aria-pressed="false">Je connais H</button>
+      </div>
+      <div class="iw-grid-2" style="margin-top:.6rem;">
+        <div>
+          <label class="iw-calc-label" for="haut" id="labelHaut">d : de combien l’obstacle dépasse le dessus de mon tube (mm)</label>
+          <input id="haut" class="iw-input" inputmode="decimal" />
+        </div>
+        <div>
+          <label class="iw-calc-label" for="jeu">Jeu sous le sommet (mm)</label>
+          <input id="jeu" class="iw-input" inputmode="decimal" value="10" />
+        </div>
+      </div>
+    </div>
+
+    <div class="iw-card" style="margin-top:1rem;">
+      <div class="ch-impr" id="imprTitre"></div>
+      <div class="iw-card-title">📐 Le chapeau</div>
+      <div id="erreur" class="iw-alert iw-alert-danger" style="display:none; margin-top:.6rem;"></div>
+      <div id="resultat">
+        <div class="iw-grid-2" style="margin-top:.6rem;">
+          <div class="iw-calc good"><div class="iw-calc-label">Hauteur H, d’axe à axe</div><div class="iw-calc-value" id="outH">—</div></div>
+          <div class="iw-calc good"><div class="iw-calc-label">Les traits, depuis X (mm)</div><div class="ch-traits" id="outTraits">—</div></div>
+        </div>
+        <p class="ch-note" id="noteH"></p>
+        <p class="ch-note"><b>X</b> : l’axe de l’obstacle reporté sur le tube, mesuré depuis le bout d’où vous partez.
+          <b>S</b> marque le début du sommet ; <b>A</b> et <b>B</b>, le bord de leur coude côté sommet. Chaque trait se pose pile
+          sur le 0 du guide. Ordre : S à 90°, puis A à 45° <b>cintreuse retournée</b> (le sommet au crochet), puis B à 45°, tube retourné.</p>
+        <div class="ch-fig" id="figTube"></div>
+        <div class="ch-fig" id="figChapeau"></div>
+        <div class="iw-grid-2" style="margin-top:.8rem;">
+          <div class="iw-calc"><div class="iw-calc-label">Partie droite de la montée</div><div class="iw-calc-value" id="outRampe">—</div></div>
+          <div class="iw-calc"><div class="iw-calc-label">Milieu du sommet → milieu d’un coude de côté</div><div class="iw-calc-value" id="outMA">—</div></div>
+          <div class="iw-calc"><div class="iw-calc-label">Largeur occupée par le chapeau</div><div class="iw-calc-value" id="outEmp">—</div></div>
+          <div class="iw-calc"><div class="iw-calc-label">Tube consommé en plus de la ligne droite</div><div class="iw-calc-value" id="outConso">—</div></div>
+        </div>
+      </div>
+      <p class="ch-note">Calcul à la fibre neutre (rayon à l’axe du tube), arrondi au mm. Le 0 du guide et le rayon réel
+        changent d’une cintreuse à l’autre : faites un chapeau d’essai sur une chute avant la pièce.</p>
+      <div class="ch-boutons" style="display:flex; gap:.6rem; flex-wrap:wrap; margin-top:.8rem;">
+        <a class="iw-btn" href="index.html">⬅️ Retour outils</a>
+        <a class="iw-btn" href="../../cuivrezo/stations/4-1/">🎩 La méthode pas à pas (station 4.1)</a>
+        <button type="button" class="iw-btn iw-btn-primary" id="copy">Copier les résultats</button>
+      </div>
+    </div>
+
+    <div class="iw-card" style="margin-top:1rem;">
+      <div class="iw-card-title">📋 Le tableau de ce tube</div>
+      <p class="ch-note" id="titreTableau"></p>
+      <div style="overflow-x:auto;"><table class="ch-table" id="tableau"></table></div>
+      <p class="ch-note">Je mesure d au mm et je prends sa ligne. Les traits se mesurent depuis X.</p>
+      <div class="ch-boutons" style="margin-top:.8rem;">
+        <button type="button" class="iw-btn iw-btn-primary" id="imprimer">🖨️ Imprimer le chapeau et le tableau</button>
+      </div>
+    </div>
+  </main>
+
+  <footer id="iw-footer"></footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  const { parseNumber, fmt, copyText, setText, setHTML } = window.iwTools;
+  const RAD = Math.PI / 180, T22 = Math.tan(22.5 * RAD);
+
+  /* LES TUBES : diamètre extérieur (mm) et rayon de cintrage courant (mm), avec sa source dans le fonds de F. Henninot
+     (relevé du 12/10/2026, CLAUDE-ESPACE-TRAVAIL/CALCULETTE-CHAPEAU-2026-10-12/RAYONS-SOURCES.md).
+     r: null = pas de valeur sûre dans nos sources : l'utilisateur entre celui de sa cintreuse. */
+  const S_ITE = 'cintreuse à levier ITE 364, rayon à l’axe — fiche technique du fonds', S_PIN = 'pince à cintrer Virax 2514 — fiche du fonds (axe ou forme : non précisé)', S_VAC = 'cintreuse hydraulique Virax, rayon sur la fibre neutre — fiche « Descriptif de la cintreuse type Virax » du fonds';
+  const TUBES = [
+    { famille: 'Frigoriste — cuivre, pouces', tubes: [
+      { nom: '1/4″', d: 6.35, r: 14.3, src: S_ITE + ' (9/16″)' }, { nom: '5/16″', d: 7.94, r: 17.5, src: S_ITE + ' (11/16″)' }, { nom: '3/8″', d: 9.52, r: 23.8, src: S_ITE + ' (15/16″)' },
+      { nom: '1/2″', d: 12.70, r: 38.1, src: S_ITE + ' (1″1/2)' }, { nom: '5/8″', d: 15.88, r: 57.2, src: S_ITE + ' (2″1/4)' }, { nom: '3/4″', d: 19.05, r: 76.2, src: S_ITE + ' (3″)' },
+      { nom: '7/8″', d: 22.22, r: null } ] },
+    { famille: 'Plombier — cuivre, mm', tubes: [
+      { nom: '8', d: 8, r: 35, src: S_PIN }, { nom: '10', d: 10, r: 40, src: S_PIN }, { nom: '12', d: 12, r: 45, src: S_PIN }, { nom: '14', d: 14, r: 50, src: S_PIN },
+      { nom: '16', d: 16, r: 60, src: S_PIN }, { nom: '18', d: 18, r: null }, { nom: '22', d: 22, r: null } ] },
+    { famille: 'Multicouche', tubes: [
+      { nom: '16', d: 16, r: null }, { nom: '20', d: 20, r: null }, { nom: '26', d: 26, r: null }, { nom: '32', d: 32, r: null } ] },
+    { famille: 'Tuyauteur — acier', tubes: [
+      { nom: '3/8″ (17,2)', d: 17.2, r: 40, src: S_VAC }, { nom: '1/2″ (21,3)', d: 21.3, r: 50, src: S_VAC }, { nom: '3/4″ (26,9)', d: 26.9, r: 65, src: S_VAC },
+      { nom: '1″ (33,7)', d: 33.7, r: 115, src: S_VAC }, { nom: '1″1/4 (42,4)', d: 42.4, r: 165, src: S_VAC }, { nom: '1″1/2 (48,3)', d: 48.3, r: 180, src: S_VAC },
+      { nom: '2″ (60,3)', d: 60.3, r: 240, src: S_VAC } ] },
+  ];
+
+  /* LE CHAPEAU 45°-90°-45° : même calcul que la station CuivRézo 4.1 (cuivrezo/moteur/figures-pieces.js), fibre neutre.
+     Hp = H + R(√2 − 1) : sommet « pointu » ; rampe = Hp·√2 − R·tan 22,5° − R : partie droite de la montée ;
+     MA = R·π/4 + rampe + R·π/8 ; X → M = (tube utilisé − largeur occupée) / 2.
+     Méthode « trait au 0 », depuis X (négatif = côté départ) : S = DÉBUT du sommet, côté départ ; A et B = BORD du coude
+     CÔTÉ SOMMET (12/10 : A se cintre cintreuse retournée, le sommet au crochet ; sinon le 90° bloque la cintreuse). */
+  function chapeau(H, R) {
+    const hp = H + R * (Math.SQRT2 - 1);
+    const rampe = hp * Math.SQRT2 - R * T22 - R;
+    const dev = 2 * (R * Math.PI / 4) + R * Math.PI / 2 + 2 * rampe;
+    const emprise = 2 * (hp + R * T22);
+    const xm = (dev - emprise) / 2, ma = R * Math.PI / 4 + rampe + R * Math.PI / 8;
+    return { H, R, rampe, dev, emprise, xm, ma,
+      S: Math.round(xm - R * Math.PI / 4), A: Math.round(xm - ma + R * Math.PI / 8), B: Math.round(xm + ma - R * Math.PI / 8) };
+  }
+  const hMiniRayon = R => R * (2 - Math.SQRT2);        /* en dessous, la montée n'a plus de partie droite */
+  const arr5 = v => Math.ceil(v / 5 - 1e-9) * 5;
+  /* la ligne du tableau : côté départ (A, et S s'il tombe avant X), autre côté (B, et S s'il tombe après X) */
+  function cotes(c) {
+    const dep = ['A ' + -c.A], aut = [];
+    if (c.S < 0) dep.push('S ' + -c.S); else if (c.S === 0) dep.push('S sur X'); else aut.push('S ' + c.S);
+    aut.push('B ' + c.B);
+    return [dep.join(' · '), aut.join(' · ')];
+  }
+
+  /* ---------- les dessins (SVG calculés, à l'échelle de chaque figure) ---------- */
+  function trace(x0, y0, cap, segs) {                  /* repris de figures-pieces.js : ['L', l] | ['A', angle°, rayon] */
+    let x = x0, y = 0, h = cap * RAD; const sy = v => y0 - v;
+    let d = `M${x.toFixed(1)} ${sy(y).toFixed(1)}`;
+    for (const s of segs) {
+      if (s[0] === 'L') { x += s[1] * Math.cos(h); y += s[1] * Math.sin(h); d += ` L${x.toFixed(1)} ${sy(y).toFixed(1)}`; }
+      else {
+        const t = s[1] * RAD, r = s[2]; let cx, cy, ex, ey;
+        if (t > 0) { cx = x - r * Math.sin(h); cy = y + r * Math.cos(h); ex = cx + r * Math.sin(h + t); ey = cy - r * Math.cos(h + t); }
+        else { cx = x + r * Math.sin(h); cy = y - r * Math.cos(h); ex = cx - r * Math.sin(h + t); ey = cy + r * Math.cos(h + t); }
+        d += ` A${r.toFixed(1)} ${r.toFixed(1)} 0 0 ${t > 0 ? 0 : 1} ${ex.toFixed(1)} ${sy(ey).toFixed(1)}`;
+        x = ex; y = ey; h += t;
+      }
+    }
+    return d;
+  }
+  const tubeSvg = (d, e) => `<path d="${d}" fill="none" stroke="#6e3a14" stroke-width="${e}" stroke-linejoin="round"/>
+    <path d="${d}" fill="none" stroke="#c77a3a" stroke-width="${Math.max(e - 5, 2)}" stroke-linejoin="round"/>`;
+  const FL = `<defs><marker id="fl" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10z" fill="#10233c"/></marker></defs>`;
+  const cote = (x1, x2, y, txt) => {
+    const court = Math.abs(x2 - x1) < 70, xt = court ? Math.min(x1, x2) - 10 : (x1 + x2) / 2;
+    return `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#10233c" stroke-width="2.5" marker-start="url(#fl)" marker-end="url(#fl)"/>
+      <text x="${xt}" y="${y - 10}" text-anchor="${court ? 'end' : 'middle'}" font-size="30" font-weight="700" fill="#10233c">${txt}</text>`;
+  };
+
+  /* figure 1 : le tube droit, les traits depuis X */
+  function figureTube(c, diam) {
+    const marge = Math.max(15, 0.25 * (c.B - c.A)), debut = c.A - marge, long = c.B - c.A + 2 * marge;
+    const s = 680 / long, px = p => 60 + (p - debut) * s, e = Math.min(Math.max(diam * s, 10), 40), y = 110;
+    const tick = (p, l) => `<line x1="${px(p)}" y1="${y - e / 2 - 16}" x2="${px(p)}" y2="${y + e / 2 + 16}" stroke="#10233c" stroke-width="5"/>
+      <text x="${px(p)}" y="${y - e / 2 - 26}" text-anchor="middle" font-size="34" font-weight="800" fill="#10233c">${l}</text>`;
+    const r1 = y + e / 2 + 62, r2 = r1 + (c.S !== 0 ? 56 : 0), bas = r2 + 70;
+    return `<svg viewBox="0 0 800 ${bas}" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif" role="img"
+      aria-label="Le tube droit avant cintrage : A à ${-c.A} mm côté départ, S à ${Math.abs(c.S)} mm, B à ${c.B} mm de l'autre côté de X">${FL}
+      <rect x="${px(debut)}" y="${y - e / 2}" width="${long * s}" height="${e}" rx="3" fill="#c77a3a" stroke="#6e3a14" stroke-width="2.5"/>
+      <line x1="${px(0)}" y1="${y - e / 2 - 10}" x2="${px(0)}" y2="${bas - 40}" stroke="#56657a" stroke-width="3" stroke-dasharray="8 6"/>
+      <text x="${px(0)}" y="${bas - 10}" text-anchor="middle" font-size="32" font-weight="800" fill="#56657a">X</text>
+      ${tick(c.A, 'A')}${tick(c.S, 'S')}${tick(c.B, 'B')}
+      ${c.S !== 0 ? cote(px(Math.min(c.S, 0)), px(Math.max(c.S, 0)), r1, Math.abs(c.S)) : ''}
+      ${cote(px(c.A), px(0), r2, -c.A)}${cote(px(0), px(c.B), r2, c.B)}
+      <text x="${px(debut)}" y="${bas - 10}" font-size="26" fill="#425466">← côté départ</text>
+      <text x="${px(debut + long)}" y="${bas - 10}" text-anchor="end" font-size="26" fill="#425466">autre côté →</text>
+    </svg>`;
+  }
+
+  /* figure 2 : le chapeau cintré, à l'échelle, et sa hauteur H */
+  function figureChapeau(c, diam) {
+    const droit = 0.3 * c.emprise, s = 560 / (c.emprise + 2 * droit), e = Math.min(Math.max(diam * s, 8), 40);
+    const haut = c.H * s, y = 40 + e / 2 + haut + 10, x0 = 40;
+    const d = trace(x0, y, 0, [['L', droit * s], ['A', 45, c.R * s], ['L', c.rampe * s], ['A', -90, c.R * s], ['L', c.rampe * s], ['A', 45, c.R * s], ['L', droit * s]]);
+    const xFin = x0 + (c.emprise + 2 * droit) * s, xCote = xFin + 40, xSommet = x0 + (droit + c.emprise / 2) * s, ySommet = y - haut;
+    return `<svg viewBox="0 0 800 ${y + e / 2 + 30}" xmlns="http://www.w3.org/2000/svg" font-family="Arial, sans-serif" role="img"
+      aria-label="Le chapeau cintré, à l'échelle : hauteur ${c.H} mm d'axe à axe">${FL}
+      ${tubeSvg(d, e)}
+      <line x1="${xSommet}" y1="${ySommet}" x2="${xCote + 10}" y2="${ySommet}" stroke="#56657a" stroke-width="2" stroke-dasharray="6 5"/>
+      <line x1="${xFin}" y1="${y}" x2="${xCote + 10}" y2="${y}" stroke="#56657a" stroke-width="2" stroke-dasharray="6 5"/>
+      <line x1="${xCote}" y1="${y}" x2="${xCote}" y2="${ySommet}" stroke="#10233c" stroke-width="2.5" marker-start="url(#fl)" marker-end="url(#fl)"/>
+      <text x="${xCote + 18}" y="${(y + ySommet) / 2 + 11}" font-size="32" font-weight="800" fill="#10233c">H ${c.H}</text>
+    </svg>`;
+  }
+
+  /* ---------- l'écran ---------- */
+  let tube = TUBES[0].tubes[0], modeH = false;
+  const $ = id => document.getElementById(id);
+
+  setHTML('tubes', TUBES.map((f, i) => `<div class="ch-famille" role="group" aria-label="${f.famille}"><span>${f.famille}</span><div class="ch-puces">${
+    f.tubes.map((t, j) => `<button type="button" class="ch-puce" data-t="${i}.${j}" aria-pressed="false">${t.nom}</button>`).join('')}</div></div>`).join(''));
+
+  function choisirTube(t, bouton) {
+    tube = t;
+    document.querySelectorAll('.ch-puce[data-t]').forEach(b => b.setAttribute('aria-pressed', b === bouton ? 'true' : 'false'));
+    if (bouton) $('autre').value = '';
+    $('rayon').value = t.r ? String(t.r).replace('.', ',') : '';
+    calculer();
+  }
+  document.querySelectorAll('.ch-puce[data-t]').forEach(b => b.addEventListener('click', () => {
+    const [i, j] = b.dataset.t.split('.').map(Number); choisirTube(TUBES[i].tubes[j], b);
+  }));
+  $('autre').addEventListener('input', () => {
+    const d = parseNumber($('autre').value);
+    if (Number.isFinite(d) && d > 0) choisirTube({ nom: fmt(d, 1) + ' mm', d, r: null }, null);
+  });
+  function choisirMode(h) {
+    modeH = h;
+    $('modeD').setAttribute('aria-pressed', h ? 'false' : 'true'); $('modeH').setAttribute('aria-pressed', h ? 'true' : 'false');
+    setText('labelHaut', h ? 'H : hauteur du chapeau, d’axe à axe (mm)' : 'd : de combien l’obstacle dépasse le dessus de mon tube (mm)');
+    calculer();
+  }
+  $('modeD').addEventListener('click', () => choisirMode(false));
+  $('modeH').addEventListener('click', () => choisirMode(true));
+  ['rayon', 'haut', 'jeu'].forEach(id => $(id).addEventListener('input', calculer));
+
+  let dernier = null;
+  function calculer() {
+    const R = parseNumber($('rayon').value), v = parseNumber($('haut').value), jeu = parseNumber($('jeu').value), diam = tube.d;
+    setHTML('noteRayon', tube.r
+      ? `Rayon courant proposé pour ce tube : ${fmt(tube.r, 1)} mm (${tube.src}). Le vôtre se lit sur la forme de la cintreuse ; corrigez-le s’il diffère.`
+      : `Entrez le rayon de votre cintreuse, à l’axe du tube : souvent gravé sur la forme.`);
+    dernier = null;
+    $('erreur').style.display = 'none'; $('resultat').style.display = '';
+    const faute = m => { $('erreur').textContent = m; $('erreur').style.display = ''; $('resultat').style.display = 'none'; };
+    if (!(R > 0)) { faute('Il manque le rayon de cintrage (en mm).'); tableau(null); return; }
+    if (!(jeu >= 0)) { faute('Le jeu sous le sommet doit être un nombre (10 mm d’habitude).'); tableau(null); return; }
+    tableau(R, jeu, diam);
+    if (!(v >= 0)) { faute(modeH ? 'Entrez la hauteur H (mm).' : 'Entrez d, mesuré au mm.'); return; }
+    const hRayon = hMiniRayon(R);
+    let H, note = '';
+    if (modeH) {
+      H = v;
+      if (H < hRayon) { faute(`Impossible avec ce rayon : à ${fmt(H, 0)} mm, la montée n’a plus de partie droite. Hauteur mini pour un rayon de ${fmt(R, 1)} mm : ${Math.ceil(hRayon)} mm.`); return; }
+      if (H < diam + jeu) note = `Attention : H est plus petit que le diamètre + le jeu (${fmt(diam + jeu, 1)} mm).`;
+    } else {
+      const hMini = v + jeu + diam;
+      H = arr5(Math.max(hMini, hRayon));
+      note = `H mini = d + jeu + diamètre = ${fmt(hMini, 1)} mm, arrondi aux 5 mm du dessus.`;
+      if (hRayon > hMini) note += ` Relevé à ${H} : avec ce rayon, un chapeau plus bas est impossible.`;
+    }
+    const c = chapeau(H, R), [dep, aut] = cotes(c);
+    dernier = { c, R, jeu, diam, dep, aut };
+    setText('outH', fmt(H, 1) + ' mm');
+    setHTML('outTraits', `côté départ : ${dep}<br>autre côté : ${aut}`);
+    setText('noteH', note);
+    setText('outRampe', fmt(Math.round(c.rampe), 0) + ' mm');
+    setText('outMA', fmt(Math.round(c.ma), 0) + ' mm');
+    setText('outEmp', fmt(Math.round(c.emprise), 0) + ' mm');
+    setText('outConso', fmt(Math.round(c.dev - c.emprise), 0) + ' mm');
+    setHTML('figTube', figureTube(c, diam) + '<p>Le tube droit, avant de cintrer : les traits depuis X.</p>');
+    setHTML('figChapeau', figureChapeau(c, diam) + '<p>Le chapeau cintré, à l’échelle de la figure.</p>');
+    setText('imprTitre', `Chapeau de gendarme — tube ${tube.nom}${/mm|″/.test(tube.nom) ? '' : ' mm'} · rayon ${fmt(R, 1)} mm · jeu ${fmt(jeu, 0)} mm`);
+    /* la ligne du chapeau calculé, mise en valeur dans le tableau */
+    document.querySelectorAll('#tableau tr[data-h]').forEach(tr => tr.classList.toggle('ch-ici', Number(tr.dataset.h) === H));
+  }
+
+  /* le tableau du tube : une ligne par hauteur, de 5 en 5, à partir de la plus basse possible */
+  function tableau(R, jeu, diam) {
+    if (!R) { setHTML('tableau', ''); setText('titreTableau', 'Entrez un rayon pour obtenir le tableau.'); return; }
+    let h = arr5(Math.max(jeu + diam, hMiniRayon(R))), dMin = 0, lignes = '';
+    for (let n = 0; n < 8; n++, h += 5) {
+      const dMax = Math.floor(h - jeu - diam + 1e-9), [dep, aut] = cotes(chapeau(h, R));
+      if (dMax < dMin) continue;
+      lignes += `<tr data-h="${h}"><td>${dMin} à ${dMax}</td><td>${h}</td><td>${dep}</td><td>${aut}</td></tr>`;
+      dMin = dMax + 1;
+    }
+    setText('titreTableau', `Tube ${tube.nom}${/mm|″/.test(tube.nom) ? '' : ' mm'} (Ø ${fmt(diam, 2)} mm) · rayon ${fmt(R, 1)} mm · jeu ${fmt(jeu, 0)} mm`);
+    setHTML('tableau', `<tr><th>d (mm)</th><th>H (mm)</th><th>côté départ (mm)</th><th>autre côté (mm)</th></tr>${lignes}`);
+  }
+  $('imprimer').addEventListener('click', () => window.print());
+  $('copy').addEventListener('click', async function () {
+    if (!dernier) return;
+    const { c, R, jeu, diam, dep, aut } = dernier;
+    await copyText(`Chapeau de gendarme — tube Ø ${fmt(diam, 2)} mm, rayon ${fmt(R, 1)} mm, jeu ${fmt(jeu, 0)} mm
+H = ${c.H} mm (axe à axe)
+Traits depuis X — côté départ : ${dep} ; autre côté : ${aut}
+Partie droite de la montée : ${Math.round(c.rampe)} mm · largeur occupée : ${Math.round(c.emprise)} mm · tube consommé en plus : ${Math.round(c.dev - c.emprise)} mm`);
+    this.textContent = '✅ Copié'; setTimeout(() => this.textContent = 'Copier les résultats', 900);
+  });
+
+  /* au départ : l'exemple de la planche du TP (tube 1/4″, cintreuse 9/16″ = 14,3 mm, d = 7) */
+  $('haut').value = '7';
+  choisirTube(TUBES[0].tubes[0], document.querySelector('.ch-puce[data-t="0.0"]'));
+  if (!$('rayon').value) { $('rayon').value = '14,3'; calculer(); }
+});
+</script>
+</body>
+</html>
