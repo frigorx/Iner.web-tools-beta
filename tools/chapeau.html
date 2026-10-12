@@ -27,7 +27,7 @@
   .ch-table th, .ch-table td { border:1px solid #c9d3df; padding:.45rem .5rem; text-align:center; }
   .ch-table th { background:var(--navy); color:#fff; }
   .ch-table tr.ch-ici td { background:var(--orange-warm); font-weight:700; }
-  .ch-impr { display:none; }
+  .ch-impr { display:block; font-weight:700; color:var(--navy); margin:.5rem 0 0; line-height:1.45; }
   @media print {
     #iw-header, #iw-nav, #iw-footer, .ch-saisie, .ch-boutons { display:none !important; }
     .ch-impr { display:block; font-size:16pt; font-weight:700; margin:0 0 4mm; }
@@ -150,11 +150,14 @@ document.addEventListener('DOMContentLoaded', function(){
   /* LES TUBES : diamètre extérieur (mm) et rayon de cintrage courant (mm), avec sa source dans le fonds de F. Henninot
      (relevé du 12/10/2026, CLAUDE-ESPACE-TRAVAIL/CALCULETTE-CHAPEAU-2026-10-12/RAYONS-SOURCES.md).
      r: null = pas de valeur sûre dans nos sources : l'utilisateur entre celui de sa cintreuse. */
-  const S_ITE = 'cintreuse à levier ITE 364, rayon à l’axe — fiche technique du fonds', S_PIN = 'pince à cintrer Virax 2514 — fiche du fonds (axe ou forme : non précisé)', S_VAC = 'cintreuse hydraulique Virax, rayon sur la fibre neutre — fiche « Descriptif de la cintreuse type Virax » du fonds';
+  /* la référence de l'outil, citée PARTOUT où le rayon sert (Franck, 12/10 : « préciser les références à chaque fois ») */
+  const S_ITE = f => `cintreuse à levier ITE 364-FHB, forme ${f} — rayon à l’axe (fiche technique ITE 364-FHB)`;
+  const S_PIN = 'pince à cintrer Virax 2514 — rayon de la fiche Virax « cintreuse millimètres » (à l’axe ou à la forme : non précisé)';
+  const S_VAC = 'cintreuse hydraulique Virax — rayon sur la fibre neutre (descriptif « cintreuse à tube type Virax » de l’atelier)';
   const TUBES = [
     { famille: 'Frigoriste — cuivre, pouces', tubes: [
-      { nom: '1/4″', d: 6.35, r: 14.3, src: S_ITE + ' (9/16″)' }, { nom: '5/16″', d: 7.94, r: 17.5, src: S_ITE + ' (11/16″)' }, { nom: '3/8″', d: 9.52, r: 23.8, src: S_ITE + ' (15/16″)' },
-      { nom: '1/2″', d: 12.70, r: 38.1, src: S_ITE + ' (1″1/2)' }, { nom: '5/8″', d: 15.88, r: 57.2, src: S_ITE + ' (2″1/4)' }, { nom: '3/4″', d: 19.05, r: 76.2, src: S_ITE + ' (3″)' },
+      { nom: '1/4″', d: 6.35, r: 14.3, src: S_ITE('9/16″') }, { nom: '5/16″', d: 7.94, r: 17.5, src: S_ITE('11/16″') }, { nom: '3/8″', d: 9.52, r: 23.8, src: S_ITE('15/16″') },
+      { nom: '1/2″', d: 12.70, r: 38.1, src: S_ITE('1″1/2') }, { nom: '5/8″', d: 15.88, r: 57.2, src: S_ITE('2″1/4') }, { nom: '3/4″', d: 19.05, r: 76.2, src: S_ITE('3″') },
       { nom: '7/8″', d: 22.22, r: null } ] },
     { famille: 'Plombier — cuivre, mm', tubes: [
       { nom: '8', d: 8, r: 35, src: S_PIN }, { nom: '10', d: 10, r: 40, src: S_PIN }, { nom: '12', d: 12, r: 45, src: S_PIN }, { nom: '14', d: 14, r: 50, src: S_PIN },
@@ -337,12 +340,15 @@ document.addEventListener('DOMContentLoaded', function(){
   $('pose').addEventListener('click', () => { colliers = false; presse('colliers', 'pose', false); $('blocAxe').style.display = 'none'; calculer(); });
   ['rayon', 'hObs', 'lObs', 'aTube'].forEach(id => $(id).addEventListener('input', calculer));
 
+  const nomTube = () => tube.nom + (/mm|″/.test(tube.nom) ? '' : ' mm');
+  /* la référence du rayon employé : l'outil cité, ou le rayon saisi par l'utilisateur */
+  const refCintreuse = R => tube.r && Math.abs(R - tube.r) < 0.05 ? tube.src : 'rayon saisi : votre cintreuse (notez sa marque, son modèle et sa forme)';
   function calculer() {
     const R = parseNumber($('rayon').value), diam = tube.d;
     const ob = { forme, h: parseNumber($('hObs').value), l: parseNumber($('lObs').value) };
     const aT = colliers ? parseNumber($('aTube').value) : diam / 2;
     setHTML('noteRayon', tube.r
-      ? `Proposé pour ce tube : ${fmt(tube.r, 1)} mm (${tube.src}). Si votre cintreuse porte un autre rayon, corrigez-le.`
+      ? `Proposé pour ce tube : ${fmt(tube.r, 1)} mm — ${tube.src}. Si votre cintreuse porte un autre rayon, corrigez-le.`
       : `Pas de rayon courant dans nos sources pour ce tube : entrez celui de votre cintreuse.`);
     setHTML('figMesures', figureMesures(forme, colliers));
     dernier = null;
@@ -369,7 +375,7 @@ document.addEventListener('DOMContentLoaded', function(){
     setText('outConso', fmt(Math.round(c.dev - c.emprise), 0) + ' mm');
     setHTML('figChapeau', figureChapeau(c, diam, aT, ob) + '<p>Le chapeau au-dessus de l’obstacle, à l’échelle de la figure.</p>');
     setHTML('figTube', figureTube(c, diam) + '<p>Le tube droit, avant de cintrer : les traits depuis X.</p>');
-    setText('imprTitre', `Chapeau de gendarme — tube ${tube.nom}${/mm|″/.test(tube.nom) ? '' : ' mm'} · rayon ${fmt(R, 1)} mm · obstacle ${forme === 'rond' ? 'Ø' : 'largeur'} ${fmt(ob.l, 0)}, dessus à ${fmt(ob.h, 0)} mm`);
+    setText('imprTitre', `Calculé pour : tube ${nomTube()} (Ø ${fmt(diam, 2)} mm) · rayon ${fmt(R, 1)} mm, ${refCintreuse(R)} · obstacle ${forme === 'rond' ? 'rond Ø' : 'plat, largeur'} ${fmt(ob.l, 0)} mm, dessus à ${fmt(ob.h, 0)} mm du support`);
     document.querySelectorAll('#tableau tr[data-h]').forEach(tr => tr.classList.toggle('ch-ici', Number(tr.dataset.h) === c.H));
   }
 
@@ -383,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function(){
       lignes += `<tr data-h="${h}"><td>${dMin} à ${dMax}</td><td>${h}</td><td>${dep}</td><td>${aut}</td></tr>`;
       dMin = dMax + 1;
     }
-    setText('titreTableau', `Tube ${tube.nom}${/mm|″/.test(tube.nom) ? '' : ' mm'} (Ø ${fmt(diam, 2)} mm) · rayon ${fmt(R, 1)} mm · jeu ${JEU} mm`);
+    setText('titreTableau', `Tube ${nomTube()} (Ø ${fmt(diam, 2)} mm) · rayon ${fmt(R, 1)} mm, ${refCintreuse(R)} · jeu ${JEU} mm`);
     setHTML('tableau', `<tr><th>d (mm)</th><th>H (mm)</th><th>côté départ (mm)</th><th>autre côté (mm)</th></tr>${lignes}`);
   }
 
@@ -391,7 +397,7 @@ document.addEventListener('DOMContentLoaded', function(){
   $('copy').addEventListener('click', async function () {
     if (!dernier) return;
     const { c, R, diam, aT, ob, dep, aut } = dernier;
-    await copyText(`Chapeau de gendarme — tube Ø ${fmt(diam, 2)} mm, rayon ${fmt(R, 1)} mm
+    await copyText(`Chapeau de gendarme — tube ${nomTube()} (Ø ${fmt(diam, 2)} mm), rayon ${fmt(R, 1)} mm : ${refCintreuse(R)}
 Obstacle ${ob.forme === 'rond' ? 'rond Ø' : 'plat, largeur'} ${fmt(ob.l, 0)} mm, dessus à ${fmt(ob.h, 0)} mm du support ; axe du tube à ${fmt(aT, 1)} mm
 H = ${c.H} mm (axe à axe) ; jeu au-dessus de l’obstacle : ${fmt(c.jeu, 0)} mm
 Traits depuis X — côté départ : ${dep} ; autre côté : ${aut}
